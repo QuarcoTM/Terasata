@@ -126,7 +126,7 @@
       });
     });
     // Slanted original-name watermark (not an invented image-based brand logo).
-    ctx.save();ctx.translate(W/2,1504);ctx.rotate(-.24);ctx.globalAlpha=.31;ctx.fillStyle='#6b666e';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='italic 76px Georgia, serif';ctx.fillText('Ресторант Терасата',0,0);ctx.restore();
+    ctx.save();ctx.translate(W/2,1350);ctx.rotate(-.18);ctx.globalAlpha=.52;ctx.fillStyle='#6b666e';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='italic 96px Georgia, serif';ctx.fillText('Ресторант Терасата',0,0);ctx.restore();
     // Footer: four lines as in the supplied flyer, editable PRICES only.
     ctx.fillStyle=INK;ctx.textAlign='center';
     const footerLines=[

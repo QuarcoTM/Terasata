@@ -394,7 +394,7 @@ p {line-height:1.6}
 /* Warm paper surface, subtle botanical side ornaments */
 .ornamental {position:relative;overflow:hidden}
 .ornamental::before,.ornamental::after {content:none}
-.ornamental-left::before,.ornamental-right::after {content:"";position:absolute;width:170px;height:245px;background:url('leaf-ornament.svg') center/contain no-repeat;opacity:.43;pointer-events:none;z-index:0}
+.ornamental-left::before,.ornamental-right::after {content:"";position:absolute;width:170px;height:245px;background:url('../images/leaf-ornament.svg') center/contain no-repeat;opacity:.43;pointer-events:none;z-index:0}
 .ornamental-left::before {left:-55px;top:34px}
 .ornamental-right::after {right:-58px;top:10px;transform:scaleX(-1)}
 .ornamental > .container,.ornamental > .events-split {position:relative;z-index:1}
@@ -584,7 +584,7 @@ p {line-height:1.6}
 
 /* Text-only fourth space — no invented upper-terrace photograph */
 .space-description-only {background:linear-gradient(150deg,#efe4d0,#f9f1e3)}
-.space-caption-top {height:205px;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;background:url('leaf-ornament.svg') no-repeat right -20px top -22px / 145px auto}
+.space-caption-top {height:205px;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;background:url('../images/leaf-ornament.svg') no-repeat right -20px top -22px / 145px auto}
 .space-caption-top span {font-size:12px;color:#95773c;font-weight:700;letter-spacing:.17em}
 .space-description-only p {padding:0 17px 19px;color:var(--muted);font-size:12px;margin:0}
 @media(max-width:760px){.space-caption-top{height:160px}}

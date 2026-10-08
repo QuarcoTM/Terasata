@@ -2,17 +2,18 @@
 (() => {
   'use strict';
   const d = window.TERASATA_CONTENT;
+  const mediaSrc=src=>{const v=String(src||'');return /^(?:terrace|main-hall|celebration-table|second-floor|bar)\.webp(?:\?.*)?$/i.test(v)?'assets/images/'+v:v;};
   if (!d) return;
   const $ = (s, parent=document) => parent.querySelector(s);
   const esc = (s='') => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const page = document.body.dataset.page || 'home';
   const nav = [
-    ['home', 'Начало', 'index.html'],
-    ['menu', 'Меню', 'menu.html'],
-    ['lunch', 'Обедно меню', 'obedno-menu.html'],
-    ['events', 'Празненства и събития', 'praznenstva.html'],
-    ['gallery', 'Галерия', 'galeria.html'],
-    ['contacts', 'Контакти', 'kontakti.html']
+    ['home', 'Начало', './'],
+    ['menu', 'Меню', 'menu/'],
+    ['lunch', 'Обедно меню', 'obedno-menu/'],
+    ['events', 'Празненства и събития', 'praznenstva/'],
+    ['gallery', 'Галерия', 'galeria/'],
+    ['contacts', 'Контакти', 'kontakti/']
   ];
 
   // Temporary restaurant name in typography only. NOT a recreation of the logo.
@@ -20,7 +21,7 @@
   if (header) header.innerHTML = `
     <div class="header-shell container">
       <div class="brand">
-        <a class="brand-home" href="index.html" aria-label="Терасата — начало"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></a>
+        <a class="brand-home" href="./" aria-label="Терасата — начало"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></a>
         <a class="brand-phone" href="${d.phoneHref}" aria-label="Обади се на ${esc(d.phoneDisplay)}">${phoneIcon()}<span>${esc(d.phoneDisplay)}</span></a>
       </div>
       <nav class="desktop-nav" aria-label="Основна навигация">
@@ -64,7 +65,7 @@
 
   // The seven categories are taken from the supplied printed menu; no drinks/desserts.
   const cats=$('#category-grid');
-  if(cats) cats.innerHTML=d.categories.map((c)=>`<a class="category-tile" href="menu.html?cat=${encodeURIComponent(c.id)}"><span class="category-icon" aria-hidden="true">${categoryIcon(c.id)}</span><span class="tile-name">${esc(c.name)}</span><span class="category-arrow" aria-hidden="true">→</span></a>`).join('');
+  if(cats) cats.innerHTML=d.categories.map((c)=>`<a class="category-tile" href="menu/?cat=${encodeURIComponent(c.id)}"><span class="category-icon" aria-hidden="true">${categoryIcon(c.id)}</span><span class="tile-name">${esc(c.name)}</span><span class="category-arrow" aria-hidden="true">→</span></a>`).join('');
 
   const currentMenuDate = () => {
     const now = new Date();
@@ -102,7 +103,7 @@
       display.innerHTML=`<div class="lunch-full-header"><p class="eyebrow">${previewSelected&&!dayData.published?'ПРЕГЛЕД НА ЧЕРНОВА':'АКТУАЛНО МЕНЮ'}</p><h2>${esc(lunchDateLabel)}</h2><p>Поръчки за вкъщи по телефона до 11:30 ч.</p></div>${renderLunch()}`;
     } else {
       const label=isWeekday?'За днес няма публикувано обедно меню.':'Обедно меню се предлага от понеделник до петък.';
-      display.innerHTML=`<div class="empty-state"><span class="empty-symbol" aria-hidden="true">✳</span><h2>${label}</h2><p>Можете да разгледате постоянното ни меню.</p><a class="btn btn-gold" href="menu.html">Разгледай основното меню <span aria-hidden="true">↗</span></a></div>`;
+      display.innerHTML=`<div class="empty-state"><span class="empty-symbol" aria-hidden="true">✳</span><h2>${label}</h2><p>Можете да разгледате постоянното ни меню.</p><a class="btn btn-gold" href="menu/">Разгледай основното меню <span aria-hidden="true">↗</span></a></div>`;
     }
   }
 
@@ -138,7 +139,7 @@
     const categories=['Всички',...new Set(all.map(img=>img.category).filter(Boolean))];
     const show=(filter='Всички')=>{
       const visible=filter==='Всички'?all:all.filter(v=>v.category===filter);
-      galleryContainer.innerHTML=visible.length?visible.map((g)=>`<button type="button" class="gallery-item" data-src="${esc(g.src)}" data-alt="${esc(g.alt)}" aria-label="Отвори снимка: ${esc(g.title)}"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy"><span>${esc(g.title)}</span></button>`).join(''):'<p class="empty-state gallery-empty">Няма снимки в тази категория.</p>';
+      galleryContainer.innerHTML=visible.length?visible.map((g)=>`<button type="button" class="gallery-item" data-src="${esc(mediaSrc(g.src))}" data-alt="${esc(g.alt)}" aria-label="Отвори снимка: ${esc(g.title)}"><img src="${esc(mediaSrc(g.src))}" alt="${esc(g.alt)}" loading="lazy"><span>${esc(g.title)}</span></button>`).join(''):'<p class="empty-state gallery-empty">Няма снимки в тази категория.</p>';
       if(galleryFilters)[...galleryFilters.querySelectorAll('button')].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===filter)));
     };
     if(galleryFilters){
@@ -158,7 +159,7 @@
   }
 
   const preview=$('#gallery-preview');
-  if(preview){const shots=Array.isArray(d.gallery)?d.gallery:[];preview.innerHTML=shots.slice(0,5).map(g=>`<a href="galeria.html" class="preview-photo"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy"></a>`).join('');if(!shots.length){const gallerySection=preview.closest('section');if(gallerySection)gallerySection.hidden=true;}}
+  if(preview){const shots=Array.isArray(d.gallery)?d.gallery:[];preview.innerHTML=shots.slice(0,5).map(g=>`<a href="galeria/" class="preview-photo"><img src="${esc(mediaSrc(g.src))}" alt="${esc(g.alt)}" loading="lazy"></a>`).join('');if(!shots.length){const gallerySection=preview.closest('section');if(gallerySection)gallerySection.hidden=true;}}
 
   const news=$('#news-section');
   if(news){
@@ -166,7 +167,7 @@
     const localPreview=window.TERASATA_PREVIEW_ACTIVE===true;
     const valid=(Array.isArray(d.news)?d.news:[]).filter(item=>localPreview||item.published && (!item.startDate||item.startDate<=now) && (!item.endDate||item.endDate>=now));
     if(valid.length){
-      $('#news-grid').innerHTML=valid.slice(0,3).map(item=>`<article class="news-card">${item.image?`<img src="${esc(item.image)}" alt="" loading="lazy">`:''}<div><p class="eyebrow">${localPreview&&!item.published?'ЧЕРНОВА · ':''}${esc(item.type||'Новина')}</p><h3>${esc(item.title)}</h3><p>${esc(item.text||'')}</p></div></article>`).join('');
+      $('#news-grid').innerHTML=valid.slice(0,3).map(item=>`<article class="news-card">${item.image?`<img src="${esc(mediaSrc(item.image))}" alt="" loading="lazy">`:''}<div><p class="eyebrow">${localPreview&&!item.published?'ЧЕРНОВА · ':''}${esc(item.type||'Новина')}</p><h3>${esc(item.title)}</h3><p>${esc(item.text||'')}</p></div></article>`).join('');
       news.hidden=false;
     }
   }

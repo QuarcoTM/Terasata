@@ -376,10 +376,10 @@ window.TERASATA_CONTENT = {
   // Only actual approved news will appear on the homepage.
   news: [],
   gallery: [
-    { src: 'terrace.webp', alt: 'Покритата тераса на ресторант „Терасата“', category: 'Тераси', title: 'Тераса' },
-    { src: 'main-hall.webp', alt: 'Основната вътрешна зала с подредени маси', category: 'Вътрешни зали', title: 'Основна зала' },
-    { src: 'celebration-table.webp', alt: 'Подредена маса за празненство във вътрешната зала', category: 'Празненства', title: 'Подготовка за празненство' },
-    { src: 'second-floor.webp', alt: 'Вътрешната зала на втория етаж с празнична украса', category: 'Вътрешни зали', title: 'Втори етаж' },
-    { src: 'bar.webp', alt: 'Барът с надпис „ТЕРАСАТА“', category: 'Вътрешни зали', title: 'Бар' }
+    { src: 'assets/images/terrace.webp', alt: 'Покритата тераса на ресторант „Терасата“', category: 'Тераси', title: 'Тераса' },
+    { src: 'assets/images/main-hall.webp', alt: 'Основната вътрешна зала с подредени маси', category: 'Вътрешни зали', title: 'Основна зала' },
+    { src: 'assets/images/celebration-table.webp', alt: 'Подредена маса за празненство във вътрешната зала', category: 'Празненства', title: 'Подготовка за празненство' },
+    { src: 'assets/images/second-floor.webp', alt: 'Вътрешната зала на втория етаж с празнична украса', category: 'Вътрешни зали', title: 'Втори етаж' },
+    { src: 'assets/images/bar.webp', alt: 'Барът с надпис „ТЕРАСАТА“', category: 'Вътрешни зали', title: 'Бар' }
   ]
 };

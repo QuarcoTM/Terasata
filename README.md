@@ -30,3 +30,6 @@ GitHub → Settings → Pages → Deploy from a branch → main → /(root).
 
 Телефонни резервации 089 295 9030. Няма онлайн поръчки и плащания.
 Оригинален файл на логото все още не е предоставен.
+
+## SEO и статистика
+Статични canonical URLs, OG metadata, sitemap и подготвена (временно изключена) статистика Umami. Подробности: [SEO и статистика](docs/SEO_ANALYTICS.md).

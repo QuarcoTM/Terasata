@@ -61,7 +61,7 @@ test('Public photos are real optimized WebP files',()=>{
 });
 
 test('JavaScript syntax',()=>{
- for(const f of ['assets/js/site.js','assets/js/site-preview.js','assets/js/content.js','assets/js/admin.js','assets/js/lunch-poster.js']){
+ for(const f of ['assets/js/site.js','assets/js/site-preview.js','assets/js/content.js','assets/js/admin.js','assets/js/lunch-poster.js','assets/js/analytics.js','assets/js/analytics-config.js']){
   execFileSync(process.execPath,['--check',path.join(root,f)],{stdio:'pipe'});
  }
 });

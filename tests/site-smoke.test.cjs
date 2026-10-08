@@ -119,3 +119,14 @@ test('Admin menu is initially hidden and lunch is the primary section',()=>{
  assert(js.includes("if(event.key==='Escape'"),'Escape keyboard closing missing');
  assert(css.includes('.admin-menu-popover[hidden]'),'Hidden nav CSS missing');
 });
+
+test('View-specific commands are grouped in an accessible actions menu',()=>{
+ const script=read('assets/js/admin.js');
+ const css=read('assets/css/admin.css');
+ assert(script.includes('function wrapViewActions(tools)'),'Missing action menu renderer');
+ assert(script.includes('while(tools.firstChild)options.appendChild(tools.firstChild)'),'Buttons should be moved without losing listeners');
+ assert(script.includes("details.className='admin-actions-menu'"),'Missing dropdown details');
+ assert(script.includes("summary.setAttribute('aria-label'"),'Missing accessible label');
+ assert(css.includes('.admin-actions-options'),'Actions menu style missing');
+ assert(css.includes('.admin-actions-trigger'),'Actions button style missing');
+});

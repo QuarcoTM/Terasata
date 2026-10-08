@@ -74,3 +74,25 @@ button:disabled{opacity:.48;cursor:not-allowed}
  .wordmark{font-size:19px}
  .admin-menu-trigger{width:42px;min-width:42px}
 }
+
+/* Compact view-specific action menu: keeps A4, lunch and gallery tools off the top bar. */
+.intro #view-tools{position:relative;flex:none;align-self:center}
+.admin-actions-menu{position:relative;min-width:148px}
+.admin-actions-trigger{list-style:none;display:flex;align-items:center;justify-content:center;gap:10px;height:44px;padding:0 15px;border-radius:9px;background:#967434;color:#fff;font-size:13px;font-weight:750;cursor:pointer;border:1px solid #8f6d30;user-select:none}
+.admin-actions-trigger::-webkit-details-marker{display:none}
+.admin-actions-trigger::marker{content:''}
+.admin-actions-trigger:hover,.admin-actions-menu[open] .admin-actions-trigger{background:#795a24}
+.admin-actions-trigger:focus-visible{outline:2px solid #6d5425;outline-offset:3px}
+.admin-actions-icon{font-size:23px;font-weight:800;letter-spacing:.05em;line-height:1}
+.admin-actions-arrow{font-size:21px;line-height:1;margin-left:6px;transition:transform .15s}
+.admin-actions-menu[open] .admin-actions-arrow{transform:rotate(180deg)}
+.admin-actions-options{position:absolute;top:calc(100% + 9px);right:0;z-index:90;width:min(340px,calc(100vw - 28px));max-height:min(520px,calc(100dvh - 160px));overflow:auto;padding:14px;background:#fffaf2;border:1px solid #d6c6a9;border-radius:12px;box-shadow:0 18px 45px rgba(44,33,20,.18);display:flex;flex-direction:column;gap:9px}
+.admin-actions-options>.btn,.admin-actions-options>.file-label,.admin-actions-options>a{width:100%;justify-content:flex-start;text-align:left;min-height:43px}
+.admin-actions-options .photo-category-field{width:100%;min-width:0;margin:2px 0 5px}
+.admin-actions-options .photo-category-field select{width:100%}
+@media(max-width:580px){
+ .intro #view-tools{width:auto;align-self:stretch}
+ .admin-actions-menu{width:100%}
+ .admin-actions-trigger{justify-content:space-between}
+ .admin-actions-options{right:0;left:auto}
+}

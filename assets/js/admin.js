@@ -51,6 +51,15 @@ document.addEventListener('keydown',event=>{
 document.addEventListener('click',event=>{
  if(!menuPanel?.hidden&&!menuToggle?.contains(event.target)&&!menuPanel.contains(event.target))closeAdminMenu();
 });
+document.addEventListener('click',event=>{
+ const details=qs('#view-tools .admin-actions-menu[open]');
+ if(details&&!details.contains(event.target))details.open=false;
+});
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Escape')return;
+ const details=qs('#view-tools .admin-actions-menu[open]');
+ if(details){event.preventDefault();details.open=false;details.querySelector('summary')?.focus();}
+});
 function sectionAllowed(section){
  if(!titles[section])return false;
  return !SECURE || ['dashboard','transfer'].includes(section) || (section==='staff'?SECURE.user.role==='owner':SECURE.user.role==='owner'||!!SECURE.user.permissions[section]);
@@ -102,7 +111,22 @@ function setView(next,restore=false){
  if(changed&&!restore){window.scrollTo(0,0);rememberNavigation(0);}
  else if(!restore)rememberNavigation();
 }
-function render(){const content=qs('#view-content'),tools=qs('#view-tools');tools.innerHTML='';switch(view){case 'dashboard':renderDashboard(content);break;case 'lunch':renderLunch(content,tools);break;case 'regular':renderRegular(content,tools);break;case 'gallery':renderGallery(content,tools);break;case 'news':renderNews(content,tools);break;case 'settings':renderSettings(content);break;case 'staff':renderStaff(content,tools);break;case 'transfer':renderTransfer(content);break;}}
+function render(){const content=qs('#view-content'),tools=qs('#view-tools');tools.innerHTML='';switch(view){case 'dashboard':renderDashboard(content);break;case 'lunch':renderLunch(content,tools);break;case 'regular':renderRegular(content,tools);break;case 'gallery':renderGallery(content,tools);break;case 'news':renderNews(content,tools);break;case 'settings':renderSettings(content);break;case 'staff':renderStaff(content,tools);break;case 'transfer':renderTransfer(content);break;}wrapViewActions(tools);}
+function wrapViewActions(tools){
+ if(!tools||!tools.firstElementChild)return;
+ const details=document.createElement('details');
+ details.className='admin-actions-menu';
+ const summary=document.createElement('summary');
+ summary.className='admin-actions-trigger';
+ summary.setAttribute('aria-label','Действия за '+titles[view][0]);
+ summary.innerHTML='<span class="admin-actions-icon" aria-hidden="true">⋯</span><span>Действия</span><span class="admin-actions-arrow" aria-hidden="true">⌄</span>';
+ const options=document.createElement('div');
+ options.className='admin-actions-options';
+ options.setAttribute('aria-label','Инструменти за '+titles[view][0]);
+ while(tools.firstChild)options.appendChild(tools.firstChild);
+ details.append(summary,options);
+ tools.append(details);
+}
 const countDishes=()=>state.content.categories.reduce((n,c)=>n+(state.content.regularMenu[c.id]||[]).length,0);
 function renderDashboard(el){const noOfDays=Object.values(state.content.lunchByDate||{}).filter(d=>d.published).length;el.innerHTML=`<div class="stats"><div class="stat"><strong>${countDishes()}</strong><span>ястия в постоянното меню</span></div><div class="stat"><strong>${state.content.categories.length}</strong><span>категории</span></div><div class="stat"><strong>${state.content.gallery.length}</strong><span>снимки в галерията</span></div><div class="stat"><strong>${noOfDays}</strong><span>публикувани дневни менюта</span></div></div><div class="hint"><strong>Работен режим:</strong> ${SECURE?'Работа със защитен сървър и база данни. Промените се публикуват след потвърден успешен запис.':'Всички промени остават само в този браузър. За преглед отвори сайта с <b>?preview=1</b>. За реално публикуване трябва ръчно да качиш експортирания файл в GitHub. Няма пароли и няма свързване към сървър.'}</div><div class="cards"><article class="card"><h2>Обедно меню</h2><p>Меню по дата, категории, изчерпани ястия и Facebook визия.</p>${btn('Отвори редактора','go:lunch','primary')}</article><article class="card"><h2>Постоянно меню</h2><p>Сегашните 40 ястия и възможност за промени без работа с код.</p>${btn('Редактирай ястия','go:regular')}</article><article class="card"><h2>Галерия и новини</h2><p>Качвай само реални фотографии и създавай временни публикации.</p>${btn('Към галерията','go:gallery')}</article><article class="card"><h2>Архивиране</h2><p>Сваляй резервно копие и подготвяй content.js за GitHub.</p>${btn('Архив и експорт','go:transfer')}</article></div>`}
 function renderRegular(el,tools){

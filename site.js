@@ -19,7 +19,10 @@
   const header = $('#site-header');
   if (header) header.innerHTML = `
     <div class="header-shell container">
-      <a class="brand" href="index.html" aria-label="Терасата — начало"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></a>
+      <div class="brand">
+        <a class="brand-home" href="index.html" aria-label="Терасата — начало"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></a>
+        <a class="brand-phone" href="${d.phoneHref}" aria-label="Обади се на ${esc(d.phoneDisplay)}">${phoneIcon()}<span>${esc(d.phoneDisplay)}</span></a>
+      </div>
       <nav class="desktop-nav" aria-label="Основна навигация">
         ${nav.map(([id,name,href])=>`<a href="${href}" ${id===page?'aria-current="page"':''}>${name}</a>`).join('')}
       </nav>

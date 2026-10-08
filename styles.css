@@ -592,3 +592,22 @@ p {line-height:1.6}
 
 /* Dietary information transcribed from the printed restaurant menu. */
 .dish-allergens {font-size:12px!important;color:#7c735f!important;margin-top:6px!important;margin-bottom:5px!important;}
+
+
+/* Mobile header: clickable number and sticky navigation.
+   Added after the design rules so other layout sections stay unchanged. */
+.brand-home {display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.brand-phone {display:none}
+@media (max-width:1049px) {
+  .site-header {position:sticky;top:0;z-index:110;background:#f9f4eb;box-shadow:0 3px 14px rgba(76,57,22,.075)}
+  .header-shell {min-height:104px;padding-block:10px}
+  .brand {min-width:0;gap:3px}
+  .brand-phone {display:inline-flex;align-items:center;gap:7px;width:max-content;min-height:27px;padding:2px 0;color:#806122;font-size:14px;font-weight:700;line-height:1.2;letter-spacing:.015em}
+  .brand-phone .icon-phone {width:14px;height:14px}
+  .brand-phone:hover {color:#5e4519}
+  .mobile-nav:not([hidden]) {height:calc(100dvh - 104px);max-height:none;overflow-y:auto;overscroll-behavior:contain}
+  html {scroll-padding-top:112px}
+}
+@media (max-width:760px) {
+  .header-shell {min-height:104px}
+}

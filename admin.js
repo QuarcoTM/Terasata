@@ -80,16 +80,20 @@ case'reset':if(confirm('Това ще изтрие всички локални �
 function openFB(){
  const day=getDay();
  if(!day||!day.groups.some(g=>g.items?.length)){notice('Подготви поне едно обедно ястие за тази дата.');return}
- // Poster design follows the restaurant's actual yellow/white lunch flyer.
- // Drawn as vector shapes and live menu text, never as a cropped screenshot.
- const W=1080,H=1350,ink='#332f3d',yellow='#ffda59',paper='#fffdf8';
+ const W=1240,H=1754,ink='#343042',yellow='#f4cf57',paper='#fcfcfb';
  const measure=document.createElement('canvas').getContext('2d');
  const slots=[
-  {kind:'left',x:76,w:436,headY:265,textY:367,textBottom:704,textX:91,priceX:493,textW:290,font:25,line:31,priceFont:24},
-  {kind:'right',x:570,w:434,headY:265,textY:367,textBottom:704,textX:588,priceX:997,textW:290,font:25,line:31,priceFont:24},
-  {kind:'wide',x:76,w:928,headY:722,textY:827,textBottom:1158,textX:92,priceX:999,textW:765,font:27,line:33,priceFont:26}
+  {kind:'left',x:82,w:468,headY:318,textY:446,textBottom:878,textX:101,priceX:519,textW:306,font:29,line:37,priceFont:28},
+  {kind:'right',x:692,w:468,headY:318,textY:446,textBottom:878,textX:712,priceX:1126,textW:306,font:29,line:37,priceFont:28},
+  {kind:'wide',x:74,w:1092,headY:894,textY:1025,textBottom:1360,textX:95,priceX:1132,textW:885,font:31,line:39,priceFont:29}
  ];
- const fdate=(()=>{const parts=activeDate.split('-');return `${parts[2]}.${parts[1]}.${parts[0]}`})();
+ const footerLines=[
+  'Питка 250гр. 1.45€    Чабата 120гр. 0.97€',
+  'Хляб филия 0.15€    Хляб филия препечен 0.15€',
+  'Хляб филия пълнозърнест 0.15€    Люта чушка 1бр. 0.15€'
+ ];
+ const titleFor=(g)=>{const t=String(g.title||'').trim().toLowerCase(); if(t==='салати') return 'Салати'; if(t==='супи') return 'Супи'; return 'Готвено';};
+ const weightFor=(g)=>{const t=String(g.title||'').trim().toLowerCase(); if(t==='салати') return '/250гр./'; if(t==='супи') return '/350мл./'; return '/450гр./';};
  const textStyle=(slot)=>`italic 700 ${slot.font}px Arial, sans-serif`;
  function wrap(text,maxWidth,font){
   measure.font=font;
@@ -107,18 +111,12 @@ function openFB(){
   if(line)lines.push(line);
   return lines.length?lines:[''];
  }
- const rowHeight=(item,slot)=>{
-  const name=String(item.name||'');
-  const lines=wrap(name,slot.textW,textStyle(slot));
-  const weight=item.weight?` · ${item.weight}`:'';
-  // Weight is part of the content and must not be silently discarded.
-  const sub=weight?wrap(weight.trim(),slot.textW,'21px Arial, sans-serif'):[];
-  return {item,lines,sub,height:Math.max(56,lines.length*slot.line+sub.length*25+14+(item.soldOut?19:0))};
- };
- const groups=day.groups.filter(g=>Array.isArray(g.items)&&g.items.length).map(g=>({title:g.title,weightNote:g.weightNote||'',items:[...g.items],continuation:false}));
+ function normalizeName(item){return String(item.name||'').replace(/\s+/g,' ').trim();}
+ function normalizeNotes(item){const bits=[]; if(item.weight) bits.push(String(item.weight)); return bits.join(' · ');}
+ const rowHeight=(item,slot)=>{const lines=wrap(normalizeName(item),slot.textW,textStyle(slot));const note=normalizeNotes(item);const sub=note?wrap(note,slot.textW,'23px Arial, sans-serif'):[];return {item,lines,sub,height:Math.max(58,lines.length*slot.line+sub.length*26+14+(item.soldOut?21:0))}};
+ const groups=day.groups.filter(g=>Array.isArray(g.items)&&g.items.length).map(g=>({title:titleFor(g),weightNote:weightFor(g),items:[...g.items],continuation:false}));
+ if(!groups.length){notice('Няма въведени ястия за визуализация.');return}
  const pages=[];
- // Each sheet has the original two upper columns and one wide lower group.
- // Measure actual text before placing a row: no overflow, ellipsis, or chopped dishes.
  while(groups.length){
   const placements=[];
   for(let i=0;i<slots.length&&groups.length;i++){
@@ -127,95 +125,66 @@ function openFB(){
    while(g.items.length){
     const r=rowHeight(g.items[0],slot);
     if(selected.length&&slot.textY+used+r.height>slot.textBottom)break;
-    if(slot.textY+used+r.height>slot.textBottom){
-     // Very long single item: never crop it; allocate a taller continuation sheet below.
-     // For normal menu content this branch is not expected.
-     break;
-    }
+    if(slot.textY+used+r.height>slot.textBottom)break;
     selected.push(r);used+=r.height;g.items.shift();
    }
-   if(!selected.length){
-    // In the extremely rare case of a single excessively long item, use a dedicated
-    // wide slot with a reduced font on a new page rather than losing its content.
-    if(i!==2){continue}
-    const special={...slot,font:19,line:25,textW:780};
-    const r=rowHeight(g.items[0],special);
-    selected.push({...r,font:special.font,line:special.line,height:r.height});g.items.shift();
-   }
-   placements.push({slot:i,title:String(g.title||''),weightNote:String(g.weightNote||''),continued:g.continuation,rows:selected});
+   if(!selected.length) continue;
+   placements.push({slot:i,title:g.title,weightNote:g.weightNote,continued:g.continuation,rows:selected});
    if(!g.items.length)groups.shift();else g.continuation=true;
   }
   if(!placements.length)throw Error('Невъзможно разположение на обедното меню');
   pages.push(placements);
  }
  const dialog=document.createElement('dialog');dialog.className='fb-dialog';
- dialog.innerHTML=`<div class="dialog-header"><h2>Facebook визия · ${e(activeDate)}</h2><button type="button" class="close" aria-label="Затвори">×</button></div><div style="padding:20px"><canvas id="fb-canvas" width="${W}" height="${H}" class="preview-frame" aria-label="Преглед на обедното меню като Facebook изображение"></canvas><p class="download-help">Визията следва жълто-белия оригинален флаер на ресторанта. Текстовете и цените са от въведеното меню. Логото не е възстановявано или прерисувано — ще го добавим само от оригинален файл.</p><div class="toolbar-row"><label class="form-field">Изображение <select id="fb-page">${pages.map((_,i)=>`<option value="${i}">${i+1} от ${pages.length}</option>`).join('')}</select></label><button class="btn primary" type="button" id="fb-download">Изтегли PNG за Facebook</button></div></div>`;
+ dialog.innerHTML=`<div class="dialog-header"><h2>A4 визия · ${e(activeDate)}</h2><button type="button" class="close" aria-label="Затвори">×</button></div><div style="padding:20px"><canvas id="fb-canvas" width="${W}" height="${H}" class="preview-frame" aria-label="A4 преглед на обедното меню"></canvas><p class="download-help">Визията следва показания от теб шаблон: A4 формат, долни хлебчета и текстов воден знак. Съдържанието идва от обедното меню в администрацията.</p><div class="toolbar-row"><label class="form-field">Страница <select id="fb-page">${pages.map((_,i)=>`<option value="${i}">${i+1} от ${pages.length}</option>`).join('')}</select></label><button class="btn primary" type="button" id="fb-download">Изтегли PNG</button></div></div>`;
  document.body.appendChild(dialog);
  const close=()=>{dialog.close();dialog.remove()};
  dialog.querySelector('.close').onclick=close;
  dialog.addEventListener('click',ev=>{if(ev.target===dialog)close()});
  dialog.showModal();
+ function dottedArc(cx,cy,r,start,end,count,size,ctx){ctx.save();ctx.fillStyle='#73706a';ctx.globalAlpha=.20;for(let n=0;n<count;n++){const a=start+(end-start)*n/(count-1);ctx.beginPath();ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,size,0,Math.PI*2);ctx.fill()}ctx.restore()}
+ function drawCenterWatermark(ctx){ctx.save();ctx.globalAlpha=.13;ctx.strokeStyle='#66616a';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(503,940);ctx.lineTo(503,1180);ctx.moveTo(554,930);ctx.lineTo(554,1180);ctx.moveTo(605,920);ctx.lineTo(605,1180);ctx.moveTo(656,930);ctx.lineTo(656,1180);ctx.moveTo(707,940);ctx.lineTo(707,1180);ctx.stroke();ctx.beginPath();ctx.moveTo(470,1182);ctx.quadraticCurveTo(603,1110,740,1182);ctx.stroke();ctx.beginPath();ctx.moveTo(500,946);ctx.quadraticCurveTo(603,852,706,946);ctx.stroke();ctx.restore()}
  function drawSheet(canvas,index){
   const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle=paper;ctx.fillRect(0,0,W,H);
-  // Exact mood of the real menu: yellow geometric shapes against white, not plain text.
-  const grad=ctx.createLinearGradient(0,0,960,900);grad.addColorStop(0,'#ffcf48');grad.addColorStop(.63,yellow);grad.addColorStop(1,'#ffe99b');
-  ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(1080,0);ctx.lineTo(660,585);ctx.lineTo(0,1204);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#fffdf8';ctx.beginPath();ctx.moveTo(1025,0);ctx.lineTo(1080,0);ctx.lineTo(1080,1350);ctx.lineTo(0,1350);ctx.lineTo(0,1210);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#f4d55b';ctx.beginPath();ctx.moveTo(0,1210);ctx.lineTo(0,1350);ctx.lineTo(118,1350);ctx.closePath();ctx.fill();
-  // Original flyer has soft decorative dotted arcs; drawn from vector dots, not images.
-  function dottedArc(cx,cy,r,start,end,count,size){ctx.save();ctx.fillStyle='#777169';ctx.globalAlpha=.17;for(let n=0;n<count;n++){const a=start+(end-start)*n/(count-1);ctx.beginPath();ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,size,0,Math.PI*2);ctx.fill()}ctx.restore()}
-  for(let r of [195,210,225])dottedArc(325,700,r,Math.PI*.6,Math.PI*1.62,31,3.2);
-  for(let r of [155,170,185])dottedArc(752,650,r,-Math.PI*.7,Math.PI*.55,33,3.2);
-  // Main title with the same thick rectangular frame as the supplied Facebook menu.
-  ctx.fillStyle='#ffdc62';ctx.fillRect(211,61,658,126);
-  ctx.strokeStyle=ink;ctx.lineWidth=11;ctx.strokeRect(211,61,658,126);
-  ctx.fillStyle=ink;ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.font='bold 80px Arial, sans-serif';ctx.fillText('Обедно меню',540,151);
-  ctx.textAlign='center';ctx.font='bold 24px Arial, sans-serif';ctx.fillStyle='#564d4b';ctx.fillText(`РЕСТОРАНТ „ТЕРАСАТА“  ·  ${fdate}`,540,223);
-  // Original is a two-column top, then a centered wide cooked-dishes section.
+  ctx.fillStyle=yellow;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(1020,0);ctx.lineTo(676,514);ctx.lineTo(0,1452);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#f5f4f2';ctx.beginPath();ctx.moveTo(1038,0);ctx.lineTo(W,0);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.lineTo(0,1464);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#f5ce56';ctx.fillRect(194,82,852,138);
+  ctx.strokeStyle=ink;ctx.lineWidth=11;ctx.strokeRect(194,82,852,138);
+  ctx.fillStyle=ink;ctx.textAlign='center';ctx.font='bold 82px Arial, sans-serif';ctx.fillText('Обедно меню',620,178);
   const placements=pages[index];
-  if(placements.some(g=>g.slot===0||g.slot===1)){
-   ctx.strokeStyle='#665e65';ctx.lineWidth=2.1;ctx.beginPath();ctx.moveTo(540,295);ctx.lineTo(540,690);ctx.stroke();
-  }
+  if(placements.some(b=>b.slot===0||b.slot===1)){ctx.strokeStyle='#726b71';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(620,375);ctx.lineTo(620,865);ctx.stroke();}
+  dottedArc(281,701,185,Math.PI*.53,Math.PI*1.60,25,3.6,ctx); dottedArc(281,701,209,Math.PI*.53,Math.PI*1.60,27,3.4,ctx); dottedArc(281,701,233,Math.PI*.53,Math.PI*1.60,29,3.2,ctx);
+  dottedArc(920,670,150,-Math.PI*.72,Math.PI*.50,24,3.6,ctx); dottedArc(920,670,173,-Math.PI*.72,Math.PI*.50,26,3.4,ctx); dottedArc(920,670,196,-Math.PI*.72,Math.PI*.50,28,3.2,ctx);
+  drawCenterWatermark(ctx);
   for(const block of placements){
    const slot=slots[block.slot];
    const isWide=slot.kind==='wide';
-   const bx=isWide?342:slot.x+50,bw=isWide?396:336;
-   const titleY=slot.headY;
-   ctx.fillStyle='rgba(255,251,238,.68)';ctx.fillRect(bx,titleY,bw,88);
-   ctx.strokeStyle=ink;ctx.lineWidth=6;ctx.strokeRect(bx,titleY,bw,88);
-   ctx.fillStyle=ink;ctx.textAlign='center';ctx.font='italic bold 35px Arial, sans-serif';
-   const longTitle=block.title+(block.continued?' (прод.)':'');
-   const fittedFont=ctx.measureText(longTitle).width>bw-30?Math.max(22,35*(bw-34)/ctx.measureText(longTitle).width):35;
-   ctx.font=`italic bold ${fittedFont}px Arial, sans-serif`;
-   const firstBaseline=block.weightNote?titleY+36:titleY+57;
-   ctx.fillText(longTitle,bx+bw/2,firstBaseline);
-   if(block.weightNote){ctx.font='italic 27px Arial, sans-serif';ctx.fillText(block.weightNote,bx+bw/2,titleY+72)}
+   const bw=isWide?250:230, bh=isWide?100:92, bx=isWide?495:slot.x+73, titleY=slot.headY;
+   ctx.fillStyle='rgba(255,252,246,.78)';ctx.fillRect(bx,titleY,bw,bh);
+   ctx.strokeStyle=ink;ctx.lineWidth=6;ctx.strokeRect(bx,titleY,bw,bh);
+   ctx.fillStyle=ink;ctx.textAlign='center';ctx.font='italic bold 29px Arial, sans-serif';ctx.fillText(block.title,bx+bw/2,titleY+35);ctx.font='italic 25px Arial, sans-serif';ctx.fillText(block.weightNote,bx+bw/2,titleY+69);
    let y=slot.textY;
-   for(const {item,lines,sub,height,font,line} of block.rows){
-    ctx.fillStyle=ink;ctx.beginPath();ctx.arc(slot.textX-19,y+15,8.5,0,Math.PI*2);ctx.fill();
-    ctx.textAlign='left';ctx.font=`italic 700 ${font||slot.font}px Arial, sans-serif`;
-    for(const [li,textLine] of lines.entries()){ctx.fillText(textLine,slot.textX,y+23+li*(line||slot.line))}
-    if(sub.length){ctx.font='21px Arial, sans-serif';ctx.fillStyle='#4f4a4e';sub.forEach((line,i)=>ctx.fillText(line,slot.textX,y+23+lines.length*(line||slot.line)+i*25));}
-    ctx.font=`italic bold ${slot.priceFont}px Arial, sans-serif`;ctx.fillStyle=ink;ctx.textAlign='right';ctx.fillText(String(item.price||''),slot.priceX,y+24);ctx.textAlign='left';
-    if(item.soldOut){ctx.font='bold 19px Arial, sans-serif';ctx.fillStyle='#9d3d35';ctx.fillText('ИЗЧЕРПАНО',slot.textX,y+height-5)}
+   for(const {item,lines,sub,height} of block.rows){
+    ctx.fillStyle=ink;ctx.beginPath();ctx.arc(slot.textX-17,y+14,9,0,Math.PI*2);ctx.fill();
+    ctx.textAlign='left';ctx.font=textStyle(slot);lines.forEach((line,i)=>ctx.fillText(line,slot.textX,y+20+i*slot.line));
+    if(sub.length){ctx.font='23px Arial, sans-serif';ctx.fillStyle='#49454a';sub.forEach((line,i)=>ctx.fillText(line,slot.textX,y+22+lines.length*slot.line+i*26));}
+    ctx.font=`italic bold ${slot.priceFont}px Arial, sans-serif`;ctx.fillStyle=ink;ctx.textAlign='right';ctx.fillText(String(item.price||''),slot.priceX,y+22);
+    if(item.soldOut){ctx.textAlign='left';ctx.font='bold 20px Arial, sans-serif';ctx.fillStyle='#8f302e';ctx.fillText('ИЗЧЕРПАНО',slot.textX,y+height-4)}
     y+=height;
    }
   }
-  // Branding here is plain restaurant-name text, not an imitation of the missing logo.
-  ctx.save();ctx.translate(290,1209);ctx.rotate(-.14);ctx.globalAlpha=.22;ctx.fillStyle='#67606c';ctx.font='italic 50px Georgia, serif';ctx.textAlign='center';ctx.fillText('Ресторант Терасата',0,0);ctx.restore();
-  ctx.textAlign='center';ctx.fillStyle='#332f3d';ctx.font='bold 25px Arial, sans-serif';ctx.fillText('До изчерпване · Поръчки за вкъщи до 11:30 ч.',540,1267);
-  ctx.font='21px Arial, sans-serif';ctx.fillText('089 295 9030',540,1303);
-  if(pages.length>1){ctx.textAlign='right';ctx.font='19px Arial, sans-serif';ctx.fillText(`${index+1} / ${pages.length}`,1012,1324)}
+  ctx.save();ctx.translate(365,1490);ctx.rotate(-.23);ctx.globalAlpha=.28;ctx.fillStyle='#6d676d';ctx.font='italic 76px Georgia, serif';ctx.textAlign='center';ctx.fillText('Ресторант Терасата',0,0);ctx.restore();
+  ctx.textAlign='center';ctx.fillStyle='#342f42';ctx.font='italic bold 22px Arial, sans-serif'; let fy=1512; footerLines.forEach((line,i)=>ctx.fillText(line,620,fy+i*34));
+  ctx.font='italic bold 24px Arial, sans-serif';ctx.fillText('Десерти:',620,1635); ctx.font='italic bold 30px Arial, sans-serif';ctx.fillText('Попитайте Вашия сервитьор!',620,1677);
+  if(pages.length>1){ctx.textAlign='right';ctx.fillStyle='#4b4750';ctx.font='20px Arial, sans-serif';ctx.fillText(`${index+1} / ${pages.length}`,1150,1715)}
  }
  const canvas=dialog.querySelector('canvas');drawSheet(canvas,0);
  dialog.querySelector('#fb-page').addEventListener('change',ev=>drawSheet(canvas,Number(ev.target.value)));
- dialog.querySelector('#fb-download').addEventListener('click',()=>{
-  const i=Number(dialog.querySelector('#fb-page').value);
-  canvas.toBlob(blob=>{if(blob){download(`terasata-obedno-${activeDate}-${i+1}.png`,blob);notice(`Изтеглено изображение ${i+1} от ${pages.length}`)}else notice('Неуспешно генериране на PNG')},'image/png');
- });
+ dialog.querySelector('#fb-download').addEventListener('click',()=>{const i=Number(dialog.querySelector('#fb-page').value); canvas.toBlob(blob=>{if(blob){download(`terasata-obedno-a4-${activeDate}-${i+1}.png`,blob);notice(`Изтеглено изображение ${i+1} от ${pages.length}`)}else notice('Неуспешно генериране на PNG')},'image/png');});
 }
+
 
 setView('dashboard');
 })();

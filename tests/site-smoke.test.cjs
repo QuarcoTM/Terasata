@@ -61,7 +61,7 @@ test('Public photos are real optimized WebP files',()=>{
 });
 
 test('JavaScript syntax',()=>{
- for(const f of ['assets/js/site.js','assets/js/site-preview.js','assets/js/content.js','assets/js/admin.js','assets/js/lunch-poster.js','assets/js/analytics.js','assets/js/analytics-config.js']){
+ for(const f of ['assets/js/site.js','assets/js/site-preview.js','assets/js/content.js','assets/js/admin.js','assets/js/lunch-poster.js','assets/js/analytics.js','assets/js/analytics-config.js','assets/js/vendor/qrcode-generator.js','assets/js/qr-cards.js']){
   execFileSync(process.execPath,['--check',path.join(root,f)],{stdio:'pipe'});
  }
 });
@@ -158,4 +158,33 @@ test('Analytics is disabled until configured and admin sessions are excluded',()
  assert(admin.includes('data-view="stats"'),'Statistics admin section missing');
  assert(script.includes('function renderStats(el,tools)'));
  assert(script.includes('Статистиката не е активирана'));
+});
+
+test('Print-ready QR cards are available with two distinct real codes',()=>{
+ const admin=read('admin/index.html'),script=read('assets/js/admin.js'),qr=read('assets/js/qr-cards.js');
+ const css=read('assets/css/admin.css');
+ assert(admin.includes('data-view="qr"'),'QR section missing');
+ assert(admin.includes('assets/js/vendor/qrcode-generator.js?v=1'),'Bundled QR generator missing');
+ assert(admin.includes('assets/js/qr-cards.js?v=1'),'QR card module missing');
+ assert(admin.includes('id="qr-print-surface"'),'Print surface missing');
+ assert(script.includes('function renderQrCards(el)'),'Admin routing missing');
+ for(const text of ['Обедно меню','Основно меню','utm_campaign=lunch','utm_campaign=main-menu','window.print()','savePng(type)','saveSvg(type)','getModuleCount()','isDark(row,col)'])
+  assert(qr.includes(text),'Missing QR capability '+text);
+ assert(css.includes('@media print'),'Print CSS missing');
+});
+test('Both URLs are independently encoded into high-contrast QR matrices',()=>{
+ const vm=require('node:vm');
+ const context={window:{},document:{baseURI:'https://quarcotm.github.io/Terasata/'},localStorage:{getItem:()=>null},URL,console};
+ vm.createContext(context);
+ vm.runInContext(read('assets/js/vendor/qrcode-generator.js'),context);
+ vm.runInContext(read('assets/js/qr-cards.js'),context);
+ const qr=context.window.TERASATA_QR_CARDS;
+ const lunch=qr.svg('lunch',qr.defaultUrls.lunch);
+ const main=qr.svg('main',qr.defaultUrls.main);
+ assert(qr.defaultUrls.lunch.startsWith('https://quarcotm.github.io/Terasata/obedno-menu/?'));
+ assert(qr.defaultUrls.main.startsWith('https://quarcotm.github.io/Terasata/menu/?'));
+ assert(lunch.includes('Обедно меню')&&main.includes('Основно меню'));
+ assert(lunch.includes('shape-rendering="crispEdges"')&&main.includes('shape-rendering="crispEdges"'));
+ assert(lunch.includes('fill="#101010"')&&main.includes('fill="#101010"'));
+ assert(lunch.length>15000&&main.length>15000&&lunch!==main,'QR patterns must be distinct');
 });

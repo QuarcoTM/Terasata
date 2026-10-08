@@ -6,11 +6,13 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#f3ede1">
 <title>Терасата · Управление</title>
-<link rel="stylesheet" href="assets/css/admin.css?v=20261008-analytics-seo-v1">
+<link rel="stylesheet" href="assets/css/admin.css?v=20261008-qr-cards-v1">
 <script src="assets/js/content.js?v=1" defer></script>
 <script src="assets/js/analytics-config.js?v=1" defer></script>
 <script src="assets/js/lunch-poster.js?v=20261008-watermark-v6" defer></script>
-<script src="assets/js/admin.js?v=20261008-analytics-seo-v1" defer></script>
+<script src="assets/js/vendor/qrcode-generator.js?v=1" defer></script>
+<script src="assets/js/qr-cards.js?v=1" defer></script>
+<script src="assets/js/admin.js?v=20261008-qr-cards-v1" defer></script>
 </head>
 <body>
 <div class="dev-banner"><strong>ЛОКАЛЕН РЕДАКТОР · A4-6</strong><span>Промените се пазят в този браузър · Публичното публикуване изисква експорт</span></div>
@@ -27,6 +29,7 @@
           <span class="admin-menu-group-title">МЕНЮТА</span>
           <button type="button" data-view="lunch" class="selected"><span class="admin-nav-icon" aria-hidden="true">▤</span><span>Обедно меню</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
           <button type="button" data-view="regular"><span class="admin-nav-icon" aria-hidden="true">≡</span><span>Постоянно меню</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
+          <button type="button" data-view="qr"><span class="admin-nav-icon" aria-hidden="true">▦</span><span>QR кодове</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
         </div>
         <div class="admin-menu-group" role="group" aria-label="Съдържание">
           <span class="admin-menu-group-title">СЪДЪРЖАНИЕ</span>
@@ -58,4 +61,5 @@
 </div>
 <dialog id="edit-dialog"><form id="edit-form"><div class="dialog-header"><h2 id="dialog-title">Редакция</h2><button id="dialog-close" type="button" class="close" aria-label="Затвори">×</button></div><div id="dialog-fields" class="fields"></div><div class="dialog-actions"><button type="button" class="btn secondary" id="dialog-cancel">Отказ</button><button type="submit" class="btn primary">Запази</button></div></form></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="qr-print-surface" hidden aria-hidden="true"></div>
 </body></html>

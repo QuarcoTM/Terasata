@@ -62,11 +62,11 @@ document.addEventListener('keydown',event=>{
 });
 function sectionAllowed(section){
  if(!titles[section])return false;
- return !SECURE || ['dashboard','stats','transfer'].includes(section) || (section==='staff'?SECURE.user.role==='owner':SECURE.user.role==='owner'||!!SECURE.user.permissions[section]);
+ return !SECURE || ['dashboard','stats','transfer','qr'].includes(section) || (section==='staff'?SECURE.user.role==='owner':SECURE.user.role==='owner'||!!SECURE.user.permissions[section]);
 }
 
 if(!SECURE){try{const stored=JSON.parse(localStorage.getItem(KEY)||'null');if(stored&&stored.format==='terasata-local-v1'&&stored.content?.categories?.length&&stored.content.regularMenu)state=stored}catch(err){console.warn('Local draft could not be loaded:',err)}}
-const titles={stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай ястия, грамажи, описания, цени и алергени.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
+const titles={qr:['QR кодове','Две отделни табелки с работещ QR код, готови за печат.'],stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай ястия, грамажи, описания, цени и алергени.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
 function notice(t){const box=qs('#toast');box.textContent=t;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3200)}
 function save(){
  state.savedAt=new Date().toISOString();
@@ -111,7 +111,7 @@ function setView(next,restore=false){
  if(changed&&!restore){window.scrollTo(0,0);rememberNavigation(0);}
  else if(!restore)rememberNavigation();
 }
-function render(){const content=qs('#view-content'),tools=qs('#view-tools');tools.innerHTML='';switch(view){case 'stats':renderStats(content,tools);break;case 'dashboard':renderDashboard(content);break;case 'lunch':renderLunch(content,tools);break;case 'regular':renderRegular(content,tools);break;case 'gallery':renderGallery(content,tools);break;case 'news':renderNews(content,tools);break;case 'settings':renderSettings(content);break;case 'staff':renderStaff(content,tools);break;case 'transfer':renderTransfer(content);break;}wrapViewActions(tools);}
+function render(){const content=qs('#view-content'),tools=qs('#view-tools');tools.innerHTML='';switch(view){case 'stats':renderStats(content,tools);break;case 'dashboard':renderDashboard(content);break;case 'lunch':renderLunch(content,tools);break;case 'regular':renderRegular(content,tools);break;case 'qr':renderQrCards(content);break;case 'gallery':renderGallery(content,tools);break;case 'news':renderNews(content,tools);break;case 'settings':renderSettings(content);break;case 'staff':renderStaff(content,tools);break;case 'transfer':renderTransfer(content);break;}wrapViewActions(tools);}
 function wrapViewActions(tools){
  if(!tools||!tools.firstElementChild)return;
  const details=document.createElement('details');
@@ -129,6 +129,7 @@ function wrapViewActions(tools){
 }
 const countDishes=()=>state.content.categories.reduce((n,c)=>n+(state.content.regularMenu[c.id]||[]).length,0);
 
+function renderQrCards(el){if(window.TERASATA_QR_CARDS)window.TERASATA_QR_CARDS.mount(el);else el.innerHTML='<div class="hint">QR генераторът не е зареден. Презареди админ панела.</div>';}
 function renderStats(el,tools){
  const cfg=window.TERASATA_ANALYTICS||{};
  const connected=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(cfg.websiteId||'');
@@ -412,7 +413,7 @@ qs('#dialog-close').addEventListener('click',()=>qs('#edit-dialog').close());qs(
 if(SECURE){qsa('#admin-nav button[data-view]').forEach(button=>{
  const v=button.dataset.view;
  if(v==='staff'&&SECURE.user.role!=='owner')button.remove();
- if(!['dashboard','stats','staff','transfer'].includes(v)&&SECURE.user.role!=='owner'&&!SECURE.user.permissions[v])button.remove();
+ if(!['dashboard','stats','staff','transfer','qr'].includes(v)&&SECURE.user.role!=='owner'&&!SECURE.user.permissions[v])button.remove();
 });}
 qs('#admin-nav').addEventListener('click',ev=>{const b=ev.target.closest('[data-view]');if(b){setView(b.dataset.view);menuToggle?.focus();}});
 qs('#workspace').addEventListener('change',ev=>{if(ev.target.id==='lunch-date'&&ev.target.value){activeDate=ev.target.value;rememberNavigation();render()}});

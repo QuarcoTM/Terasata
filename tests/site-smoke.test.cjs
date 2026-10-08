@@ -187,5 +187,8 @@ test('Both URLs are independently encoded into high-contrast QR matrices',()=>{
  assert(lunch.includes('Обедно меню')&&main.includes('Основно меню'));
  assert(lunch.includes('shape-rendering="crispEdges"')&&main.includes('shape-rendering="crispEdges"'));
  assert(lunch.includes('fill="#101010"')&&main.includes('fill="#101010"'));
- assert(lunch.length>15000&&main.length>15000&&lunch!==main,'QR patterns must be distinct');
+ const lunchModules=lunch.match(/<path fill="#101010" d="([^"]+)"/)[1];
+ const mainModules=main.match(/<path fill="#101010" d="([^"]+)"/)[1];
+ assert(lunchModules.length>3000&&mainModules.length>3000,'QR matrices must have encoded modules');
+ assert.notEqual(lunchModules,mainModules,'Different menu URLs must generate different QR matrices');
 });

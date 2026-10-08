@@ -66,7 +66,7 @@ function sectionAllowed(section){
 }
 
 if(!SECURE){try{const stored=JSON.parse(localStorage.getItem(KEY)||'null');if(stored&&stored.format==='terasata-local-v1'&&stored.content?.categories?.length&&stored.content.regularMenu)state=stored}catch(err){console.warn('Local draft could not be loaded:',err)}}
-const titles={qr:['QR кодове','Две отделни табелки с работещ QR код, готови за печат.'],stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай ястия, грамажи, описания, цени и алергени.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
+const titles={qr:['QR кодове','Две отделни табелки с работещ QR код, готови за печат.'],stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай постоянното меню и сезонни предложения с показване/скриване.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
 function notice(t){const box=qs('#toast');box.textContent=t;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3200)}
 function save(){
  state.savedAt=new Date().toISOString();
@@ -152,6 +152,7 @@ function renderStats(el,tools){
 function renderDashboard(el){const noOfDays=Object.values(state.content.lunchByDate||{}).filter(d=>d.published).length;el.innerHTML=`<div class="stats"><div class="stat"><strong>${countDishes()}</strong><span>ястия в постоянното меню</span></div><div class="stat"><strong>${state.content.categories.length}</strong><span>категории</span></div><div class="stat"><strong>${state.content.gallery.length}</strong><span>снимки в галерията</span></div><div class="stat"><strong>${noOfDays}</strong><span>публикувани дневни менюта</span></div></div><div class="hint"><strong>Работен режим:</strong> ${SECURE?'Работа със защитен сървър и база данни. Промените се публикуват след потвърден успешен запис.':'Всички промени остават само в този браузър. За преглед отвори сайта с <b>?preview=1</b>. За реално публикуване трябва ръчно да качиш експортирания файл в GitHub. Няма пароли и няма свързване към сървър.'}</div><div class="cards"><article class="card"><h2>Обедно меню</h2><p>Меню по дата, категории, изчерпани ястия и Facebook визия.</p>${btn('Отвори редактора','go:lunch','primary')}</article><article class="card"><h2>Постоянно меню</h2><p>Сегашните 40 ястия и възможност за промени без работа с код.</p>${btn('Редактирай ястия','go:regular')}</article><article class="card"><h2>Галерия и новини</h2><p>Качвай само реални фотографии и създавай временни публикации.</p>${btn('Към галерията','go:gallery')}</article><article class="card"><h2>Архивиране</h2><p>Сваляй резервно копие и подготвяй content.js за GitHub.</p>${btn('Архив и експорт','go:transfer')}</article></div>`}
 function renderRegular(el,tools){
  const cats=state.content.categories;
+ if(activeCategory==='seasonal'){renderSeasonal(el,tools,cats);return;}
  activeCategory=cats.some(c=>c.id===activeCategory)?activeCategory:cats[0].id;
  const categoryIndex=cats.findIndex(c=>c.id===activeCategory);
  const current=cats[categoryIndex];
@@ -159,6 +160,7 @@ function renderRegular(el,tools){
  tools.innerHTML=btn('Добави ястие','dish-add','primary')+'<a class="btn secondary" href="menu/?preview=1&amp;cat='+encodeURIComponent(activeCategory)+'" target="_blank" rel="noopener">Преглед в сайта ↗</a>';
  el.innerHTML='<div class="tabs" role="group" aria-label="Категории">'
   +cats.map(c=>'<button type="button" data-cat="'+e(c.id)+'" aria-pressed="'+(activeCategory===c.id)+'">'+e(c.name)+' ('+(state.content.regularMenu[c.id]||[]).length+')</button>').join('')
+  +'<button type="button" class="seasonal-admin-tab" data-cat="seasonal" aria-pressed="false">✦ Сезонно меню</button>'
   +'</div><div class="panel"><div class="section-head"><h2>'+e(current.name)+'</h2><div class="row-actions">'
   +btn('Категория ↑','cat-up','secondary slim',categoryIndex===0?'disabled':'')
   +btn('Категория ↓','cat-down','secondary slim',categoryIndex===cats.length-1?'disabled':'')
@@ -176,6 +178,76 @@ function renderRegular(el,tools){
    }).join(''):'<p class="empty">Все още няма ястия в тази категория. Можеш да ги добавиш по-късно.</p>')
   +'</div></div><p class="mini muted">Подредбата на категориите и ястията се запазва при експорт на content.js. Цените са от хартиеното меню и не са потвърдени като актуални.</p>';
 }
+
+function ensureSeasonal(){
+ const old=state.content.seasonalMenu;
+ if(!old||typeof old!=='object'||Array.isArray(old))state.content.seasonalMenu={enabled:false,title:'Сезонно меню',description:'',items:[]};
+ const s=state.content.seasonalMenu;
+ if(!Array.isArray(s.items))s.items=[];
+ if(typeof s.title!=='string'||!s.title.trim())s.title='Сезонно меню';
+ if(typeof s.description!=='string')s.description='';
+ if(typeof s.enabled!=='boolean')s.enabled=false;
+ return s;
+}
+function renderSeasonal(el,tools,cats){
+ const s=ensureSeasonal();
+ tools.innerHTML=btn('+ Добави сезонно ястие','season-add','primary')
+   +btn('Заглавие и описание','season-details','secondary')
+   +'<a class="btn secondary" href="menu/?preview=1&amp;cat=seasonal" target="_blank" rel="noopener">Преглед в сайта ↗</a>';
+ el.innerHTML='<div class="tabs" role="group" aria-label="Категории">'
+  +cats.map(c=>'<button type="button" data-cat="'+e(c.id)+'" aria-pressed="false">'+e(c.name)+' ('+(state.content.regularMenu[c.id]||[]).length+')</button>').join('')
+  +'<button type="button" data-cat="seasonal" class="seasonal-admin-tab" aria-pressed="true">✦ Сезонно меню ('+s.items.length+')</button></div>'
+  +'<section class="panel seasonal-admin-panel"><div class="section-head"><div><p class="eyebrow">СЕЗОННИ ПРЕДЛОЖЕНИЯ</p><h2>'+e(s.title)+'</h2>'
+  +(s.description?'<p class="mini muted">'+e(s.description)+'</p>':'')
+  +'</div><span class="badge '+(s.enabled?'green':'yellow')+'">'+(s.enabled?'Включено':'Скрито')+'</span></div>'
+  +'<div class="seasonal-publish-row"><div><strong>Показвай в основното меню</strong>'
+  +'<p class="mini muted">'+(s.enabled?'Посетителите виждат сезонната категория, когато има ястия.':'Сезонните ястия са запазени, но не се показват на посетителите.')+'</p></div>'
+  +btn(s.enabled?'Скрий сезонното меню':'Покажи сезонното меню','season-toggle',s.enabled?'secondary':'primary',!s.enabled&&!s.items.length?'disabled title="Първо добави ястие"':'')+'</div>'
+  +'<div class="rows">'+(s.items.length?s.items.map((dish,i)=>{
+   const details=[dish.weight||'',dish.description||'',...(Array.isArray(dish.allergens)&&dish.allergens.length?['Алергени: '+dish.allergens.join(', ')]:[])].filter(Boolean).join(' · ');
+   return '<div class="list-row"><div><strong>'+e(dish.name)+'</strong><small>'+e(details)+'</small></div><div class="row-actions">'
+    +'<span class="price">'+e(dish.price||'')+'</span>'
+    +btn('↑','season-up:'+i,'secondary slim',i===0?'disabled':'aria-label="Премести нагоре"')
+    +btn('↓','season-down:'+i,'secondary slim',i===s.items.length-1?'disabled':'aria-label="Премести надолу"')
+    +btn('Редакция','season-edit:'+i,'secondary slim')
+    +btn('Изтрий','season-delete:'+i,'danger slim')
+    +'</div></div>';
+  }).join(''):'<p class="empty">Няма сезонни ястия. Добави реалните предложения и потвърдените им цени, когато са готови.</p>')+'</div></section>'
+  +'<p class="mini muted">Промените не засягат постоянните ястия. Скриването не изтрива сезонните предложения. За публична промяна експортирай content.js и го качи в GitHub.</p>';
+}
+function seasonalDetailsModal(){
+ const s=ensureSeasonal();
+ openEditor('Сезонно меню — заглавие и описание',[
+  ['title','Заглавие (например Зимни предложения)','text',s.title,true],
+  ['description','Описание (по желание)','textarea',s.description]
+ ],form=>{
+  const name=String(form.title||'').trim(),description=String(form.description||'').trim();
+  if(!name||name.length>80){notice('Въведи заглавие до 80 символа.');return false;}
+  s.title=name;s.description=description.slice(0,300);
+  return save();
+ });
+}
+function seasonalDishModal(idx){
+ const s=ensureSeasonal();
+ const old=Number.isInteger(idx)?s.items[idx]:{};
+ if(!old)return;
+ openEditor(idx===null?'Добави сезонно ястие':'Редактирай сезонно ястие',[
+  ['name','Ястие','text',old.name||'',true],
+  ['weight','Грамаж','text',old.weight||''],
+  ['price','Цена (с валута)','text',old.price||'',true],
+  ['description','Описание','textarea',old.description||''],
+  ['allergens','Алергени (разделени със запетая)','text',(old.allergens||[]).join(', ')]
+ ],form=>{
+  const name=String(form.name||'').trim(),price=String(form.price||'').trim();
+  if(!name||!price){notice('Добави ястие и цена.');return false;}
+  const updated={name,weight:String(form.weight||'').trim(),price};
+  if(String(form.description||'').trim())updated.description=String(form.description).trim();
+  if(String(form.allergens||'').trim())updated.allergens=String(form.allergens).split(',').map(v=>v.trim()).filter(Boolean);
+  if(idx===null)s.items.push(updated);else s.items[idx]=updated;
+  return save();
+ });
+}
+
 function dishModal(idx){
  const sourceId=activeCategory;
  const arr=state.content.regularMenu[sourceId]||[];
@@ -419,6 +491,33 @@ qs('#admin-nav').addEventListener('click',ev=>{const b=ev.target.closest('[data-
 qs('#workspace').addEventListener('change',ev=>{if(ev.target.id==='lunch-date'&&ev.target.value){activeDate=ev.target.value;rememberNavigation();render()}});
 qs('#workspace').addEventListener('click',ev=>{const tab=ev.target.closest('[data-cat]');if(tab){activeCategory=tab.dataset.cat;rememberNavigation();render();return}const filter=ev.target.closest('[data-gallery-filter]');if(filter){galleryFilter=filter.dataset.galleryFilter;rememberNavigation();render();return}const b=ev.target.closest('[data-action]');if(!b)return;const [act,a1,a2]=b.dataset.action.split(':');const idx=a1==null?null:Number(a1);switch(act){
 case'go':setView(a1);break;
+case'season-add':seasonalDishModal(null);break;
+case'season-details':seasonalDetailsModal();break;
+case'season-edit':seasonalDishModal(idx);break;
+case'season-toggle':{
+ const s=ensureSeasonal();
+ if(!s.enabled&&!s.items.length){notice('Първо добави поне едно ястие.');break;}
+ s.enabled=!s.enabled;save();render();
+ notice(s.enabled?'Включено локално. За публично показване експортирай в GitHub.':'Скрито локално. За публично скриване експортирай в GitHub.');
+ break;
+}
+case'season-delete':{
+ const s=ensureSeasonal();
+ if(Number.isInteger(idx)&&idx>=0&&idx<s.items.length&&confirm('Да изтрия сезонното ястие?')){
+  s.items.splice(idx,1);
+  if(!s.items.length)s.enabled=false;
+  save();render();
+ }
+ break;
+}
+case'season-up':case'season-down':{
+ const s=ensureSeasonal(),list=s.items,target=act==='season-up'?idx-1:idx+1;
+ if(Number.isInteger(idx)&&idx>=0&&idx<list.length&&target>=0&&target<list.length){
+  [list[idx],list[target]]=[list[target],list[idx]];
+  save();render();
+ }
+ break;
+}
 case'dish-add':dishModal(null);break;
 case'dish-edit':dishModal(idx);break;
 case'dish-delete':if(confirm('Сигурен ли си, че искаш да изтриеш ястието?')){state.content.regularMenu[activeCategory].splice(idx,1);save();render()}break;

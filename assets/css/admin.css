@@ -136,3 +136,12 @@ button:disabled{opacity:.48;cursor:not-allowed}
  #qr-print-surface svg{display:block;width:100%;height:100%;print-color-adjust:exact;-webkit-print-color-adjust:exact}
  body,html{margin:0!important;padding:0!important;min-width:0!important;background:white!important}
 }
+
+/* Seasonal section inside permanent-menu editor. */
+.tabs button.seasonal-admin-tab{border-color:#b99c5b;font-weight:800;color:#755421;background:#fcf5e6}
+.tabs button.seasonal-admin-tab[aria-pressed="true"]{background:#89692b;color:white}
+.seasonal-admin-panel{border-top:3px solid #b8944c}
+.seasonal-publish-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:17px 18px;margin:16px 0 25px;background:#faf3e5;border:1px solid #eadabd;border-radius:9px}
+.seasonal-publish-row .mini{margin:6px 0 0}
+.seasonal-publish-row .btn{flex-shrink:0}
+@media(max-width:580px){.seasonal-publish-row{flex-direction:column;align-items:stretch}.seasonal-publish-row .btn{width:100%}}

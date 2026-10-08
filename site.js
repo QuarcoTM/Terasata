@@ -1,0 +1,139 @@
+/* Frontend interactions only. No payments, booking forms or fake admin UI. */
+(() => {
+  'use strict';
+  const d = window.TERASATA_CONTENT;
+  if (!d) return;
+  const $ = (s, parent=document) => parent.querySelector(s);
+  const esc = (s='') => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const page = document.body.dataset.page || 'home';
+  const nav = [
+    ['home', 'Начало', 'index.html'],
+    ['menu', 'Меню', 'menu.html'],
+    ['lunch', 'Обедно меню', 'obedno-menu.html'],
+    ['events', 'Празненства и събития', 'praznenstva.html'],
+    ['gallery', 'Галерия', 'galeria.html'],
+    ['contacts', 'Контакти', 'kontakti.html']
+  ];
+
+  // Temporary restaurant name in typography only. NOT a recreation of the logo.
+  const header = $('#site-header');
+  if (header) header.innerHTML = `
+    <div class="header-shell container">
+      <a class="brand" href="index.html" aria-label="Терасата — начало"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></a>
+      <nav class="desktop-nav" aria-label="Основна навигация">
+        ${nav.map(([id,name,href])=>`<a href="${href}" ${id===page?'aria-current="page"':''}>${name}</a>`).join('')}
+      </nav>
+      <a class="btn btn-gold header-call" href="${d.phoneHref}" aria-label="Резервирай маса по телефона">${phoneIcon()}<span>Резервирай маса</span></a>
+      <button class="mobile-toggle" type="button" aria-label="Отвори менюто" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span><span></span></button>
+    </div>
+    <nav class="mobile-nav" id="mobile-menu" aria-label="Мобилна навигация" hidden>
+      ${nav.map(([id,name,href])=>`<a href="${href}" ${id===page?'aria-current="page"':''}>${name}</a>`).join('')}
+      <a class="mobile-call" href="${d.phoneHref}">${phoneIcon()} Резервирай маса · ${d.phoneDisplay}</a>
+    </nav>`;
+
+  const footer = $('#site-footer');
+  if (footer) footer.innerHTML = `
+    <div class="container footer-layout">
+      <div class="footer-brand"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span><p>Добра храна и приятни срещи в Кюстендил.</p></div>
+      <div class="footer-col"><span class="footer-label">Посетете ни</span><p>${esc(d.addressDisplay)}</p><a class="underlined" href="${d.mapsUrl}" target="_blank" rel="noopener noreferrer">Виж на картата ↗</a></div>
+      <div class="footer-col"><span class="footer-label">Контакт и работно време</span><a class="footer-phone" href="${d.phoneHref}">${d.phoneDisplay}</a><p>Всеки ден · 10:00–00:00 ч.</p></div>
+      <div class="footer-col"><span class="footer-label">Последвайте ни</span><a href="${d.facebookUrl}" target="_blank" rel="noopener noreferrer">Facebook ↗</a><a href="${d.instagramUrl}" target="_blank" rel="noopener noreferrer">Instagram ↗</a></div>
+    </div>
+    <div class="footer-bottom container"><span>© <span id="copyright-year"></span> Ресторант „Терасата“</span><span>Създаден с внимание към детайла.</span></div>`;
+  const year=$('#copyright-year'); if(year)year.textContent=new Date().getFullYear();
+
+  const toggle=$('.mobile-toggle');
+  const mobile=$('#mobile-menu');
+  if(toggle && mobile){
+    const close = () => {toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Отвори менюто');mobile.hidden=true;document.body.classList.remove('nav-open');};
+    toggle.addEventListener('click',()=>{const expanded=toggle.getAttribute('aria-expanded')==='true';if(expanded){close();return;}toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Затвори менюто');mobile.hidden=false;document.body.classList.add('nav-open');});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+    mobile.addEventListener('click',e=>{if(e.target.closest('a'))close();});
+    window.addEventListener('resize',()=>{if(innerWidth>=1050)close();});
+  }
+
+  // The seven categories are taken from the supplied printed menu; no drinks/desserts.
+  const cats=$('#category-grid');
+  if(cats) cats.innerHTML=d.categories.map((c,i)=>`<a class="category-tile" href="menu.html#${encodeURIComponent(c.id)}"><span class="tile-number">${String(i+1).padStart(2,'0')}</span><span class="tile-name">${esc(c.name)}</span><span class="tile-arrow" aria-hidden="true">↗</span></a>`).join('');
+
+  const currentMenuDate = () => {
+    const now = new Date();
+    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Sofia',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'}).formatToParts(now).map(p=>[p.type,p.value]));
+    return { key:`${parts.year}-${parts.month}-${parts.day}`, weekday:parts.weekday };
+  };
+  const { key:todayKey, weekday } = currentMenuDate();
+  const isWeekday = !['Sat','Sun'].includes(weekday);
+  const dayData = isWeekday ? d.lunchByDate[todayKey] : null;
+  const activeLunch = !!(dayData && dayData.published === true && Array.isArray(dayData.groups) && dayData.groups.some(g=>Array.isArray(g.items)&&g.items.length));
+  const lunchDateLabel = new Intl.DateTimeFormat('bg-BG',{timeZone:'Europe/Sofia',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+  const renderLunch = () => {
+    if(!activeLunch) return '';
+    return `<div class="lunch-grid">${dayData.groups.filter(g=>g.items?.length).map(g=>`<section class="lunch-group"><h3>${esc(g.title)}</h3>${(g.weightNote?`<p class="lunch-weight">${esc(g.weightNote)}</p>`:'')}<ul>${g.items.map(item=>`<li><div><span class="lunch-item-title">${esc(item.name)}</span>${item.weight?`<small>${esc(item.weight)}</small>`:''}${item.soldOut?'<small class="sold-out">Изчерпано</small>':''}</div><strong>${esc(item.price)}</strong></li>`).join('')}</ul></section>`).join('')}</div>`;
+  };
+  const lunchHome=$('#lunch-home');
+  if(lunchHome && activeLunch){
+    $('#lunch-home-content').innerHTML=renderLunch();
+    const el=$('#lunch-home-date'); if(el)el.textContent=lunchDateLabel;
+    lunchHome.hidden=false;
+  }
+  const lunchSeparate=$('#lunch-standalone');
+  if(lunchSeparate){
+    const display=$('#lunch-standalone-content');
+    if(activeLunch){
+      display.innerHTML=`<div class="lunch-full-header"><p class="eyebrow">АКТУАЛНО МЕНЮ</p><h2>${esc(lunchDateLabel)}</h2><p>До изчерпване. Поръчки за вкъщи по телефона до 11:30 ч.</p></div>${renderLunch()}`;
+    } else {
+      const label=isWeekday?'За днес няма публикувано обедно меню.':'Обедно меню се предлага от понеделник до петък.';
+      display.innerHTML=`<div class="empty-state"><span class="empty-symbol" aria-hidden="true">✳</span><h2>${label}</h2><p>Можете да разгледате постоянното ни меню.</p><a class="btn btn-gold" href="menu.html">Разгледай основното меню <span aria-hidden="true">↗</span></a></div>`;
+    }
+  }
+
+  const menuCategories=$('#menu-categories');
+  if(menuCategories){
+    menuCategories.innerHTML=d.categories.map(c=>`<a href="#${esc(c.id)}">${esc(c.name)}</a>`).join('');
+    const contents=$('#menu-category-sections');
+    contents.innerHTML=d.categories.map(c=>{
+      const items=d.regularMenu[c.id] || [];
+      return `<section class="menu-section" id="${esc(c.id)}"><div class="menu-section-head"><h2>${esc(c.name)}</h2><span class="menu-section-index" aria-hidden="true">✳</span></div>${items.length?`<div class="dish-grid">${items.map(item=>`<article class="dish-item"><div><h3>${esc(item.name)}</h3>${item.description?`<p>${esc(item.description)}</p>`:''}<span class="dish-weight">${esc(item.weight||'')}</span></div><strong>${esc(item.price||'')}</strong></article>`).join('')}</div>`:`<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>`}</section>`;
+    }).join('');
+  }
+
+  const galleryContainer=$('#gallery-grid');
+  const galleryFilters=$('#gallery-filters');
+  if(galleryContainer){
+    const all=d.gallery;
+    const categories=['Всички',...new Set(all.map(img=>img.category))];
+    const show=(filter='Всички')=>{
+      const visible=filter==='Всички'?all:all.filter(v=>v.category===filter);
+      galleryContainer.innerHTML=visible.map((g)=>`<button type="button" class="gallery-item" data-src="${esc(g.src)}" data-alt="${esc(g.alt)}" aria-label="Отвори снимка: ${esc(g.title)}"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy"><span>${esc(g.title)}</span></button>`).join('');
+      if(galleryFilters)[...galleryFilters.querySelectorAll('button')].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===filter)));
+    };
+    if(galleryFilters){
+      galleryFilters.innerHTML=categories.map(cat=>`<button type="button" class="filter-btn" data-filter="${esc(cat)}" aria-pressed="${cat==='Всички'}">${esc(cat)}</button>`).join('');
+      galleryFilters.addEventListener('click',e=>{const btn=e.target.closest('button[data-filter]');if(btn)show(btn.dataset.filter);});
+    }
+    show();
+    let previousFocus;
+    const overlay=document.createElement('div');overlay.className='lightbox';overlay.hidden=true;
+    overlay.innerHTML='<button type="button" class="lightbox-close" aria-label="Затвори снимката">×</button><img alt=""/><p></p>';
+    document.body.appendChild(overlay);
+    const close=()=>{overlay.hidden=true;document.body.classList.remove('lightbox-open');if(previousFocus)previousFocus.focus();};
+    galleryContainer.addEventListener('click',e=>{const btn=e.target.closest('.gallery-item');if(!btn)return;previousFocus=btn;overlay.querySelector('img').src=btn.dataset.src;overlay.querySelector('img').alt=btn.dataset.alt;overlay.querySelector('p').textContent=btn.querySelector('span').textContent;overlay.hidden=false;document.body.classList.add('lightbox-open');overlay.querySelector('button').focus();});
+    overlay.querySelector('button').addEventListener('click',close);
+    overlay.addEventListener('click',e=>{if(e.target===overlay)close();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close();});
+  }
+
+  const preview=$('#gallery-preview');
+  if(preview) preview.innerHTML=d.gallery.slice(0,4).map(g=>`<a href="galeria.html" class="preview-photo"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy"></a>`).join('');
+
+  const news=$('#news-section');
+  if(news){
+    const now = todayKey;
+    const valid=d.news.filter(item=>item.published && (!item.startDate||item.startDate<=now) && (!item.endDate||item.endDate>=now));
+    if(valid.length){
+      $('#news-grid').innerHTML=valid.slice(0,3).map(item=>`<article class="news-card">${item.image?`<img src="${esc(item.image)}" alt="" loading="lazy">`:''}<div><p class="eyebrow">АКТУАЛНО</p><h3>${esc(item.title)}</h3><p>${esc(item.text||'')}</p></div></article>`).join('');
+      news.hidden=false;
+    }
+  }
+})();
+function phoneIcon(){return '<svg class="icon-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.96.35 1.91.68 2.81a2 2 0 0 1-.45 2.11L8.07 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.33 1.85.56 2.81.68A2 2 0 0 1 22 16.92z"/></svg>';}

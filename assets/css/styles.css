@@ -611,3 +611,8 @@ p {line-height:1.6}
 @media (max-width:760px) {
   .header-shell {min-height:104px}
 }
+
+/* Accessibility refinements for the gallery dialog and empty categories. */
+.gallery-grid .gallery-empty{grid-column:1 / -1;width:100%;padding:42px 18px;margin:0}
+.lightbox:focus-visible{outline:0}
+.lightbox-close{min-width:48px;min-height:48px}

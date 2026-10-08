@@ -52,7 +52,7 @@
   if(toggle && mobile){
     const close = () => {toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Отвори менюто');mobile.hidden=true;document.body.classList.remove('nav-open');};
     toggle.addEventListener('click',()=>{const expanded=toggle.getAttribute('aria-expanded')==='true';if(expanded){close();return;}toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Затвори менюто');mobile.hidden=false;document.body.classList.add('nav-open');});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!mobile.hidden){close();toggle.focus();}});
     mobile.addEventListener('click',e=>{if(e.target.closest('a'))close();});
     window.addEventListener('resize',()=>{if(innerWidth>=1050)close();});
   }
@@ -148,14 +148,52 @@
     }
     show();
     let previousFocus;
-    const overlay=document.createElement('div');overlay.className='lightbox';overlay.hidden=true;
-    overlay.innerHTML='<button type="button" class="lightbox-close" aria-label="Затвори снимката">×</button><img alt=""/><p></p>';
+    let activeIndex=-1;
+    const overlay=document.createElement('div');
+    overlay.className='lightbox';
+    overlay.hidden=true;
+    overlay.setAttribute('role','dialog');
+    overlay.setAttribute('aria-modal','true');
+    overlay.setAttribute('aria-labelledby','gallery-lightbox-title');
+    overlay.innerHTML='<button type="button" class="lightbox-close" aria-label="Затвори снимката">×</button><img alt=""/><p id="gallery-lightbox-title"></p>';
     document.body.appendChild(overlay);
-    const close=()=>{overlay.hidden=true;document.body.classList.remove('lightbox-open');if(previousFocus)previousFocus.focus();};
-    galleryContainer.addEventListener('click',e=>{const btn=e.target.closest('.gallery-item');if(!btn)return;previousFocus=btn;overlay.querySelector('img').src=btn.dataset.src;overlay.querySelector('img').alt=btn.dataset.alt;overlay.querySelector('p').textContent=btn.querySelector('span').textContent;overlay.hidden=false;document.body.classList.add('lightbox-open');overlay.querySelector('button').focus();});
-    overlay.querySelector('button').addEventListener('click',close);
+    const closeButton=overlay.querySelector('.lightbox-close');
+    const photos=()=>[...galleryContainer.querySelectorAll('.gallery-item')];
+    const showPhoto=(index)=>{
+      const items=photos();
+      if(!items.length)return;
+      activeIndex=(index+items.length)%items.length;
+      const selected=items[activeIndex];
+      const picture=overlay.querySelector('img');
+      picture.src=selected.dataset.src;
+      picture.alt=selected.dataset.alt||selected.querySelector('span')?.textContent||'Снимка от ресторанта';
+      overlay.querySelector('#gallery-lightbox-title').textContent=selected.querySelector('span')?.textContent||'Галерия';
+    };
+    const close=()=>{
+      overlay.hidden=true;
+      document.body.classList.remove('lightbox-open');
+      overlay.querySelector('img').removeAttribute('src');
+      activeIndex=-1;
+      if(previousFocus?.isConnected)previousFocus.focus();
+    };
+    galleryContainer.addEventListener('click',e=>{
+      const selected=e.target.closest('.gallery-item');
+      if(!selected)return;
+      previousFocus=selected;
+      showPhoto(photos().indexOf(selected));
+      overlay.hidden=false;
+      document.body.classList.add('lightbox-open');
+      closeButton.focus();
+    });
+    closeButton.addEventListener('click',close);
     overlay.addEventListener('click',e=>{if(e.target===overlay)close();});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close();});
+    document.addEventListener('keydown',e=>{
+      if(overlay.hidden)return;
+      if(e.key==='Escape'){e.preventDefault();close();}
+      else if(e.key==='Tab'){e.preventDefault();closeButton.focus();}
+      else if(e.key==='ArrowRight'){e.preventDefault();showPhoto(activeIndex+1);}
+      else if(e.key==='ArrowLeft'){e.preventDefault();showPhoto(activeIndex-1);}
+    });
   }
 
   const preview=$('#gallery-preview');

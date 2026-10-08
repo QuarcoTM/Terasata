@@ -53,6 +53,12 @@
     window.addEventListener('resize',()=>{if(innerWidth>=1050)close();});
   }
 
+  // Use the configured number for every telephone action, including the static hero links.
+  document.querySelectorAll('a[href^="tel:"]').forEach(anchor=>{
+    anchor.href=d.phoneHref;
+    anchor.childNodes.forEach(node=>{if(node.nodeType===3 && node.textContent.includes('089 295 9030'))node.textContent=node.textContent.replaceAll('089 295 9030',d.phoneDisplay);});
+  });
+
   // The seven categories are taken from the supplied printed menu; no drinks/desserts.
   const cats=$('#category-grid');
   if(cats) cats.innerHTML=d.categories.map((c)=>`<a class="category-tile" href="menu.html?cat=${encodeURIComponent(c.id)}"><span class="category-icon" aria-hidden="true">${categoryIcon(c.id)}</span><span class="tile-name">${esc(c.name)}</span><span class="category-arrow" aria-hidden="true">→</span></a>`).join('');

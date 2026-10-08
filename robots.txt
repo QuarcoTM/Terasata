@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /backend/
+Disallow: /archive/
+Disallow: /media/
+
+Sitemap: https://quarcotm.github.io/Terasata/sitemap.xml

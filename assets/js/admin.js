@@ -62,11 +62,11 @@ document.addEventListener('keydown',event=>{
 });
 function sectionAllowed(section){
  if(!titles[section])return false;
- return !SECURE || ['dashboard','transfer'].includes(section) || (section==='staff'?SECURE.user.role==='owner':SECURE.user.role==='owner'||!!SECURE.user.permissions[section]);
+ return !SECURE || ['dashboard','stats','transfer'].includes(section) || (section==='staff'?SECURE.user.role==='owner':SECURE.user.role==='owner'||!!SECURE.user.permissions[section]);
 }
 
 if(!SECURE){try{const stored=JSON.parse(localStorage.getItem(KEY)||'null');if(stored&&stored.format==='terasata-local-v1'&&stored.content?.categories?.length&&stored.content.regularMenu)state=stored}catch(err){console.warn('Local draft could not be loaded:',err)}}
-const titles={dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай ястия, грамажи, описания, цени и алергени.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
+const titles={stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай ястия, грамажи, описания, цени и алергени.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
 function notice(t){const box=qs('#toast');box.textContent=t;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3200)}
 function save(){
  state.savedAt=new Date().toISOString();
@@ -111,7 +111,7 @@ function setView(next,restore=false){
  if(changed&&!restore){window.scrollTo(0,0);rememberNavigation(0);}
  else if(!restore)rememberNavigation();
 }
-function render(){const content=qs('#view-content'),tools=qs('#view-tools');tools.innerHTML='';switch(view){case 'dashboard':renderDashboard(content);break;case 'lunch':renderLunch(content,tools);break;case 'regular':renderRegular(content,tools);break;case 'gallery':renderGallery(content,tools);break;case 'news':renderNews(content,tools);break;case 'settings':renderSettings(content);break;case 'staff':renderStaff(content,tools);break;case 'transfer':renderTransfer(content);break;}wrapViewActions(tools);}
+function render(){const content=qs('#view-content'),tools=qs('#view-tools');tools.innerHTML='';switch(view){case 'stats':renderStats(content,tools);break;case 'dashboard':renderDashboard(content);break;case 'lunch':renderLunch(content,tools);break;case 'regular':renderRegular(content,tools);break;case 'gallery':renderGallery(content,tools);break;case 'news':renderNews(content,tools);break;case 'settings':renderSettings(content);break;case 'staff':renderStaff(content,tools);break;case 'transfer':renderTransfer(content);break;}wrapViewActions(tools);}
 function wrapViewActions(tools){
  if(!tools||!tools.firstElementChild)return;
  const details=document.createElement('details');
@@ -128,6 +128,26 @@ function wrapViewActions(tools){
  tools.append(details);
 }
 const countDishes=()=>state.content.categories.reduce((n,c)=>n+(state.content.regularMenu[c.id]||[]).length,0);
+
+function renderStats(el,tools){
+ const cfg=window.TERASATA_ANALYTICS||{};
+ const connected=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(cfg.websiteId||'');
+ const menuUrl=new URL('menu/?utm_source=qr&utm_medium=table&utm_campaign=menu',document.baseURI).href;
+ tools.innerHTML='<a class="btn secondary" href="https://cloud.umami.is/" target="_blank" rel="noopener noreferrer">Отвори Umami ↗</a>';
+ el.innerHTML='<div class="stats-overview"><div class="panel"><p class="eyebrow">СТАТУС НА ИЗМЕРВАНЕТО</p><h2>'+(connected?'Интеграцията е настроена':'Очаква свързване')+'</h2>'
+  +'<p class="mini muted">'+(connected?'Проследяването е включено за публичните страници. Реалните посещения са достъпни след вход в Umami.':'В момента няма свързана аналитична услуга. Нямаме достоверни числа за посещенията — няма да показваме измислени стойности.')+'</p>'
+  +'<p><span class="badge '+(connected?'green':'yellow')+'">'+(connected?'Umami — конфигуриран':'Статистиката не е активирана')+'</span></p></div>'
+  +'<div class="panel"><p class="eyebrow">КАКВО ЩЕ ИЗМЕРВАМЕ</p><h2>Реално използване на сайта</h2><div class="stats-metrics-list">'
+  +'<div><strong>Посетители и прегледи</strong><small>По дни и по страници</small></div>'
+  +'<div><strong>Най-гледани страници</strong><small>Меню, обедно меню, галерия, контакти</small></div>'
+  +'<div><strong>Телефон и карта</strong><small>Натискания на бутоните, не реално проведени разговори</small></div>'
+  +'<div><strong>QR отваряния</strong><small>Посещения през адреса за QR менюто</small></div></div></div></div>'
+  +'<section class="panel"><p class="eyebrow">QR МЕНЮ ЗА МАСИТЕ</p><h2>Специален адрес за проследяване</h2><p class="mini muted">Използвай този адрес за бъдещия QR код. Посещенията през него могат да се различават от обикновените посещения, след активиране на статистиката.</p>'
+  +'<div class="stats-copy-row"><input class="field-input" id="stats-qr-link" aria-label="Адрес на QR менюто" readonly value="'+e(menuUrl)+'">'
+  +btn('Копирай адреса','stats-copy-qr','primary')+'</div></section>'
+  +'<div class="hint"><strong>За активиране:</strong> Създава се сайт в Umami Cloud и публичният Website ID се поставя в assets/js/analytics-config.js. Пароли и API ключове не се качват в GitHub. Статистиката се вижда в защитения профил на Umami, а не е публична в този админ.</div>';
+}
+
 function renderDashboard(el){const noOfDays=Object.values(state.content.lunchByDate||{}).filter(d=>d.published).length;el.innerHTML=`<div class="stats"><div class="stat"><strong>${countDishes()}</strong><span>ястия в постоянното меню</span></div><div class="stat"><strong>${state.content.categories.length}</strong><span>категории</span></div><div class="stat"><strong>${state.content.gallery.length}</strong><span>снимки в галерията</span></div><div class="stat"><strong>${noOfDays}</strong><span>публикувани дневни менюта</span></div></div><div class="hint"><strong>Работен режим:</strong> ${SECURE?'Работа със защитен сървър и база данни. Промените се публикуват след потвърден успешен запис.':'Всички промени остават само в този браузър. За преглед отвори сайта с <b>?preview=1</b>. За реално публикуване трябва ръчно да качиш експортирания файл в GitHub. Няма пароли и няма свързване към сървър.'}</div><div class="cards"><article class="card"><h2>Обедно меню</h2><p>Меню по дата, категории, изчерпани ястия и Facebook визия.</p>${btn('Отвори редактора','go:lunch','primary')}</article><article class="card"><h2>Постоянно меню</h2><p>Сегашните 40 ястия и възможност за промени без работа с код.</p>${btn('Редактирай ястия','go:regular')}</article><article class="card"><h2>Галерия и новини</h2><p>Качвай само реални фотографии и създавай временни публикации.</p>${btn('Към галерията','go:gallery')}</article><article class="card"><h2>Архивиране</h2><p>Сваляй резервно копие и подготвяй content.js за GitHub.</p>${btn('Архив и експорт','go:transfer')}</article></div>`}
 function renderRegular(el,tools){
  const cats=state.content.categories;
@@ -392,7 +412,7 @@ qs('#dialog-close').addEventListener('click',()=>qs('#edit-dialog').close());qs(
 if(SECURE){qsa('#admin-nav button[data-view]').forEach(button=>{
  const v=button.dataset.view;
  if(v==='staff'&&SECURE.user.role!=='owner')button.remove();
- if(!['dashboard','staff','transfer'].includes(v)&&SECURE.user.role!=='owner'&&!SECURE.user.permissions[v])button.remove();
+ if(!['dashboard','stats','staff','transfer'].includes(v)&&SECURE.user.role!=='owner'&&!SECURE.user.permissions[v])button.remove();
 });}
 qs('#admin-nav').addEventListener('click',ev=>{const b=ev.target.closest('[data-view]');if(b){setView(b.dataset.view);menuToggle?.focus();}});
 qs('#workspace').addEventListener('change',ev=>{if(ev.target.id==='lunch-date'&&ev.target.value){activeDate=ev.target.value;rememberNavigation();render()}});
@@ -443,6 +463,7 @@ case'news-delete':if(confirm('Да изтрия публикацията?')){sta
 case'staff-add':staffModal(null);break;
 case'staff-edit':staffModal(idx);break;
 case'staff-delete':if(confirm('Да премахна примерния профил?')){state.staff.splice(idx,1);save();render()}break;
+case'stats-copy-qr':{const input=qs('#stats-qr-link');if(input){input.select();if(navigator.clipboard?.writeText)navigator.clipboard.writeText(input.value).then(()=>notice('QR адресът е копиран.')).catch(()=>notice('Маркирай и копирай адреса от полето.'));else notice('Маркирай и копирай адреса от полето.');}break}
 case'export-json':exportJSON();break;
 case'export-site':if(!SECURE)exportSite();break;
 case'reset':if(SECURE){notice('Няма локално нулиране в защитения режим.');break;}if(confirm('Това ще изтрие всички локални редакции на това устройство. Изтегли архив предварително!')){localStorage.removeItem(KEY);state=newState();render();notice('Върнати са началните данни')}break;

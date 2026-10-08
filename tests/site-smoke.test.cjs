@@ -130,3 +130,32 @@ test('View-specific commands are grouped in an accessible actions menu',()=>{
  assert(css.includes('.admin-actions-options'),'Actions menu style missing');
  assert(css.includes('.admin-actions-trigger'),'Actions button style missing');
 });
+
+test('SEO canonical and social image match the six public routes',()=>{
+ const expected=['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/'];
+ const rootUrl='https://quarcotm.github.io/Terasata/';
+ for(const slug of expected){
+  const html=read(slug+'index.html');
+  assert(html.includes('rel="canonical" href="'+rootUrl+slug+'"'),slug+' wrong canonical');
+  assert(html.includes('property="og:url" content="'+rootUrl+slug+'"'),slug+' wrong og:url');
+  assert(html.includes('property="og:image" content="'+rootUrl+'assets/images/terrace.webp"'),slug+' wrong og:image');
+  assert(html.includes('assets/js/analytics.js?v=1'),slug+' analytics script omitted');
+ }
+ const sitemap=read('sitemap.xml');
+ for(const slug of expected)assert(sitemap.includes('<loc>'+rootUrl+slug+'</loc>'),'Missing sitemap route '+slug);
+ assert(!sitemap.includes('/admin/'),'Do not index admin');
+ assert(read('robots.txt').includes('Sitemap: '+rootUrl+'sitemap.xml'));
+});
+test('Analytics is disabled until configured and admin sessions are excluded',()=>{
+ const config=read('assets/js/analytics-config.js');
+ const collector=read('assets/js/analytics.js');
+ const admin=read('admin/index.html');
+ const script=read('assets/js/admin.js');
+ assert(config.includes("websiteId:''"),'Statistics must not transmit without an ID');
+ assert(collector.includes('if(!active || !page || preview'),'Preview tracking must be excluded');
+ assert(collector.includes("params.get('utm_source')==='qr'"),'QR events are missing');
+ for(const ev of ['qr_menu_open','phone_click','directions_click','menu_click'])assert(collector.includes(ev),'Missing event '+ev);
+ assert(admin.includes('data-view="stats"'),'Statistics admin section missing');
+ assert(script.includes('function renderStats(el,tools)'));
+ assert(script.includes('Статистиката не е активирана'));
+});

@@ -22,3 +22,11 @@ ensure(!isset(((array)$public['lunchByDate'])['2026-10-08']),'Draft lunch omitte
 ensure(isset(((array)$public['lunchByDate'])['2026-10-09']),'Approved lunch retained');
 ensure(count($public['news'])===1 && $public['news'][0]['title']==='Активна','Only currently published news exposed');
 ensure(!isset($public['staff']),'Staff details not in public content');
+
+
+$data['seasonalMenu']=['enabled'=>false,'title'=>'Сезонни предложения','description'=>'','items'=>[['name'=>'Тест','price'=>'5,00 €']]];
+$seasonHidden=public_content($data);
+ensure($seasonHidden['seasonalMenu']['enabled']===false && $seasonHidden['seasonalMenu']['items']===[],'Disabled seasonal menu has no public dishes');
+$data['seasonalMenu']['enabled']=true;
+$seasonShown=public_content($data);
+ensure($seasonShown['seasonalMenu']['enabled']===true && count($seasonShown['seasonalMenu']['items'])===1,'Enabled seasonal dish appears in public API');

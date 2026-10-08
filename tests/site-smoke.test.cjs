@@ -192,3 +192,36 @@ test('Both URLs are independently encoded into high-contrast QR matrices',()=>{
  assert(lunchModules.length>3000&&mainModules.length>3000,'QR matrices must have encoded modules');
  assert.notEqual(lunchModules,mainModules,'Different menu URLs must generate different QR matrices');
 });
+
+
+test('Seasonal menu is an optional tab within the permanent menu',()=>{
+ const content=read('assets/js/content.js');
+ const frontend=read('assets/js/site.js');
+ const admin=read('assets/js/admin.js');
+ const html=read('menu/index.html');
+ assert(content.includes("seasonalMenu: {enabled:false,title:'Сезонно меню',description:'',items:[]}"),'Must start hidden and empty');
+ assert(frontend.includes("const showSeasonal=itemsSeasonal.length>0 && (seasonal.enabled===true || preview)"),'Guest must only see enabled seasonal with dishes');
+ assert(frontend.includes("id:'seasonal'"),'Seasonal tab must be on permanent menu');
+ assert(frontend.includes("nextParams.set('cat',catId)"),'Menu tab selection must preserve other params');
+ assert(admin.includes('function renderSeasonal(el,tools,cats)'));
+ assert(admin.includes('function seasonalDishModal(idx)'));
+ assert(admin.includes('function seasonalDetailsModal()'));
+ assert(admin.includes("case'season-toggle'"));
+ assert(admin.includes('if(!s.enabled&&!s.items.length)'), 'Publishing an empty seasonal menu must be rejected');
+ assert(html.includes('site.js?v=20261008-seasonal-v1'),'Frontend cache missing');
+ assert(!exists('seasonal/index.html'),'Do not create a third menu or require new QR code');
+ const seed=JSON.parse(read('backend/seed/content.json'));
+ assert.deepEqual(seed.seasonalMenu,{enabled:false,title:'Сезонно меню',description:'',items:[]});
+ assert.equal(seed.categories.reduce((n,c)=>n+(seed.regularMenu[c.id]||[]).length,0),40,'Original 40 dishes must remain');
+});
+test('Seasonal menu visitor-visibility decision',()=>{
+ const code=read('assets/js/site.js');
+ const decision=code.match(/const showSeasonal=([^;]+);/);
+ assert(decision,'Seasonal visibility logic missing');
+ const result=new Function('itemsSeasonal','seasonal','preview','return ('+decision[1]+');');
+ const sample=[{name:'Тест',price:'5,00 €'}];
+ assert.equal(result([], {enabled:true},false),false,'Never show empty');
+ assert.equal(result(sample,{enabled:false},false),false,'Hide disabled on public page');
+ assert.equal(result(sample,{enabled:true},false),true,'Show enabled on public page');
+ assert.equal(result(sample,{enabled:false},true),true,'Draft is previewable only in local preview');
+});

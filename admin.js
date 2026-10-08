@@ -21,9 +21,64 @@ function setView(next){if(!titles[next])return;view=next;qsa('#admin-nav button'
 function render(){const content=qs('#view-content'),tools=qs('#view-tools');tools.innerHTML='';switch(view){case 'dashboard':renderDashboard(content);break;case 'lunch':renderLunch(content,tools);break;case 'regular':renderRegular(content,tools);break;case 'gallery':renderGallery(content,tools);break;case 'news':renderNews(content,tools);break;case 'settings':renderSettings(content);break;case 'staff':renderStaff(content,tools);break;case 'transfer':renderTransfer(content);break;}}
 const countDishes=()=>state.content.categories.reduce((n,c)=>n+(state.content.regularMenu[c.id]||[]).length,0);
 function renderDashboard(el){const noOfDays=Object.values(state.content.lunchByDate||{}).filter(d=>d.published).length;el.innerHTML=`<div class="stats"><div class="stat"><strong>${countDishes()}</strong><span>ястия в постоянното меню</span></div><div class="stat"><strong>${state.content.categories.length}</strong><span>категории</span></div><div class="stat"><strong>${state.content.gallery.length}</strong><span>снимки в галерията</span></div><div class="stat"><strong>${noOfDays}</strong><span>публикувани дневни менюта</span></div></div><div class="hint"><strong>Работен режим:</strong> Всички промени остават само в този браузър. За преглед отвори сайта с <b>?preview=1</b>. За реално публикуване трябва ръчно да качиш експортирания файл в GitHub. Няма пароли и няма свързване към сървър.</div><div class="cards"><article class="card"><h2>Обедно меню</h2><p>Меню по дата, категории, изчерпани ястия и Facebook визия.</p>${btn('Отвори редактора','go:lunch','primary')}</article><article class="card"><h2>Постоянно меню</h2><p>Сегашните 40 ястия и възможност за промени без работа с код.</p>${btn('Редактирай ястия','go:regular')}</article><article class="card"><h2>Галерия и новини</h2><p>Качвай само реални фотографии и създавай временни публикации.</p>${btn('Към галерията','go:gallery')}</article><article class="card"><h2>Архивиране</h2><p>Сваляй резервно копие и подготвяй content.js за GitHub.</p>${btn('Архив и експорт','go:transfer')}</article></div>`}
-function renderRegular(el,tools){tools.innerHTML=btn('Добави ястие','dish-add','primary');const cats=state.content.categories;activeCategory=cats.some(c=>c.id===activeCategory)?activeCategory:cats[0].id;const items=state.content.regularMenu[activeCategory]||[];el.innerHTML=`<div class="tabs" role="group" aria-label="Категории">${cats.map(c=>`<button type="button" data-cat="${e(c.id)}" aria-pressed="${activeCategory===c.id}">${e(c.name)} (${(state.content.regularMenu[c.id]||[]).length})</button>`).join('')}</div><div class="panel"><div class="section-head"><h2>${e(cats.find(c=>c.id===activeCategory)?.name)}</h2><span class="badge">${items.length} ястия</span></div><div class="rows">${items.length?items.map((dish,i)=>`<div class="list-row"><div><strong>${e(dish.name)}</strong><small>${e(dish.weight)}${dish.description?' · '+e(dish.description):''}${dish.allergens?.length?' · Алергени: '+e(dish.allergens.join(', ')):''}</small></div><div class="row-actions"><span class="price">${e(dish.price)}</span>${rowActions(i,[['Редакция','dish-edit'],['Изтрий','dish-delete','danger slim']])}</div></div>`).join(''):'<p class="empty">Все още няма ястия в тази категория. Можеш да ги добавиш по-късно.</p>'}</div></div><p class="mini muted">Цените в началното меню са преписани от хартиените снимки и не са потвърдени като актуални.</p>`}
-function dishModal(idx){const arr=state.content.regularMenu[activeCategory]||[];const item=Number.isInteger(idx)?arr[idx]:{};openEditor(idx===null?'Ново ястие':'Редакция на ястие',[
-['name','Наименование','text',item.name||'',true],['weight','Грамаж','text',item.weight||''],['price','Цена (с валута)','text',item.price||''],['description','Описание','textarea',item.description||''],['allergens','Алергени (разделени със запетая)','text',(item.allergens||[]).join(', ')]],data=>{if(!data.name.trim()){notice('Въведи наименование');return false}const itemNew={name:data.name.trim(),weight:data.weight.trim(),price:data.price.trim()};if(data.description.trim())itemNew.description=data.description.trim();if(data.allergens.trim())itemNew.allergens=data.allergens.split(',').map(s=>s.trim()).filter(Boolean);if(idx===null)arr.push(itemNew);else arr[idx]=itemNew;state.content.regularMenu[activeCategory]=arr;return save()})}
+function renderRegular(el,tools){
+ const cats=state.content.categories;
+ activeCategory=cats.some(c=>c.id===activeCategory)?activeCategory:cats[0].id;
+ const categoryIndex=cats.findIndex(c=>c.id===activeCategory);
+ const current=cats[categoryIndex];
+ const items=state.content.regularMenu[activeCategory]||[];
+ tools.innerHTML=btn('Добави ястие','dish-add','primary')+'<a class="btn secondary" href="menu.html?preview=1&amp;cat='+encodeURIComponent(activeCategory)+'" target="_blank" rel="noopener">Преглед в сайта ↗</a>';
+ el.innerHTML='<div class="tabs" role="group" aria-label="Категории">'
+  +cats.map(c=>'<button type="button" data-cat="'+e(c.id)+'" aria-pressed="'+(activeCategory===c.id)+'">'+e(c.name)+' ('+(state.content.regularMenu[c.id]||[]).length+')</button>').join('')
+  +'</div><div class="panel"><div class="section-head"><h2>'+e(current.name)+'</h2><div class="row-actions">'
+  +btn('Категория ↑','cat-up','secondary slim',categoryIndex===0?'disabled':'')
+  +btn('Категория ↓','cat-down','secondary slim',categoryIndex===cats.length-1?'disabled':'')
+  +'<span class="badge">'+items.length+' ястия</span></div></div>'
+  +'<div class="rows">'
+  +(items.length?items.map((dish,i)=>{
+    const details=[dish.weight||'',dish.description||'',...(Array.isArray(dish.allergens)&&dish.allergens.length?['Алергени: '+dish.allergens.join(', ')]:[])].filter(Boolean).join(' · ');
+    return '<div class="list-row"><div><strong>'+e(dish.name)+'</strong><small>'+e(details)+'</small></div><div class="row-actions">'
+      +'<span class="price">'+e(dish.price||'')+'</span>'
+      +btn('↑','dish-up:'+i,'secondary slim',i===0?'disabled aria-label="Първо ястие"':'aria-label="Премести '+e(dish.name)+' нагоре"')
+      +btn('↓','dish-down:'+i,'secondary slim',i===items.length-1?'disabled aria-label="Последно ястие"':'aria-label="Премести '+e(dish.name)+' надолу"')
+      +btn('Редакция','dish-edit:'+i,'secondary slim')
+      +btn('Изтрий','dish-delete:'+i,'danger slim')
+      +'</div></div>';
+   }).join(''):'<p class="empty">Все още няма ястия в тази категория. Можеш да ги добавиш по-късно.</p>')
+  +'</div></div><p class="mini muted">Подредбата на категориите и ястията се запазва при експорт на content.js. Цените са от хартиеното меню и не са потвърдени като актуални.</p>';
+}
+function dishModal(idx){
+ const sourceId=activeCategory;
+ const arr=state.content.regularMenu[sourceId]||[];
+ const item=Number.isInteger(idx)?arr[idx]:{};
+ if(!item)return;
+ const currentName=state.content.categories.find(c=>c.id===sourceId)?.name||'';
+ openEditor(idx===null?'Ново ястие':'Редакция на ястие',[
+ ['name','Наименование','text',item.name||'',true],
+ ['category','Категория','select',currentName,true,state.content.categories.map(c=>c.name)],
+ ['weight','Грамаж','text',item.weight||''],
+ ['price','Цена (с валута)','text',item.price||'',true],
+ ['description','Описание','textarea',item.description||''],
+ ['allergens','Алергени (разделени със запетая)','text',(item.allergens||[]).join(', ')]
+ ],data=>{
+  const name=String(data.name||'').trim();
+  const price=String(data.price||'').trim();
+  if(!name||!price){notice('Въведи наименование и цена');return false}
+  const targetCategory=state.content.categories.find(c=>c.name===data.category);
+  if(!targetCategory){notice('Избери валидна категория');return false}
+  const updated={name,weight:String(data.weight||'').trim(),price};
+  if(String(data.description||'').trim())updated.description=data.description.trim();
+  if(String(data.allergens||'').trim())updated.allergens=data.allergens.split(',').map(s=>s.trim()).filter(Boolean);
+  if(idx===null) (state.content.regularMenu[targetCategory.id] ||= []).push(updated);
+  else if(sourceId===targetCategory.id)arr[idx]=updated;
+  else {
+   arr.splice(idx,1);
+   (state.content.regularMenu[targetCategory.id] ||= []).push(updated);
+  }
+  activeCategory=targetCategory.id;
+  return save();
+ });
+}
 function getDay(){if(!state.content.lunchByDate)state.content.lunchByDate={};return state.content.lunchByDate[activeDate]}
 function defaultDay(){return {published:false,groups:[{title:'Салати',weightNote:'250 г',items:[]},{title:'Супи',weightNote:'350 мл',items:[]},{title:'Готвено',weightNote:'450 г',items:[]}]}}
 function ensureDay(){return state.content.lunchByDate[activeDate]||(state.content.lunchByDate[activeDate]=defaultDay())}
@@ -72,6 +127,25 @@ case'go':setView(a1);break;
 case'dish-add':dishModal(null);break;
 case'dish-edit':dishModal(idx);break;
 case'dish-delete':if(confirm('Сигурен ли си, че искаш да изтриеш ястието?')){state.content.regularMenu[activeCategory].splice(idx,1);save();render()}break;
+case'dish-up':case'dish-down':{
+ const list=state.content.regularMenu[activeCategory]||[];
+ const target=act==='dish-up'?idx-1:idx+1;
+ if(Number.isInteger(idx)&&idx>=0&&idx<list.length&&target>=0&&target<list.length){
+  [list[idx],list[target]]=[list[target],list[idx]];
+  save();render();
+ }
+ break;
+}
+case'cat-up':case'cat-down':{
+ const list=state.content.categories;
+ const current=list.findIndex(c=>c.id===activeCategory);
+ const target=act==='cat-up'?current-1:current+1;
+ if(current>=0&&target>=0&&target<list.length){
+  [list[current],list[target]]=[list[target],list[current]];
+  save();render();
+ }
+ break;
+}
 case'lunch-add-group':openEditor('Нова категория за обедното меню',[['title','Категория','text','',true],['weightNote','Общ грамаж (по желание)','text','']],data=>{if(!data.title.trim())return false;ensureDay().groups.push({title:data.title.trim(),weightNote:data.weightNote.trim(),items:[]});return save()});break;
 case'lunch-delete-group':if(confirm('Да изтрия категорията и ястията в нея?')){ensureDay().groups.splice(idx,1);save();render()}break;
 case'lunch-add':lunchItemModal(idx,null);break;

@@ -121,8 +121,9 @@
     const activateCategory=(catId)=>{
       [...menuCategories.querySelectorAll('button[data-cat]')].forEach(btn=>btn.setAttribute('aria-pressed', String(btn.dataset.cat===catId)));
       [...contents.querySelectorAll('.menu-section')].forEach(section=>section.classList.toggle('is-active', section.dataset.cat===catId));
-      const nextUrl = `${location.pathname}?cat=${encodeURIComponent(catId)}`;
-      history.replaceState(null,'',nextUrl);
+      const nextParams = new URLSearchParams(location.search);
+      nextParams.set('cat',catId);
+      history.replaceState(null,'',`${location.pathname}?${nextParams.toString()}`);
     };
     menuCategories.addEventListener('click',e=>{
       const btn=e.target.closest('button[data-cat]');

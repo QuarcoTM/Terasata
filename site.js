@@ -72,10 +72,19 @@
     return { key:`${parts.year}-${parts.month}-${parts.day}`, weekday:parts.weekday };
   };
   const { key:todayKey, weekday } = currentMenuDate();
-  const isWeekday = !['Sat','Sun'].includes(weekday);
-  const dayData = isWeekday ? d.lunchByDate[todayKey] : null;
-  const activeLunch = !!(dayData && dayData.published === true && Array.isArray(dayData.groups) && dayData.groups.some(g=>Array.isArray(g.items)&&g.items.length));
-  const lunchDateLabel = new Intl.DateTimeFormat('bg-BG',{timeZone:'Europe/Sofia',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+  // Viewing another date is possible only when this browser has a local editor draft.
+  const requestedDate = new URLSearchParams(location.search).get('lunch_date');
+  const testDate = /^\d{4}-\d{2}-\d{2}$/.test(requestedDate||'') ? new Date(requestedDate+'T12:00:00Z') : null;
+  const previewSelected = window.TERASATA_PREVIEW_ACTIVE === true && testDate && !Number.isNaN(testDate.getTime()) && testDate.toISOString().slice(0,10) === requestedDate;
+  const selectedKey = previewSelected ? requestedDate : todayKey;
+  const isWeekday = previewSelected ? ![0,6].includes(testDate.getUTCDay()) : !['Sat','Sun'].includes(weekday);
+  const dayData = isWeekday ? (d.lunchByDate || {})[selectedKey] : null;
+  const hasDishes = !!(dayData && Array.isArray(dayData.groups) && dayData.groups.some(g=>Array.isArray(g.items) && g.items.some(item=>String(item.name||'').trim() && String(item.price||'').trim())));
+  const activeLunch = hasDishes && (dayData.published === true || previewSelected);
+  const lunchDateLabel = new Intl.DateTimeFormat('bg-BG',{timeZone:'Europe/Sofia',day:'numeric',month:'long',year:'numeric'}).format(new Date(selectedKey+'T12:00:00Z'));
+  // Refresh a public page when the Sofia calendar date has changed during an open session.
+  if(!previewSelected){const refreshDate=()=>{if(currentMenuDate().key!==todayKey) location.reload();};document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDate();});window.addEventListener('pageshow',refreshDate);}
+
   const renderLunch = () => {
     if(!activeLunch) return '';
     return `<div class="lunch-grid">${dayData.groups.filter(g=>g.items?.length).map(g=>`<section class="lunch-group"><h3>${esc(g.title)}</h3>${(g.weightNote?`<p class="lunch-weight">${esc(g.weightNote)}</p>`:'')}<ul>${g.items.map(item=>`<li><div><span class="lunch-item-title">${esc(item.name)}</span>${item.weight?`<small>${esc(item.weight)}</small>`:''}${item.soldOut?'<small class="sold-out">Изчерпано</small>':''}</div><strong>${esc(item.price)}</strong></li>`).join('')}</ul></section>`).join('')}</div>`;
@@ -90,7 +99,7 @@
   if(lunchSeparate){
     const display=$('#lunch-standalone-content');
     if(activeLunch){
-      display.innerHTML=`<div class="lunch-full-header"><p class="eyebrow">АКТУАЛНО МЕНЮ</p><h2>${esc(lunchDateLabel)}</h2><p>До изчерпване. Поръчки за вкъщи по телефона до 11:30 ч.</p></div>${renderLunch()}`;
+      display.innerHTML=`<div class="lunch-full-header"><p class="eyebrow">${previewSelected&&!dayData.published?'ПРЕГЛЕД НА ЧЕРНОВА':'АКТУАЛНО МЕНЮ'}</p><h2>${esc(lunchDateLabel)}</h2><p>Поръчки за вкъщи по телефона до 11:30 ч.</p></div>${renderLunch()}`;
     } else {
       const label=isWeekday?'За днес няма публикувано обедно меню.':'Обедно меню се предлага от понеделник до петък.';
       display.innerHTML=`<div class="empty-state"><span class="empty-symbol" aria-hidden="true">✳</span><h2>${label}</h2><p>Можете да разгледате постоянното ни меню.</p><a class="btn btn-gold" href="menu.html">Разгледай основното меню <span aria-hidden="true">↗</span></a></div>`;

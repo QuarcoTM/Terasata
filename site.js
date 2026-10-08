@@ -98,7 +98,7 @@
     const contents=$('#menu-category-sections');
     contents.innerHTML=d.categories.map(c=>{
       const items=d.regularMenu[c.id] || [];
-      return `<section class="menu-section ${c.id===activeCat?'is-active':''}" id="${esc(c.id)}" data-cat="${esc(c.id)}"><div class="menu-section-head"><h2>${esc(c.name)}</h2></div>${items.length?`<div class="dish-grid">${items.map(item=>`<article class="dish-item"><div><h3>${esc(item.name)}</h3>${item.description?`<p>${esc(item.description)}</p>`:''}<span class="dish-weight">${esc(item.weight||'')}</span></div><strong>${esc(item.price||'')}</strong></article>`).join('')}</div>`:`<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>`}</section>`;
+      return `<section class="menu-section ${c.id===activeCat?'is-active':''}" id="${esc(c.id)}" data-cat="${esc(c.id)}"><div class="menu-section-head"><h2>${esc(c.name)}</h2></div>${items.length?`<div class="dish-grid">${items.map(item=>`<article class="dish-item"><div><h3>${esc(item.name)}</h3>${item.description?`<p>${esc(item.description)}</p>`:''}${item.allergens?.length?`<p class="dish-allergens">Алергени: ${esc(item.allergens.join(', '))}</p>`:''}<span class="dish-weight">${esc(item.weight||'')}</span></div><strong>${esc(item.price||'')}</strong></article>`).join('')}</div>`:`<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>`}</section>`;
     }).join('');
     const activateCategory=(catId)=>{
       [...menuCategories.querySelectorAll('button[data-cat]')].forEach(btn=>btn.setAttribute('aria-pressed', String(btn.dataset.cat===catId)));

@@ -589,3 +589,6 @@ p {line-height:1.6}
 .space-description-only p {padding:0 17px 19px;color:var(--muted);font-size:12px;margin:0}
 @media(max-width:760px){.space-caption-top{height:160px}}
 @media(max-width:490px){.space-caption-top{height:120px}.space-caption-top span{font-size:10px}}
+
+/* Dietary information transcribed from the printed restaurant menu. */
+.dish-allergens {font-size:12px!important;color:#7c735f!important;margin-top:6px!important;margin-bottom:5px!important;}

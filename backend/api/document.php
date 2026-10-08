@@ -19,7 +19,7 @@ try{
     if($doc['version']!==$post['version']){$pdo->rollBack();json_fail('Content changed by another editor. Reload before saving.',409);}
     $sectionMap=['categories'=>'regular','regularMenu'=>'regular','lunchByDate'=>'lunch','gallery'=>'gallery','galleryCategories'=>'gallery','news'=>'news',
         'restaurantName'=>'settings','phoneDisplay'=>'settings','phoneHref'=>'settings','addressDisplay'=>'settings',
-        'mapsUrl'=>'settings','facebookUrl'=>'settings','instagramUrl'=>'settings','posterSettings'=>'lunch'];
+        'mapsUrl'=>'settings','facebookUrl'=>'settings','instagramUrl'=>'settings','lunchPoster'=>'lunch','posterSettings'=>'lunch'];
     $changed=[];
     foreach($sectionMap as $key=>$scope){
         $a=$doc['content'][$key]??null;$b=$next[$key]??null;

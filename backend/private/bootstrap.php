@@ -17,7 +17,7 @@ function sql(): PDO {
         PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,
         PDO::ATTR_TIMEOUT=>5
     ]);
-    $pdo->exec("SET time_zone = '+03:00'");
+    $pdo->exec("SET time_zone = '+00:00'");
     return $pdo;
 }
 function secure_headers(): void {
@@ -87,13 +87,14 @@ function public_content(array $source): array {
         if(preg_match('/^\d{4}-\d{2}-\d{2}$/',(string)$date) && is_array($day) && ($day['published']??false)===true)$days[$date]=$day;
     }
     $copy['lunchByDate']=(object)$days;
-    $copy['news']=array_values(array_filter($source['news']??[],fn($n)=>is_array($n)&&($n['published']??false)===true));
+    $today=(new DateTimeImmutable('now',new DateTimeZone('Europe/Sofia')))->format('Y-m-d');
+    $copy['news']=array_values(array_filter($source['news']??[],fn($n)=>is_array($n)&&($n['published']??false)===true && (empty($n['startDate']) || $n['startDate']<=$today) && (empty($n['endDate']) || $n['endDate']>=$today)));
     return $copy;
 }
 function validate_content(array $next): void {
     $required=['restaurantName','phoneDisplay','phoneHref','addressDisplay','mapsUrl','facebookUrl','instagramUrl','categories','regularMenu','lunchByDate','news','gallery'];
     foreach($required as $key)if(!array_key_exists($key,$next))json_fail('Missing content field: '.$key,422);
-    $allowed=[...$required,'galleryCategories','posterSettings'];
+    $allowed=[...$required,'galleryCategories','lunchPoster','posterSettings'];
     foreach(array_keys($next) as $key)if(!in_array($key,$allowed,true))json_fail('Unsupported content field',422);
     foreach(['categories','news','gallery'] as $key)if(!is_array($next[$key])||count($next[$key])>300)json_fail('Invalid '.$key,422);
     foreach(['regularMenu','lunchByDate'] as $key)if(!is_array($next[$key]))json_fail('Invalid '.$key,422);

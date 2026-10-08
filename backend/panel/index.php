@@ -50,7 +50,7 @@ $html=file_get_contents(dirname(__DIR__,2).'/admin/index.html');
 if($html===false){http_response_code(503);exit('Panel unavailable');}
 $html=str_replace('<base href="../">','<base href="../../">',$html);
 $html=preg_replace('~<script>if\(location\.pathname\.endsWith\(.+?</script>~s','',$html,1);
-$html=preg_replace('~<script src="assets/js/content\.js\?[^"]+" defer></script>~',$init,$html,1);
+$html=preg_replace_callback('~<script src="assets/js/content\.js\?[^"]+" defer></script>~',static fn(array $match): string => $init,$html,1);
 $html=str_replace('ЛОКАЛЕН РЕДАКТОР · A4-6','ЗАЩИТЕН РЕДАКТОР · A4-6',$html);
 $html=str_replace('Без реален вход и база данни · Промените са видими само в този браузър','Защитен вход · Сървърна база данни · Публикуване след запис',$html);
 $html=str_replace('id="top-preview"','id="top-preview"',$html);

@@ -18,3 +18,16 @@ jobs:
           node-version: '22'
       - name: Validate site structure, links and scripts
         run: node --test tests/site-smoke.test.cjs
+
+  php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_mysql, gd
+      - name: PHP syntax checks
+        run: find backend tests -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: PHP data projection tests
+        run: php tests/backend-content.test.php

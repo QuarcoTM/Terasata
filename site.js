@@ -54,7 +54,7 @@
 
   // The seven categories are taken from the supplied printed menu; no drinks/desserts.
   const cats=$('#category-grid');
-  if(cats) cats.innerHTML=d.categories.map((c,i)=>`<a class="category-tile" href="menu.html#${encodeURIComponent(c.id)}"><span class="tile-number">${String(i+1).padStart(2,'0')}</span><span class="tile-name">${esc(c.name)}</span><span class="tile-arrow" aria-hidden="true">↗</span></a>`).join('');
+  if(cats) cats.innerHTML=d.categories.map((c)=>`<a class="category-tile" href="menu.html?cat=${encodeURIComponent(c.id)}"><span class="tile-name">${esc(c.name)}</span></a>`).join('');
 
   const currentMenuDate = () => {
     const now = new Date();
@@ -89,12 +89,26 @@
 
   const menuCategories=$('#menu-categories');
   if(menuCategories){
-    menuCategories.innerHTML=d.categories.map(c=>`<a href="#${esc(c.id)}">${esc(c.name)}</a>`).join('');
+    const params=new URLSearchParams(location.search);
+    const validIds=d.categories.map(c=>c.id);
+    let activeCat=params.get('cat');
+    if(!validIds.includes(activeCat)) activeCat=validIds[0];
+    menuCategories.innerHTML=d.categories.map(c=>`<button type="button" data-cat="${esc(c.id)}" aria-pressed="${c.id===activeCat}">${esc(c.name)}</button>`).join('');
     const contents=$('#menu-category-sections');
     contents.innerHTML=d.categories.map(c=>{
       const items=d.regularMenu[c.id] || [];
-      return `<section class="menu-section" id="${esc(c.id)}"><div class="menu-section-head"><h2>${esc(c.name)}</h2><span class="menu-section-index" aria-hidden="true">✳</span></div>${items.length?`<div class="dish-grid">${items.map(item=>`<article class="dish-item"><div><h3>${esc(item.name)}</h3>${item.description?`<p>${esc(item.description)}</p>`:''}<span class="dish-weight">${esc(item.weight||'')}</span></div><strong>${esc(item.price||'')}</strong></article>`).join('')}</div>`:`<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>`}</section>`;
+      return `<section class="menu-section ${c.id===activeCat?'is-active':''}" id="${esc(c.id)}" data-cat="${esc(c.id)}"><div class="menu-section-head"><h2>${esc(c.name)}</h2></div>${items.length?`<div class="dish-grid">${items.map(item=>`<article class="dish-item"><div><h3>${esc(item.name)}</h3>${item.description?`<p>${esc(item.description)}</p>`:''}<span class="dish-weight">${esc(item.weight||'')}</span></div><strong>${esc(item.price||'')}</strong></article>`).join('')}</div>`:`<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>`}</section>`;
     }).join('');
+    const activateCategory=(catId)=>{
+      [...menuCategories.querySelectorAll('button[data-cat]')].forEach(btn=>btn.setAttribute('aria-pressed', String(btn.dataset.cat===catId)));
+      [...contents.querySelectorAll('.menu-section')].forEach(section=>section.classList.toggle('is-active', section.dataset.cat===catId));
+      const nextUrl = `${location.pathname}?cat=${encodeURIComponent(catId)}`;
+      history.replaceState(null,'',nextUrl);
+    };
+    menuCategories.addEventListener('click',e=>{
+      const btn=e.target.closest('button[data-cat]');
+      if(btn) activateCategory(btn.dataset.cat);
+    });
   }
 
   const galleryContainer=$('#gallery-grid');

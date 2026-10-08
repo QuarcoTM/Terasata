@@ -134,11 +134,11 @@
   const galleryContainer=$('#gallery-grid');
   const galleryFilters=$('#gallery-filters');
   if(galleryContainer){
-    const all=d.gallery;
-    const categories=['Всички',...new Set(all.map(img=>img.category))];
+    const all=Array.isArray(d.gallery)?d.gallery:[];
+    const categories=['Всички',...new Set(all.map(img=>img.category).filter(Boolean))];
     const show=(filter='Всички')=>{
       const visible=filter==='Всички'?all:all.filter(v=>v.category===filter);
-      galleryContainer.innerHTML=visible.map((g)=>`<button type="button" class="gallery-item" data-src="${esc(g.src)}" data-alt="${esc(g.alt)}" aria-label="Отвори снимка: ${esc(g.title)}"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy"><span>${esc(g.title)}</span></button>`).join('');
+      galleryContainer.innerHTML=visible.length?visible.map((g)=>`<button type="button" class="gallery-item" data-src="${esc(g.src)}" data-alt="${esc(g.alt)}" aria-label="Отвори снимка: ${esc(g.title)}"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy"><span>${esc(g.title)}</span></button>`).join(''):'<p class="empty-state gallery-empty">Няма снимки в тази категория.</p>';
       if(galleryFilters)[...galleryFilters.querySelectorAll('button')].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===filter)));
     };
     if(galleryFilters){
@@ -158,14 +158,15 @@
   }
 
   const preview=$('#gallery-preview');
-  if(preview) preview.innerHTML=d.gallery.slice(0,5).map(g=>`<a href="galeria.html" class="preview-photo"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy"></a>`).join('');
+  if(preview){const shots=Array.isArray(d.gallery)?d.gallery:[];preview.innerHTML=shots.slice(0,5).map(g=>`<a href="galeria.html" class="preview-photo"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy"></a>`).join('');if(!shots.length){const gallerySection=preview.closest('section');if(gallerySection)gallerySection.hidden=true;}}
 
   const news=$('#news-section');
   if(news){
     const now = todayKey;
-    const valid=d.news.filter(item=>item.published && (!item.startDate||item.startDate<=now) && (!item.endDate||item.endDate>=now));
+    const localPreview=window.TERASATA_PREVIEW_ACTIVE===true;
+    const valid=(Array.isArray(d.news)?d.news:[]).filter(item=>localPreview||item.published && (!item.startDate||item.startDate<=now) && (!item.endDate||item.endDate>=now));
     if(valid.length){
-      $('#news-grid').innerHTML=valid.slice(0,3).map(item=>`<article class="news-card">${item.image?`<img src="${esc(item.image)}" alt="" loading="lazy">`:''}<div><p class="eyebrow">АКТУАЛНО</p><h3>${esc(item.title)}</h3><p>${esc(item.text||'')}</p></div></article>`).join('');
+      $('#news-grid').innerHTML=valid.slice(0,3).map(item=>`<article class="news-card">${item.image?`<img src="${esc(item.image)}" alt="" loading="lazy">`:''}<div><p class="eyebrow">${localPreview&&!item.published?'ЧЕРНОВА · ':''}${esc(item.type||'Новина')}</p><h3>${esc(item.title)}</h3><p>${esc(item.text||'')}</p></div></article>`).join('');
       news.hidden=false;
     }
   }

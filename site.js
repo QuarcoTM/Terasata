@@ -34,12 +34,13 @@
   const footer = $('#site-footer');
   if (footer) footer.innerHTML = `
     <div class="container footer-layout">
-      <div class="footer-brand"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span><p>Добра храна и приятни срещи в Кюстендил.</p></div>
-      <div class="footer-col"><span class="footer-label">Посетете ни</span><p>${esc(d.addressDisplay)}</p><a class="underlined" href="${d.mapsUrl}" target="_blank" rel="noopener noreferrer">Виж на картата ↗</a></div>
-      <div class="footer-col"><span class="footer-label">Контакт и работно време</span><a class="footer-phone" href="${d.phoneHref}">${d.phoneDisplay}</a><p>Всеки ден · 10:00–00:00 ч.</p></div>
-      <div class="footer-col"><span class="footer-label">Последвайте ни</span><a href="${d.facebookUrl}" target="_blank" rel="noopener noreferrer">Facebook ↗</a><a href="${d.instagramUrl}" target="_blank" rel="noopener noreferrer">Instagram ↗</a></div>
+      <div class="footer-brand"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></div>
+      <div class="footer-col footer-location"><span class="footer-symbol" aria-hidden="true">⌖</span><div><p>${esc(d.addressDisplay)}</p><a class="footer-map-link" href="${d.mapsUrl}" target="_blank" rel="noopener noreferrer">Виж на картата →</a></div></div>
+      <div class="footer-col footer-contact-phone"><span class="footer-symbol" aria-hidden="true">✆</span><a class="footer-phone" href="${d.phoneHref}">${d.phoneDisplay}</a></div>
+      <div class="footer-col footer-hours"><span class="footer-symbol" aria-hidden="true">◷</span><p>Всеки ден<br>10:00 – 00:00</p></div>
+      <div class="footer-col footer-social"><a href="${d.facebookUrl}" target="_blank" rel="noopener noreferrer">Facebook</a><a href="${d.instagramUrl}" target="_blank" rel="noopener noreferrer">Instagram</a></div>
     </div>
-    <div class="footer-bottom container"><span>© <span id="copyright-year"></span> Ресторант „Терасата“</span><span>Създаден с внимание към детайла.</span></div>`;
+    <div class="footer-bottom container"><span>© <span id="copyright-year"></span> Ресторант „Терасата“</span></div>`;
   const year=$('#copyright-year'); if(year)year.textContent=new Date().getFullYear();
 
   const toggle=$('.mobile-toggle');
@@ -54,7 +55,7 @@
 
   // The seven categories are taken from the supplied printed menu; no drinks/desserts.
   const cats=$('#category-grid');
-  if(cats) cats.innerHTML=d.categories.map((c)=>`<a class="category-tile" href="menu.html?cat=${encodeURIComponent(c.id)}"><span class="tile-name">${esc(c.name)}</span></a>`).join('');
+  if(cats) cats.innerHTML=d.categories.map((c)=>`<a class="category-tile" href="menu.html?cat=${encodeURIComponent(c.id)}"><span class="category-icon" aria-hidden="true">${categoryIcon(c.id)}</span><span class="tile-name">${esc(c.name)}</span><span class="category-arrow" aria-hidden="true">→</span></a>`).join('');
 
   const currentMenuDate = () => {
     const now = new Date();
@@ -138,7 +139,7 @@
   }
 
   const preview=$('#gallery-preview');
-  if(preview) preview.innerHTML=d.gallery.slice(0,4).map(g=>`<a href="galeria.html" class="preview-photo"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy"></a>`).join('');
+  if(preview) preview.innerHTML=d.gallery.slice(0,5).map(g=>`<a href="galeria.html" class="preview-photo"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy"></a>`).join('');
 
   const news=$('#news-section');
   if(news){
@@ -151,3 +152,17 @@
   }
 })();
 function phoneIcon(){return '<svg class="icon-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.96.35 1.91.68 2.81a2 2 0 0 1-.45 2.11L8.07 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.33 1.85.56 2.81.68A2 2 0 0 1 22 16.92z"/></svg>';}
+
+// Hand-authored line icons, independent of any generated imagery.
+function categoryIcon(id) {
+ const paths = {
+   'salati':'<path d="M4 12c0 5 4 8 8 8s8-3 8-8H4Z"/><path d="M7 8c1-3 3-4 5-3 0 2-1 4-4 5M12 10c1-4 4-5 7-4-1 3-3 4-6 5"/>',
+   'predyastiya':'<path d="M3 17h18M5 17a7 7 0 0 1 14 0M12 10V8M9 8h6"/><path d="M6 20h12"/>',
+   'kartofi':'<path d="M5 10h14l-2 11H7L5 10ZM7 10 6 3h3l1 7M10 10V2h3v8M14 10l1-7h3l-1 7"/>',
+   'pasta-i-oriz':'<path d="M3 13h18c0 5-4 8-9 8s-9-3-9-8Z"/><path d="M7 10c0-2 2-2 2-4s-1-2-1-3M12 10c0-2 2-2 2-4s-1-2-1-3M17 10c0-2 2-2 2-4s-1-2-1-3"/>',
+   'osnovni-yastiya':'<path d="M3 18h18M5 18a7 7 0 0 1 14 0M12 8V6M10 6h4M3 21h18"/>',
+   'skara':'<path d="M3 10h18l-3 7H6l-3-7ZM7 17l-2 5M17 17l2 5M8 7l-1-4M12 7l1-4M16 7l1-4"/>',
+   'riba-i-morski-darove':'<path d="M3 12c3-5 7-7 12-6l5-4v8l-3 2 3 2v8l-5-4c-5 1-9-1-12-6Z"/><circle cx="12.5" cy="10" r="1"/><path d="M6 12h5"/>'
+ };
+ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${paths[id]||''}</svg>`;
+}

@@ -3,54 +3,63 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#faf9f5">
-  <meta name="description" content="Ресторант „Терасата“ в Кюстендил – обедно меню, постоянни предложения, празненства и резервации по телефона.">
-  <title>Терасата – Ресторант в Кюстендил</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="content.js" defer></script>
-  <script src="site.js" defer></script>
+  <meta name="theme-color" content="#f5efe3">
+  <meta name="description" content="Ресторант „Терасата“ в Кюстендил – меню, обедни предложения и празненства. Резервации на 089 295 9030.">
+  <title>Терасата — ресторант в Кюстендил</title>
+  <link rel="stylesheet" href="styles.css?v=3">
+  <script src="content.js?v=3" defer></script>
+  <script src="site.js?v=3" defer></script>
 </head>
 <body data-page="home">
   <a href="#main-content" class="skip-link">Към съдържанието</a>
   <header id="site-header" class="site-header"></header>
+  <main id="main-content">
+    <section class="hero" aria-labelledby="hero-title">
+      <img class="hero-photo" src="terrace.webp" alt="Реална снимка на покритата тераса на ресторант „Терасата“" fetchpriority="high">
+      <div class="hero-shade" aria-hidden="true"></div>
+      <div class="container hero-inner"><div class="hero-copy">
+        <span class="hero-kicker">РЕСТОРАНТ ТЕРАСАТА</span>
+        <h1 id="hero-title">Добре дошли<br>в <em>Терасата</em></h1>
+        <p>Уют, добра храна и приятна атмосфера<br class="desktop-only"> в сърцето на Кюстендил.</p>
+        <div class="hero-actions"><a class="btn btn-gold" href="menu.html">Разгледай менюто <span aria-hidden="true">→</span></a><a class="btn btn-outline-light" href="tel:+359892959030">Обади се <span aria-hidden="true">↗</span></a></div>
+      </div></div>
+    </section>
 
-<main id="main-content">
-  <section class="hero" aria-labelledby="hero-title">
-    <img class="hero-photo" src="terrace.webp" alt="Покритата тераса на ресторант „Терасата“ в Кюстендил" fetchpriority="high">
-    <div class="hero-shade" aria-hidden="true"></div>
-    <div class="container hero-inner"><div class="hero-copy">
-      <span class="hero-kicker">РЕСТОРАНТ · КЮСТЕНДИЛ</span>
-      <h1 id="hero-title">Добре дошли<br>в <em>Терасата</em></h1>
-      <p>Място за обяд, вечеря и приятни срещи.</p>
-      <div class="hero-actions"><a class="btn btn-gold" href="menu.html">Разгледай менюто <span aria-hidden="true">↗</span></a><a class="btn btn-outline-light" href="tel:+359892959030">Обади се <span aria-hidden="true">↗</span></a></div>
-    </div></div>
-    <div class="hero-bottom-note">Кюстендил, ул. „Шейново“ №10</div>
-  </section>
+    <section class="section lunch-home-section ornamental ornamental-left" id="lunch-home" hidden aria-labelledby="lunch-heading">
+      <div class="container lunch-layout">
+        <div class="lunch-intro"><h2 id="lunch-heading">Обедно меню</h2><p class="lunch-description">Всеки делничен ден с различни предложения.</p><p class="lunch-date">За <span id="lunch-home-date"></span></p>
+          <div class="lunch-notes"><span>◷ &nbsp; До изчерпване</span><span>⌂ &nbsp; Поръчки за вкъщи до 11:30 ч.</span></div>
+          <a class="btn btn-gold" href="obedno-menu.html">Виж цялото обедно меню <span aria-hidden="true">→</span></a>
+        </div>
+        <div id="lunch-home-content" class="lunch-content"></div>
+      </div>
+    </section>
 
-  <section class="section lunch-home-section decor-leaves-left" id="lunch-home" hidden aria-labelledby="lunch-heading">
-    <div class="container"><div class="section-header split-head"><div><p class="eyebrow">ПОНЕДЕЛНИК – ПЕТЪК</p><h2 id="lunch-heading">Обедно меню</h2><p class="lead">За <span id="lunch-home-date"></span> · До изчерпване</p></div><div class="right-head"><span>Поръчки за вкъщи до 11:30 ч.</span><a class="text-link" href="obedno-menu.html">Отвори страницата <span aria-hidden="true">↗</span></a></div></div><div id="lunch-home-content"></div></div>
-  </section>
+    <section class="section section-menu ornamental ornamental-left" aria-labelledby="menu-heading">
+      <div class="container">
+        <div class="section-header compact-header"><h2 id="menu-heading" class="heading-line">Нашето меню</h2><p class="lead">Разнообразие от вкусове за всеки повод</p></div>
+        <div id="category-grid" class="category-grid"></div>
+      </div>
+    </section>
 
-  <section class="section section-menu decor-leaves-left" aria-labelledby="menu-heading">
-    <div class="container"><div class="section-header"><p class="eyebrow">ИЗБЕРЕТЕ ОТ МЕНЮТО</p><h2 id="menu-heading">Нашето меню</h2><p class="lead">Разгледайте предложенията по категории.</p></div><div id="category-grid" class="category-grid"></div><a class="text-link menu-all-link" href="menu.html">Към пълното меню <span aria-hidden="true">↗</span></a></div>
-  </section>
+    <section class="section events-highlight ornamental ornamental-right" aria-labelledby="events-heading">
+      <div class="events-split">
+        <div class="events-photo-frame"><img src="celebration-table.webp" loading="lazy" alt="Истинска празнично подредена маса в ресторант „Терасата“"></div>
+        <div class="events-copy"><h2 id="events-heading">Празненства и събития</h2>
+          <p>Рождени дни, кръщенета, семейни събирания и фирмени поводи — празнувайте при нас.</p>
+          <p>Предлагаме готови куверти и индивидуални менюта, съобразени с вашите предпочитания.</p>
+          <div class="events-bottom"><a class="btn btn-gold" href="tel:+359892959030">Запитване по телефон <span aria-hidden="true">→</span></a><a class="events-more" href="praznenstva.html">Повече за празненствата ↗</a></div>
+          <div class="events-tags" aria-label="Видове събития"><span>Рождени дни</span><span>Кръщенета</span><span>Семейни събирания</span><span>Фирмени събития</span></div>
+        </div>
+      </div>
+    </section>
 
-  <section class="section about-strip" aria-labelledby="about-heading"><div class="container about-grid">
-    <div class="about-photo-frame"><img src="main-hall.webp" loading="lazy" alt="Основната зала на ресторант „Терасата“"></div>
-    <div class="about-copy"><p class="eyebrow">ЗАПОВЯДАЙТЕ ПРИ НАС</p><h2 id="about-heading">Място за хубави моменти</h2><p>В „Терасата“ можете да се съберете за обяд, вечеря или просто за приятен разговор. Ресторантът разполага с вътрешни и външни пространства на два етажа.</p><p>Намираме се в Кюстендил, на ул. „Шейново“ №10.</p><a class="text-link" href="kontakti.html">Как да ни откриете <span aria-hidden="true">↗</span></a></div>
-  </div></section>
+    <section class="section news-section" id="news-section" hidden aria-labelledby="news-heading"><div class="container"><div class="section-header compact-header"><h2 id="news-heading" class="heading-line">Актуално в Терасата</h2></div><div class="news-grid" id="news-grid"></div></div></section>
 
-  <section class="section events-highlight decor-leaves-right" aria-labelledby="events-heading"><div class="container events-grid">
-    <div class="events-copy"><p class="eyebrow">ЗА ВАШИТЕ ПОВОДИ</p><h2 id="events-heading">Празненства<br>и събития</h2><p>Рождени дни, кръщенета, семейни и фирмени събирания — с възможност за избор на пространство според предпочитанията ви.</p><p>Предлагаме готови куверти и индивидуални менюта. Подробностите се уточняват по телефона.</p><div class="events-actions"><a class="btn btn-gold" href="praznenstva.html">Научете повече <span aria-hidden="true">↗</span></a><a class="text-link" href="tel:+359892959030">089 295 9030 <span aria-hidden="true">↗</span></a></div></div>
-    <div class="events-photo-frame"><img src="celebration-table.webp" loading="lazy" alt="Подредена маса за празненство в ресторант „Терасата“"></div>
-  </div></section>
+    <section class="section gallery-home ornamental ornamental-right" aria-labelledby="gallery-home-heading"><div class="container"><div class="section-header gallery-head"><h2 id="gallery-home-heading" class="heading-line">Галерия</h2><a class="text-link" href="galeria.html">Виж всички снимки <span aria-hidden="true">→</span></a></div><div class="gallery-preview" id="gallery-preview"></div></div></section>
 
-  <section class="section news-section" id="news-section" hidden aria-labelledby="news-heading"><div class="container"><div class="section-header"><p class="eyebrow">НОВИНИ И ПРЕДЛОЖЕНИЯ</p><h2 id="news-heading">Актуално в Терасата</h2></div><div class="news-grid" id="news-grid"></div></div></section>
-
-  <section class="section gallery-home decor-leaves-right" aria-labelledby="gallery-home-heading"><div class="container"><div class="section-header split-head"><div><p class="eyebrow">АТМОСФЕРАТА</p><h2 id="gallery-home-heading">Отблизо</h2></div><a class="text-link" href="galeria.html">Вижте галерията <span aria-hidden="true">↗</span></a></div><div class="gallery-preview" id="gallery-preview"></div></div></section>
-
-  <section class="section home-contact" aria-labelledby="home-contact-heading"><div class="container contact-strip"><div><p class="eyebrow">ОЧАКВАМЕ ВИ</p><h2 id="home-contact-heading">Заповядайте в „Терасата“</h2><p>гр. Кюстендил, ул. „Шейново“ №10<br>Всеки ден от 10:00 до 00:00 ч.</p></div><div class="contact-strip-actions"><a class="btn btn-gold" href="tel:+359892959030">Резервирай маса <span aria-hidden="true">↗</span></a><a class="btn btn-outline-dark" href="kontakti.html">Контакти и карта <span aria-hidden="true">↗</span></a></div></div></section>
-</main>
+    <section class="home-contact"><div class="container home-contact-inner"><p>Заповядайте в „Терасата“ — <strong>гр. Кюстендил, ул. „Шейново“ №10.</strong></p><div><a href="tel:+359892959030">089 295 9030</a><a href="kontakti.html">Контакти и карта →</a></div></div></section>
+  </main>
   <footer id="site-footer" class="site-footer"></footer>
 </body>
 </html>

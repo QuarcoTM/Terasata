@@ -174,7 +174,8 @@ test('Print-ready QR cards are available with two distinct real codes',()=>{
 });
 test('Both URLs are independently encoded into high-contrast QR matrices',()=>{
  const vm=require('node:vm');
- const context={window:{},document:{baseURI:'https://quarcotm.github.io/Terasata/'},localStorage:{getItem:()=>null},URL,console};
+ const context={document:{baseURI:'https://quarcotm.github.io/Terasata/'},localStorage:{getItem:()=>null},URL,console};
+ context.window=context; // Browser globals and window point to the same object.
  vm.createContext(context);
  vm.runInContext(read('assets/js/vendor/qrcode-generator.js'),context);
  vm.runInContext(read('assets/js/qr-cards.js'),context);

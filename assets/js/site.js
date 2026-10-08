@@ -122,25 +122,33 @@
   const menuCategories=$('#menu-categories');
   if(menuCategories){
     const params=new URLSearchParams(location.search);
-    const validIds=d.categories.map(c=>c.id);
+    const preview=window.TERASATA_PREVIEW_ACTIVE===true;
+    const seasonal=d.seasonalMenu||{enabled:false,title:'Сезонно меню',description:'',items:[]};
+    const itemsSeasonal=Array.isArray(seasonal.items)?seasonal.items:[];
+    const showSeasonal=itemsSeasonal.length>0 && (seasonal.enabled===true || preview);
+    const available=d.categories.concat(showSeasonal?[{id:'seasonal',name:seasonal.title||'Сезонно меню'}]:[]);
+    const validIds=available.map(c=>c.id);
     let activeCat=params.get('cat');
-    if(!validIds.includes(activeCat)) activeCat=validIds[0];
-    menuCategories.innerHTML=d.categories.map(c=>`<button type="button" data-cat="${esc(c.id)}" aria-pressed="${c.id===activeCat}">${esc(c.name)}</button>`).join('');
+    if(!validIds.includes(activeCat))activeCat=validIds[0];
+    menuCategories.innerHTML=available.map(c=>'<button type="button" data-cat="'+esc(c.id)+'" aria-pressed="'+(c.id===activeCat)+'" '+(c.id==='seasonal'?'class="seasonal-menu-tab"':'')+'>'+(c.id==='seasonal'?'✦ ':'')+esc(c.name)+'</button>').join('');
     const contents=$('#menu-category-sections');
-    contents.innerHTML=d.categories.map(c=>{
-      const items=d.regularMenu[c.id] || [];
-      return `<section class="menu-section ${c.id===activeCat?'is-active':''}" id="${esc(c.id)}" data-cat="${esc(c.id)}"><div class="menu-section-head"><h2>${esc(c.name)}</h2></div>${items.length?`<div class="dish-grid">${items.map(item=>`<article class="dish-item"><div><h3>${esc(item.name)}</h3>${item.description?`<p>${esc(item.description)}</p>`:''}${item.allergens?.length?`<p class="dish-allergens">Алергени: ${esc(item.allergens.join(', '))}</p>`:''}<span class="dish-weight">${esc(item.weight||'')}</span></div><strong>${esc(item.price||'')}</strong></article>`).join('')}</div>`:`<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>`}</section>`;
+    const renderDish=item=>'<article class="dish-item"><div><h3>'+esc(item.name)+'</h3>'+(item.description?'<p>'+esc(item.description)+'</p>':'')+(item.allergens?.length?'<p class="dish-allergens">Алергени: '+esc(item.allergens.join(', '))+'</p>':'')+'<span class="dish-weight">'+esc(item.weight||'')+'</span></div><strong>'+esc(item.price||'')+'</strong></article>';
+    contents.innerHTML=available.map(c=>{
+      const special=c.id==='seasonal',items=special?itemsSeasonal:(d.regularMenu[c.id]||[]);
+      const extra=special?'<p class="eyebrow seasonal-eyebrow">СПЕЦИАЛНИ СЕЗОННИ ПРЕДЛОЖЕНИЯ</p>'+(seasonal.description?'<p class="seasonal-description">'+esc(seasonal.description)+'</p>':'')+(preview&&!seasonal.enabled?'<p class="seasonal-preview-message">Локален преглед — сезонното меню е скрито за посетителите.</p>':''):'';
+      const body=items.length?'<div class="dish-grid">'+items.map(renderDish).join('')+'</div>':'<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>';
+      return '<section class="menu-section '+(special?'seasonal-menu-section ':'')+(c.id===activeCat?'is-active':'')+'" id="'+esc(c.id)+'" data-cat="'+esc(c.id)+'">'+extra+'<div class="menu-section-head"><h2>'+esc(c.name)+'</h2></div>'+body+'</section>';
     }).join('');
-    const activateCategory=(catId)=>{
-      [...menuCategories.querySelectorAll('button[data-cat]')].forEach(btn=>btn.setAttribute('aria-pressed', String(btn.dataset.cat===catId)));
-      [...contents.querySelectorAll('.menu-section')].forEach(section=>section.classList.toggle('is-active', section.dataset.cat===catId));
-      const nextParams = new URLSearchParams(location.search);
+    const activateCategory=catId=>{
+      [...menuCategories.querySelectorAll('button[data-cat]')].forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.cat===catId)));
+      [...contents.querySelectorAll('.menu-section')].forEach(section=>section.classList.toggle('is-active',section.dataset.cat===catId));
+      const nextParams=new URLSearchParams(location.search);
       nextParams.set('cat',catId);
-      history.replaceState(null,'',`${location.pathname}?${nextParams.toString()}`);
+      history.replaceState(null,'',location.pathname+'?'+nextParams.toString());
     };
-    menuCategories.addEventListener('click',e=>{
-      const btn=e.target.closest('button[data-cat]');
-      if(btn) activateCategory(btn.dataset.cat);
+    menuCategories.addEventListener('click',ev=>{
+      const btn=ev.target.closest('button[data-cat]');
+      if(btn)activateCategory(btn.dataset.cat);
     });
   }
 

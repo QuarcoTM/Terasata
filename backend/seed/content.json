@@ -416,5 +416,11 @@
       "category": "Вътрешни зали",
       "title": "Бар"
     }
-  ]
+  ],
+  "seasonalMenu": {
+    "enabled": false,
+    "title": "Сезонно меню",
+    "description": "",
+    "items": []
+  }
 }

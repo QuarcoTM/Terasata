@@ -616,3 +616,10 @@ p {line-height:1.6}
 .gallery-grid .gallery-empty{grid-column:1 / -1;width:100%;padding:42px 18px;margin:0}
 .lightbox:focus-visible{outline:0}
 .lightbox-close{min-width:48px;min-height:48px}
+
+/* Seasonal offers are a category of the permanent menu, with no extra QR page. */
+.menu-anchor-nav button.seasonal-menu-tab{border-color:#cba655;color:#876224;font-weight:750}
+.menu-anchor-nav button.seasonal-menu-tab[aria-pressed="true"]{background:#93722f;color:#fff}
+.seasonal-menu-section .seasonal-eyebrow{margin:0 0 10px;color:#92712f;letter-spacing:.12em}
+.seasonal-description{max-width:70ch;font-size:15px;color:var(--muted);margin:0 0 20px}
+.seasonal-preview-message{border-left:3px solid #b28d41;background:#faf2dd;padding:10px 14px;font-size:13px;color:#664c23;margin:8px 0 18px}

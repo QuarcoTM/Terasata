@@ -369,6 +369,8 @@ window.TERASATA_CONTENT = {
     }
   ]
 },
+  // Seasonal offers are separate from the permanent menu and hidden initially.
+  seasonalMenu: {enabled:false,title:'Сезонно меню',description:'',items:[]},
   // Each date must be YYYY-MM-DD in Europe/Sofia local time.
   // Menus are visible ONLY Monday-Friday and ONLY when published=true.
   // Example shape: { '2026-11-02': { published:true, groups:[{title:'Салати',items:[{name:'...',weight:'250 г',price:'3,20 €'}]}] } }

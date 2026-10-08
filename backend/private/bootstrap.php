@@ -87,6 +87,9 @@ function public_content(array $source): array {
         if(preg_match('/^\d{4}-\d{2}-\d{2}$/',(string)$date) && is_array($day) && ($day['published']??false)===true)$days[$date]=$day;
     }
     $copy['lunchByDate']=(object)$days;
+    if(!isset($copy['seasonalMenu'])||!is_array($copy['seasonalMenu'])||empty($copy['seasonalMenu']['enabled'])||empty($copy['seasonalMenu']['items'])){
+        $copy['seasonalMenu']=['enabled'=>false,'title'=>'Сезонно меню','description'=>'','items'=>[]];
+    }
     $today=(new DateTimeImmutable('now',new DateTimeZone('Europe/Sofia')))->format('Y-m-d');
     $copy['news']=array_values(array_filter($source['news']??[],fn($n)=>is_array($n)&&($n['published']??false)===true && (empty($n['startDate']) || $n['startDate']<=$today) && (empty($n['endDate']) || $n['endDate']>=$today)));
     return $copy;
@@ -94,7 +97,7 @@ function public_content(array $source): array {
 function validate_content(array $next): void {
     $required=['restaurantName','phoneDisplay','phoneHref','addressDisplay','mapsUrl','facebookUrl','instagramUrl','categories','regularMenu','lunchByDate','news','gallery'];
     foreach($required as $key)if(!array_key_exists($key,$next))json_fail('Missing content field: '.$key,422);
-    $allowed=[...$required,'galleryCategories','lunchPoster','posterSettings'];
+    $allowed=[...$required,'galleryCategories','lunchPoster','posterSettings','seasonalMenu'];
     foreach(array_keys($next) as $key)if(!in_array($key,$allowed,true))json_fail('Unsupported content field',422);
     foreach(['categories','news','gallery'] as $key)if(!is_array($next[$key])||count($next[$key])>300)json_fail('Invalid '.$key,422);
     foreach(['regularMenu','lunchByDate'] as $key)if(!is_array($next[$key]))json_fail('Invalid '.$key,422);
@@ -103,6 +106,21 @@ function validate_content(array $next): void {
     }
     if(!preg_match('/^tel:\+?[0-9]{9,16}$/',$next['phoneHref']))json_fail('Invalid phone',422);
     foreach(['mapsUrl','facebookUrl','instagramUrl'] as $key)if(!preg_match('~^https://~i',$next[$key]))json_fail('Only HTTPS links are allowed',422);
+    if(isset($next['seasonalMenu'])){
+        $season=$next['seasonalMenu'];
+        if(!is_array($season)||array_is_list($season)||!is_bool($season['enabled']??null)
+          ||!is_string($season['title']??null)||trim($season['title'])===''||mb_strlen($season['title'])>80
+          ||!is_string($season['description']??null)||mb_strlen($season['description'])>300
+          ||!is_array($season['items']??null)||count($season['items'])>80)json_fail('Invalid seasonal menu',422);
+        if($season['enabled']===true&&!count($season['items']))json_fail('Cannot show an empty seasonal menu',422);
+        foreach($season['items'] as $dish){
+            if(!is_array($dish)||!is_string($dish['name']??null)||!trim($dish['name'])||mb_strlen($dish['name'])>200
+              ||!is_string($dish['price']??null)||!trim($dish['price'])||mb_strlen($dish['price'])>60
+              ||(isset($dish['weight'])&&(!is_string($dish['weight'])||mb_strlen($dish['weight'])>80))
+              ||(isset($dish['description'])&&(!is_string($dish['description'])||mb_strlen($dish['description'])>500))
+              ||(isset($dish['allergens'])&&(!is_array($dish['allergens'])||count($dish['allergens'])>20)))json_fail('Invalid seasonal dish',422);
+        }
+    }
     foreach($next['gallery'] as $item){
         if(!is_array($item)||empty($item['src'])||!is_string($item['src'])||strlen($item['src'])>300 || !preg_match('~^(?:assets/images/[a-z0-9-]+\.webp|media/[a-f0-9]{32}\.webp)$~',$item['src']))json_fail('Gallery photos must be uploaded WebP files',422);
     }

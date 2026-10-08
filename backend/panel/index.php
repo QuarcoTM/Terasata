@@ -56,6 +56,6 @@ $html=str_replace('Без реален вход и база данни · Про
 $html=str_replace('id="top-preview"','id="top-preview"',$html);
 $logout='<form method="post" action="logout.php" style="display:inline"><input type="hidden" name="csrf" value="'.htmlspecialchars(csrf(),ENT_QUOTES,'UTF-8').'"><button class="btn secondary" type="submit">Изход</button></form>';
 if($u['role']==='owner')$logout.=' <a class="btn secondary" href="users.php">Служители и права</a>';
-$html=str_replace('</div></header>',$logout.'</div></header>',$html);
+$html=str_replace('<!-- ADMIN_ACCOUNT_ACTIONS -->',$logout,$html);
 header('Content-Type: text/html; charset=utf-8');
 echo $html;

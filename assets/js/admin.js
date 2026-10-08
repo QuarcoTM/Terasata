@@ -3,6 +3,8 @@
 const BASE=window.TERASATA_CONTENT;
 const mediaSrc=src=>{const v=String(src||'');return /^(?:terrace|main-hall|celebration-table|second-floor|bar)\.webp(?:\?.*)?$/i.test(v)?'assets/images/'+v:v;};
 const KEY='terasata_editor_v1';
+const UI_KEY='terasata_editor_navigation_v2';
+
 const SECURE=window.TERASATA_SECURE||null;
 let secureQueue=Promise.resolve(),secureBlocked=false;
 const deepcopy=x=>JSON.parse(JSON.stringify(x));
@@ -13,7 +15,47 @@ const today=()=>{let p=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZ
 const dateIsWeekday=s=>{const d=new Date(`${s}T12:00:00Z`);return Number.isFinite(d.getTime())&&d.getUTCDay()!==0&&d.getUTCDay()!==6};
 const formatDisplayDate=s=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s||'')))return String(s||'');const [y,m,d]=String(s).split('-');return `${d}-${m}-${y}`};
 const newState=()=>({format:'terasata-local-v1',content:deepcopy(BASE),staff:[],savedAt:null});
-let state=newState(),view='dashboard',activeCategory='predyastiya',activeDate=today(),lunchGroup='Салати',galleryFilter='Всички',editorHandler=null,toastTimer;
+function storedNavigation(){
+ try{const value=JSON.parse(sessionStorage.getItem(UI_KEY)||'null');return value&&typeof value==='object'?value:{};}catch{return {};}
+}
+const restoredNav=storedNavigation();
+let state=newState(),view='lunch',activeCategory='predyastiya',activeDate=today(),lunchGroup='Салати',galleryFilter='Всички',editorHandler=null,toastTimer;
+if(/^\d{4}-\d{2}-\d{2}$/.test(restoredNav.activeDate||'')&&!Number.isNaN(Date.parse(restoredNav.activeDate+'T12:00:00Z')))activeDate=restoredNav.activeDate;
+if(typeof restoredNav.activeCategory==='string'&&restoredNav.activeCategory.length<65)activeCategory=restoredNav.activeCategory;
+if(typeof restoredNav.galleryFilter==='string'&&restoredNav.galleryFilter.length<65)galleryFilter=restoredNav.galleryFilter;
+function rememberNavigation(scrollPosition=window.scrollY){
+ try{sessionStorage.setItem(UI_KEY,JSON.stringify({view,activeDate,activeCategory,galleryFilter,scrollY:Math.max(0,Math.round(scrollPosition||0))}));}catch{ /* Private browsers may disable session storage. */ }
+}
+const menuToggle=qs('#admin-menu-toggle'),menuPanel=qs('#admin-nav'),menuBackdrop=qs('#admin-menu-backdrop');
+function closeAdminMenu(returnFocus=false){
+ if(!menuToggle||!menuPanel)return;
+ menuPanel.hidden=true;
+ if(menuBackdrop)menuBackdrop.hidden=true;
+ menuToggle.setAttribute('aria-expanded','false');
+ menuToggle.setAttribute('aria-label','Отвори разделите');
+ if(returnFocus)menuToggle.focus();
+}
+function openAdminMenu(){
+ if(!menuToggle||!menuPanel)return;
+ menuPanel.hidden=false;
+ if(menuBackdrop)menuBackdrop.hidden=false;
+ menuToggle.setAttribute('aria-expanded','true');
+ menuToggle.setAttribute('aria-label','Затвори разделите');
+ menuPanel.querySelector('button[data-view]:not([disabled])')?.focus();
+}
+menuToggle?.addEventListener('click',()=>menuPanel.hidden?openAdminMenu():closeAdminMenu(true));
+menuBackdrop?.addEventListener('click',()=>closeAdminMenu());
+document.addEventListener('keydown',event=>{
+ if(event.key==='Escape'&&!menuPanel?.hidden){event.preventDefault();closeAdminMenu(true);}
+});
+document.addEventListener('click',event=>{
+ if(!menuPanel?.hidden&&!menuToggle?.contains(event.target)&&!menuPanel.contains(event.target))closeAdminMenu();
+});
+function sectionAllowed(section){
+ if(!titles[section])return false;
+ return !SECURE || ['dashboard','transfer'].includes(section) || (section==='staff'?SECURE.user.role==='owner':SECURE.user.role==='owner'||!!SECURE.user.permissions[section]);
+}
+
 if(!SECURE){try{const stored=JSON.parse(localStorage.getItem(KEY)||'null');if(stored&&stored.format==='terasata-local-v1'&&stored.content?.categories?.length&&stored.content.regularMenu)state=stored}catch(err){console.warn('Local draft could not be loaded:',err)}}
 const titles={dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай ястия, грамажи, описания, цени и алергени.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
 function notice(t){const box=qs('#toast');box.textContent=t;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3200)}
@@ -41,7 +83,25 @@ function save(){
 }
 function btn(label,action,cls='secondary',extra=''){return `<button type="button" class="btn ${cls}" data-action="${action}" ${extra}>${e(label)}</button>`}
 function rowActions(idx,actions){return `<div class="row-actions">${actions.map(([name,action,cls])=>btn(name,`${action}:${idx}`,cls||'secondary','')).join('')}</div>`}
-function setView(next){if(!titles[next])return;if(SECURE&&next==='staff'&&SECURE.user.role!=='owner')return;if(SECURE&&next!=='dashboard'&&next!=='transfer'&&next!=='staff'&&SECURE.user.role!=='owner'&&!SECURE.user.permissions[next])return;view=next;qsa('#admin-nav button').forEach(b=>b.classList.toggle('selected',b.dataset.view===view));qs('#view-eyebrow').textContent='ТЕРАСАТА · РЕДАКТОР';qs('#view-title').textContent=titles[view][0];qs('#view-description').textContent=titles[view][1];render()}
+function setView(next,restore=false){
+ if(!sectionAllowed(next))return;
+ const changed=view!==next;
+ view=next;
+ qsa('#admin-nav button[data-view]').forEach(b=>{
+  const selected=b.dataset.view===view;
+  b.classList.toggle('selected',selected);
+  if(selected)b.setAttribute('aria-current','page');
+  else b.removeAttribute('aria-current');
+ });
+ qs('#view-eyebrow').textContent='ТЕРАСАТА · РЕДАКТОР';
+ qs('#view-title').textContent=titles[view][0];
+ qs('#view-description').textContent=titles[view][1];
+ const current=qs('#current-section');if(current)current.textContent=titles[view][0];
+ render();
+ closeAdminMenu();
+ if(changed&&!restore){window.scrollTo(0,0);rememberNavigation(0);}
+ else if(!restore)rememberNavigation();
+}
 function render(){const content=qs('#view-content'),tools=qs('#view-tools');tools.innerHTML='';switch(view){case 'dashboard':renderDashboard(content);break;case 'lunch':renderLunch(content,tools);break;case 'regular':renderRegular(content,tools);break;case 'gallery':renderGallery(content,tools);break;case 'news':renderNews(content,tools);break;case 'settings':renderSettings(content);break;case 'staff':renderStaff(content,tools);break;case 'transfer':renderTransfer(content);break;}}
 const countDishes=()=>state.content.categories.reduce((n,c)=>n+(state.content.regularMenu[c.id]||[]).length,0);
 function renderDashboard(el){const noOfDays=Object.values(state.content.lunchByDate||{}).filter(d=>d.published).length;el.innerHTML=`<div class="stats"><div class="stat"><strong>${countDishes()}</strong><span>ястия в постоянното меню</span></div><div class="stat"><strong>${state.content.categories.length}</strong><span>категории</span></div><div class="stat"><strong>${state.content.gallery.length}</strong><span>снимки в галерията</span></div><div class="stat"><strong>${noOfDays}</strong><span>публикувани дневни менюта</span></div></div><div class="hint"><strong>Работен режим:</strong> ${SECURE?'Работа със защитен сървър и база данни. Промените се публикуват след потвърден успешен запис.':'Всички промени остават само в този браузър. За преглед отвори сайта с <b>?preview=1</b>. За реално публикуване трябва ръчно да качиш експортирания файл в GitHub. Няма пароли и няма свързване към сървър.'}</div><div class="cards"><article class="card"><h2>Обедно меню</h2><p>Меню по дата, категории, изчерпани ястия и Facebook визия.</p>${btn('Отвори редактора','go:lunch','primary')}</article><article class="card"><h2>Постоянно меню</h2><p>Сегашните 40 ястия и възможност за промени без работа с код.</p>${btn('Редактирай ястия','go:regular')}</article><article class="card"><h2>Галерия и новини</h2><p>Качвай само реални фотографии и създавай временни публикации.</p>${btn('Към галерията','go:gallery')}</article><article class="card"><h2>Архивиране</h2><p>Сваляй резервно копие и подготвяй content.js за GitHub.</p>${btn('Архив и експорт','go:transfer')}</article></div>`}
@@ -310,9 +370,9 @@ if(SECURE){qsa('#admin-nav button[data-view]').forEach(button=>{
  if(v==='staff'&&SECURE.user.role!=='owner')button.remove();
  if(!['dashboard','staff','transfer'].includes(v)&&SECURE.user.role!=='owner'&&!SECURE.user.permissions[v])button.remove();
 });}
-qs('#admin-nav').addEventListener('click',ev=>{const b=ev.target.closest('[data-view]');if(b)setView(b.dataset.view)});
-qs('#workspace').addEventListener('change',ev=>{if(ev.target.id==='lunch-date'&&ev.target.value){activeDate=ev.target.value;render()}});
-qs('#workspace').addEventListener('click',ev=>{const tab=ev.target.closest('[data-cat]');if(tab){activeCategory=tab.dataset.cat;render();return}const filter=ev.target.closest('[data-gallery-filter]');if(filter){galleryFilter=filter.dataset.galleryFilter;render();return}const b=ev.target.closest('[data-action]');if(!b)return;const [act,a1,a2]=b.dataset.action.split(':');const idx=a1==null?null:Number(a1);switch(act){
+qs('#admin-nav').addEventListener('click',ev=>{const b=ev.target.closest('[data-view]');if(b){setView(b.dataset.view);menuToggle?.focus();}});
+qs('#workspace').addEventListener('change',ev=>{if(ev.target.id==='lunch-date'&&ev.target.value){activeDate=ev.target.value;rememberNavigation();render()}});
+qs('#workspace').addEventListener('click',ev=>{const tab=ev.target.closest('[data-cat]');if(tab){activeCategory=tab.dataset.cat;rememberNavigation();render();return}const filter=ev.target.closest('[data-gallery-filter]');if(filter){galleryFilter=filter.dataset.galleryFilter;rememberNavigation();render();return}const b=ev.target.closest('[data-action]');if(!b)return;const [act,a1,a2]=b.dataset.action.split(':');const idx=a1==null?null:Number(a1);switch(act){
 case'go':setView(a1);break;
 case'dish-add':dishModal(null);break;
 case'dish-edit':dishModal(idx);break;
@@ -368,5 +428,18 @@ function openFB(){
   window.TERASATA_POSTER.open({day:getDay(),date:activeDate,settings:ensurePosterSettings(),download,notice});
 }
 
-setView('dashboard');
+const startView=sectionAllowed(restoredNav.view)?restoredNav.view:(sectionAllowed('lunch')?'lunch':'dashboard');
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+setView(startView,true);
+const restoredY=Math.max(0,Math.min(100000,Number(restoredNav.scrollY)||0));
+if(restoredY>0){
+ requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,restoredY)));
+}
+let navigationRaf=0;
+window.addEventListener('scroll',()=>{
+ if(navigationRaf)return;
+ navigationRaf=requestAnimationFrame(()=>{navigationRaf=0;rememberNavigation();});
+},{passive:true});
+window.addEventListener('pagehide',()=>rememberNavigation());
+
 })();

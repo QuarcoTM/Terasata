@@ -102,3 +102,20 @@ test('Image and style paths use structured asset folders',()=>{
  assert(read('assets/css/styles.css').includes('../images/leaf-ornament.svg'),'Missing ornamental asset');
  assert(read('assets/js/site.js').includes('assets/images/'),'Missing gallery image path mapping');
 });
+
+test('Admin menu is initially hidden and lunch is the primary section',()=>{
+ const html=read('admin/index.html');
+ const js=read('assets/js/admin.js');
+ const css=read('assets/css/admin.css');
+ assert.match(html,/id="admin-nav"[^>]*hidden/,'Navigation should be hidden at startup');
+ assert(html.indexOf('data-view="lunch"')<html.indexOf('data-view="dashboard"'),'Lunch should precede dashboard');
+ assert(html.includes('id="admin-menu-toggle"')&&html.includes('aria-expanded="false"'));
+ assert(html.includes('id="admin-menu-backdrop"'));
+ assert(js.includes("let state=newState(),view='lunch'"),'Lunch not the initial view');
+ assert(js.includes("sessionStorage.getItem(UI_KEY)"),'Last section is not remembered');
+ assert(js.includes("sessionStorage.setItem(UI_KEY"),'Active section is not saved');
+ assert(js.includes('setView(startView,true)'),'Last view is not restored');
+ assert(js.includes("restoredNav.scrollY"),'Scroll position is not restored');
+ assert(js.includes("if(event.key==='Escape'"),'Escape keyboard closing missing');
+ assert(css.includes('.admin-menu-popover[hidden]'),'Hidden nav CSS missing');
+});

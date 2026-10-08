@@ -5,24 +5,55 @@
 <script>if(location.pathname.endsWith('/index.html'))location.replace(location.pathname.slice(0,-10)+location.search+location.hash);</script>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#f3ede1">
-<title>Терасата · Работен редактор</title>
-<link rel="stylesheet" href="assets/css/admin.css?v=20261008-gallery-news-v4">
-<script src="assets/js/content.js?v=1" defer></script><script src="assets/js/lunch-poster.js?v=20261008-watermark-v6" defer></script><script src="assets/js/admin.js?v=20261008-secure-backend-v1" defer></script>
+<title>Терасата · Управление</title>
+<link rel="stylesheet" href="assets/css/admin.css?v=20261008-admin-redesign-v2">
+<script src="assets/js/content.js?v=1" defer></script>
+<script src="assets/js/lunch-poster.js?v=20261008-watermark-v6" defer></script>
+<script src="assets/js/admin.js?v=20261008-admin-redesign-v2" defer></script>
 </head>
 <body>
-<div class="dev-banner"><strong>ЛОКАЛЕН РЕДАКТОР · A4-6</strong><span>Без реален вход и база данни · Промените са видими само в този браузър</span></div>
-<header class="topbar"><div class="wordmark">Терасата <small>УПРАВЛЕНИЕ НА САЙТА</small></div><div class="top-actions"><span id="save-indicator" aria-live="polite">Готово за работа</span><a href="./?preview=1" id="top-preview" target="_blank" rel="noopener">Преглед на сайта ↗</a></div></header>
-<div class="shell"><aside class="sidebar"><p class="sidebar-heading">МЕНЮ</p><nav id="admin-nav" aria-label="Административно меню">
-<button type="button" data-view="dashboard" class="selected">Общ преглед</button>
-<button type="button" data-view="lunch">Обедно меню</button>
-<button type="button" data-view="regular">Постоянно меню</button>
-<button type="button" data-view="gallery">Галерия</button>
-<button type="button" data-view="news">Актуално</button>
-<button type="button" data-view="settings">Настройки</button>
-<button type="button" data-view="staff">Служители и права</button>
-<button type="button" data-view="transfer">Архив и експорт</button>
-</nav><div class="side-note">Това е работен интерфейс за подготовка и одобрение. Пароли и лични данни не се въвеждат тук.</div></aside>
-<main class="workspace" id="workspace"><div class="intro"><div><p class="eyebrow" id="view-eyebrow">ПОДГОТОВКА НА САЙТА</p><h1 id="view-title">Общ преглед</h1><p id="view-description">Управление на съдържанието на „Терасата“.</p></div><div id="view-tools"></div></div><div id="view-content"></div></main></div>
+<div class="dev-banner"><strong>ЛОКАЛЕН РЕДАКТОР · A4-6</strong><span>Промените се пазят в този браузър · Публичното публикуване изисква експорт</span></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="admin-menu-wrap">
+      <button type="button" id="admin-menu-toggle" class="admin-menu-trigger" aria-label="Отвори разделите" aria-controls="admin-nav" aria-expanded="false">
+        <span class="admin-menu-glyph" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>Меню</span><span class="admin-menu-chevron" aria-hidden="true">⌄</span>
+      </button>
+      <nav id="admin-nav" class="admin-menu-popover" aria-label="Раздели на администрацията" hidden>
+        <div class="admin-menu-heading">УПРАВЛЕНИЕ</div>
+        <div class="admin-menu-group" role="group" aria-label="Менюта">
+          <span class="admin-menu-group-title">МЕНЮТА</span>
+          <button type="button" data-view="lunch" class="selected"><span class="admin-nav-icon" aria-hidden="true">▤</span><span>Обедно меню</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
+          <button type="button" data-view="regular"><span class="admin-nav-icon" aria-hidden="true">≡</span><span>Постоянно меню</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
+        </div>
+        <div class="admin-menu-group" role="group" aria-label="Съдържание">
+          <span class="admin-menu-group-title">СЪДЪРЖАНИЕ</span>
+          <button type="button" data-view="gallery"><span class="admin-nav-icon" aria-hidden="true">▧</span><span>Галерия</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
+          <button type="button" data-view="news"><span class="admin-nav-icon" aria-hidden="true">◈</span><span>Актуално</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
+        </div>
+        <div class="admin-menu-group" role="group" aria-label="Администрация">
+          <span class="admin-menu-group-title">АДМИНИСТРАЦИЯ</span>
+          <button type="button" data-view="dashboard"><span class="admin-nav-icon" aria-hidden="true">▦</span><span>Общ преглед</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
+          <button type="button" data-view="settings"><span class="admin-nav-icon" aria-hidden="true">⚙</span><span>Настройки</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
+          <button type="button" data-view="staff"><span class="admin-nav-icon" aria-hidden="true">♙</span><span>Служители и права</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
+          <button type="button" data-view="transfer"><span class="admin-nav-icon" aria-hidden="true">⇩</span><span>Архив и експорт</span><span class="admin-nav-current" aria-hidden="true">✓</span></button>
+        </div>
+        <div class="admin-menu-foot">Ресторант „Терасата“ · Кюстендил</div>
+      </nav>
+    </div>
+    <div class="wordmark">Терасата <small>УПРАВЛЕНИЕ НА САЙТА</small></div>
+    <span id="current-section" class="current-section" aria-live="polite">Обедно меню</span>
+    <div class="top-actions"><span id="save-indicator" aria-live="polite">Готово за работа</span><a href="./?preview=1" id="top-preview" target="_blank" rel="noopener">Виж сайта ↗</a><!-- ADMIN_ACCOUNT_ACTIONS --></div>
+  </div>
+</header>
+<button type="button" id="admin-menu-backdrop" class="admin-menu-backdrop" aria-label="Затвори менюто" hidden></button>
+<div class="shell">
+ <main class="workspace" id="workspace">
+  <div class="intro"><div><p class="eyebrow" id="view-eyebrow">ТЕРАСАТА · РЕДАКТОР</p><h1 id="view-title">Обедно меню</h1><p id="view-description">Подготвяй различно меню за всеки делничен ден.</p></div><div id="view-tools"></div></div>
+  <div id="view-content"></div>
+ </main>
+</div>
 <dialog id="edit-dialog"><form id="edit-form"><div class="dialog-header"><h2 id="dialog-title">Редакция</h2><button id="dialog-close" type="button" class="close" aria-label="Затвори">×</button></div><div id="dialog-fields" class="fields"></div><div class="dialog-actions"><button type="button" class="btn secondary" id="dialog-cancel">Отказ</button><button type="submit" class="btn primary">Запази</button></div></form></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body></html>

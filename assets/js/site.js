@@ -1,7 +1,19 @@
 /* Frontend interactions only. No payments, booking forms or fake admin UI. */
-(() => {
+(async () => {
   'use strict';
-  const d = window.TERASATA_CONTENT;
+  let d = window.TERASATA_CONTENT;
+  if(window.TERASATA_BACKEND_ACTIVE===true){
+   try{
+    const response=await fetch('backend/api/public.php',{credentials:'same-origin',cache:'no-store'});
+    if(!response.ok)throw Error('Public content unavailable');
+    const result=await response.json();
+    if(!result.ok||!result.content||!Array.isArray(result.content.categories))throw Error('Invalid public content');
+    d=result.content;
+   }catch(err){
+    console.error('Live content unavailable:',err);
+    d={...d,lunchByDate:{},news:[]};
+   }
+  }
   const mediaSrc=src=>{const v=String(src||'');return /^(?:terrace|main-hall|celebration-table|second-floor|bar)\.webp(?:\?.*)?$/i.test(v)?'assets/images/'+v:v;};
   if (!d) return;
   const $ = (s, parent=document) => parent.querySelector(s);

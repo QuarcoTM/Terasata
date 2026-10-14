@@ -623,3 +623,40 @@ p {line-height:1.6}
 .seasonal-menu-section .seasonal-eyebrow{margin:0 0 10px;color:#92712f;letter-spacing:.12em}
 .seasonal-description{max-width:70ch;font-size:15px;color:var(--muted);margin:0 0 20px}
 .seasonal-preview-message{border-left:3px solid #b28d41;background:#faf2dd;padding:10px 14px;font-size:13px;color:#664c23;margin:8px 0 18px}
+
+
+/* Desktop-only refinement. Existing phone and tablet rules are untouched. */
+.footer-desktop-icon {display:none}
+@media (min-width:1050px) {
+  /* Give the celebrations photo comfortable side gutters. */
+  .events-highlight {padding:26px 0}
+  .events-split {width:min(calc(100% - 112px),1360px);max-width:none;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(55,40,19,.09)}
+  .events-photo-frame {min-height:435px}
+  .events-copy {padding:40px clamp(28px,4vw,70px)}
+
+  /* Use SVG where legacy Windows would render a Unicode clock as a square. */
+  .footer-symbol {display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px}
+  .footer-symbol .footer-icon-fallback {display:none}
+  .footer-symbol .footer-desktop-icon {display:block;width:23px;height:23px}
+  .footer-social {gap:11px}
+  .footer-social a {display:inline-flex!important;align-items:center;gap:8px;font-size:13px!important;font-weight:600;line-height:1.5}
+  .footer-social .footer-desktop-icon {display:block;width:17px;height:17px;flex:none;color:#8f6e2b}
+  .footer-layout {grid-template-columns:minmax(170px,1.25fr) minmax(180px,1.35fr) minmax(120px,1fr) minmax(128px,.95fr) minmax(112px,.88fr);gap:clamp(12px,1.7vw,26px);align-items:start}
+  .footer-brand {min-width:0}
+  .footer-brand .brand-name {font-size:clamp(34px,3vw,40px);line-height:1}
+  .footer-brand .brand-subtitle {font-size:10px;letter-spacing:.14em;color:#846728;font-weight:650;margin-top:8px}
+  .footer-col p,.footer-col .footer-phone {font-size:14px;line-height:1.45}
+
+  /* Darken desktop hero picture behind copy and improve readability. */
+  .hero-shade {background:linear-gradient(90deg,rgba(19,18,15,.91) 0%,rgba(19,18,15,.75) 38%,rgba(19,18,15,.40) 71%,rgba(19,18,15,.12) 100%)}
+  .hero-copy {max-width:650px;padding:21px 28px 23px;border-radius:14px;background:linear-gradient(90deg,rgba(20,18,14,.45),rgba(20,18,14,.15) 78%,transparent)}
+  .hero-kicker {color:#f3dcac;font-weight:650;letter-spacing:.12em}
+  .hero h1 {font-size:clamp(3.65rem,5vw,5.7rem);line-height:1.08;text-shadow:0 3px 12px rgba(0,0,0,.65)}
+  .hero h1 em {color:#f1cb75}
+  .hero-copy p {color:#fff;font-size:clamp(18px,1.6vw,22px);line-height:1.5;text-shadow:0 2px 9px rgba(0,0,0,.68)}
+
+  /* Stable right-pointing arrows, independent of OS font rendering. */
+  .hero-actions .btn > span[aria-hidden="true"],.category-tile .category-arrow {display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;font-size:0;line-height:0;flex:none}
+  .hero-actions .btn > span[aria-hidden="true"]::before {content:"";display:block;width:19px;height:19px;background:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4%2012h15M13%206l6%206-6%206%22%2F%3E%3C%2Fsvg%3E') center/contain no-repeat}
+  .category-tile .category-arrow::before {content:"";display:block;width:18px;height:18px;background:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a17b31%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4%2012h15M13%206l6%206-6%206%22%2F%3E%3C%2Fsvg%3E') center/contain no-repeat}
+}

@@ -212,7 +212,7 @@ test('Seasonal menu is an optional tab within the permanent menu',()=>{
  assert(!exists('seasonal/index.html'),'Do not create a third menu or require new QR code');
  const seed=JSON.parse(read('backend/seed/content.json'));
  assert.deepEqual(seed.seasonalMenu,{enabled:false,title:'Сезонно меню',description:'',items:[]});
- assert.equal(seed.categories.reduce((n,c)=>n+(seed.regularMenu[c.id]||[]).length,0),40,'Original 40 dishes must remain');
+ assert.equal(seed.categories.reduce((n,c)=>n+(seed.regularMenu[c.id]||[]).length,0),68,'Original 40 plus 28 new dishes must remain');
 });
 test('Seasonal menu visitor-visibility decision',()=>{
  const code=read('assets/js/site.js');
@@ -268,4 +268,18 @@ test('Desktop Cyrillic readability is consistent across every public page, witho
  assert(patch.includes('Arial, Tahoma'),'Bulgarian Cyrillic should use Windows-safe font fallback');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/'])
   assert(read(slug+'index.html').includes('styles.css?v=20261014-readable-type-v1'),'Old CSS cache on '+slug);
+});
+
+test('Printed menu adds 9 salads and 4 new categories with 28 dishes',()=>{
+ const seed=JSON.parse(read('backend/seed/content.json'));
+ assert.equal(seed.categories.length,11);
+ for(const [id,n] of [['salati',9],['sandvichi',4],['garnituri',6],['hlyab',3],['deserti',6]]){
+  assert.equal(seed.regularMenu[id].length,n,id);
+  assert(seed.regularMenu[id].every(x=>x.price.endsWith(' €')),'Missing euro price in '+id);
+ }
+ assert.equal(seed.regularMenu.kartofi[3].weight,'300 г','Original menu preserved');
+ assert.equal(seed.regularMenu.garnituri[0].weight,'150 г','Side portion differs from regular potatoes');
+ const values=require('node:vm');const ctx={window:{}};values.runInNewContext(read('assets/js/content.js'),ctx);
+ assert.equal(ctx.window.TERASATA_CONTENT.categories.length,11,'Static content matches seed');
+ assert.equal(ctx.window.TERASATA_CONTENT.regularMenu.salati.length,9);
 });

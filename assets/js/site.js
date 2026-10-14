@@ -33,7 +33,7 @@
   if (header) header.innerHTML = `
     <div class="header-shell container">
       <div class="brand">
-        <a class="brand-home" href="./" aria-label="Терасата — начало"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></a>
+        <a class="brand-home" href="./" aria-label="Терасата — начало"><img class="brand-mark" src="assets/images/terasata-mark-original.svg" alt="" aria-hidden="true" width="40" height="47"><span class="brand-wording"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></span></a>
         <a class="brand-phone" href="${d.phoneHref}" aria-label="Обади се на ${esc(d.phoneDisplay)}">${phoneIcon()}<span>${esc(d.phoneDisplay)}</span></a>
       </div>
       <nav class="desktop-nav" aria-label="Основна навигация">
@@ -50,7 +50,7 @@
   const footer = $('#site-footer');
   if (footer) footer.innerHTML = `
     <div class="container footer-layout">
-      <div class="footer-brand"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></div>
+      <div class="footer-brand"><img class="footer-brand-mark" src="assets/images/terasata-mark-original.svg" alt="" aria-hidden="true" width="40" height="47"><span class="footer-brand-wording"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></span></div>
       <div class="footer-col footer-location"><span class="footer-symbol" aria-hidden="true"><span class="footer-icon-fallback">⌖</span><svg class="footer-desktop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.3-6-11a6 6 0 0 1 12 0c0 5.7-6 11-6 11Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><p>${esc(d.addressDisplay)}</p><a class="footer-map-link" href="${d.mapsUrl}" target="_blank" rel="noopener noreferrer">Виж на картата →</a></div></div>
       <div class="footer-col footer-contact-phone"><span class="footer-symbol" aria-hidden="true"><span class="footer-icon-fallback">✆</span><svg class="footer-desktop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A20 20 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3A2 2 0 0 1 9 3.7c.1 1 .3 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.4 1.8.6 2.8.7a2 2 0 0 1 1.8 2.1Z"/></svg></span><a class="footer-phone" href="${d.phoneHref}">${d.phoneDisplay}</a></div>
       <div class="footer-col footer-hours"><span class="footer-symbol" aria-hidden="true"><span class="footer-icon-fallback">◷</span><svg class="footer-desktop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><p>Всеки ден<br>10:00 – 00:00</p></div>
@@ -135,9 +135,10 @@
     const renderDish=item=>'<article class="dish-item"><div><h3>'+esc(item.name)+'</h3>'+(item.description?'<p>'+esc(item.description)+'</p>':'')+(item.allergens?.length?'<p class="dish-allergens">Алергени: '+esc(item.allergens.join(', '))+'</p>':'')+'<span class="dish-weight">'+esc(item.weight||'')+'</span></div><strong>'+esc(item.price||'')+'</strong></article>';
     contents.innerHTML=available.map(c=>{
       const special=c.id==='seasonal',items=special?itemsSeasonal:(d.regularMenu[c.id]||[]);
+      const categoryNote=!special&&c.id==='deserti'?'<p class="menu-category-note">Десерти от „Фърст груп“. За наличност попитайте вашия сервитьор.</p>':'';
       const extra=special?'<p class="eyebrow seasonal-eyebrow">СПЕЦИАЛНИ СЕЗОННИ ПРЕДЛОЖЕНИЯ</p>'+(seasonal.description?'<p class="seasonal-description">'+esc(seasonal.description)+'</p>':'')+(preview&&!seasonal.enabled?'<p class="seasonal-preview-message">Локален преглед — сезонното меню е скрито за посетителите.</p>':''):'';
       const body=items.length?'<div class="dish-grid">'+items.map(renderDish).join('')+'</div>':'<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>';
-      return '<section class="menu-section '+(special?'seasonal-menu-section ':'')+(c.id===activeCat?'is-active':'')+'" id="'+esc(c.id)+'" data-cat="'+esc(c.id)+'">'+extra+'<div class="menu-section-head"><h2>'+esc(c.name)+'</h2></div>'+body+'</section>';
+      return '<section class="menu-section '+(special?'seasonal-menu-section ':'')+(c.id===activeCat?'is-active':'')+'" id="'+esc(c.id)+'" data-cat="'+esc(c.id)+'">'+extra+'<div class="menu-section-head"><h2>'+esc(c.name)+'</h2></div>'+categoryNote+body+'</section>';
     }).join('');
     const activateCategory=catId=>{
       [...menuCategories.querySelectorAll('button[data-cat]')].forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.cat===catId)));
@@ -241,7 +242,11 @@ function categoryIcon(id) {
    'pasta-i-oriz':'<path d="M3 13h18c0 5-4 8-9 8s-9-3-9-8Z"/><path d="M7 10c0-2 2-2 2-4s-1-2-1-3M12 10c0-2 2-2 2-4s-1-2-1-3M17 10c0-2 2-2 2-4s-1-2-1-3"/>',
    'osnovni-yastiya':'<path d="M3 18h18M5 18a7 7 0 0 1 14 0M12 8V6M10 6h4M3 21h18"/>',
    'skara':'<path d="M3 10h18l-3 7H6l-3-7ZM7 17l-2 5M17 17l2 5M8 7l-1-4M12 7l1-4M16 7l1-4"/>',
-   'riba-i-morski-darove':'<path d="M3 12c3-5 7-7 12-6l5-4v8l-3 2 3 2v8l-5-4c-5 1-9-1-12-6Z"/><circle cx="12.5" cy="10" r="1"/><path d="M6 12h5"/>'
+   'riba-i-morski-darove':'<path d="M3 12c3-5 7-7 12-6l5-4v8l-3 2 3 2v8l-5-4c-5 1-9-1-12-6Z"/><circle cx="12.5" cy="10" r="1"/><path d="M6 12h5"/>',
+   'sandvichi':'<path d="M4 9h16v3H4zm1 5h14m-12 2h10m-10-10h10"/><path d="M5 6l2-2h10l2 2M5 19l2 2h10l2-2"/>',
+   'garnituri':'<path d="M4 12h16l-2 8H6l-2-8Z"/><path d="M7 9l-1-5m5 5V3m4 6 2-5M8 15h8"/>',
+   'hlyab':'<path d="M4 13a7 7 0 0 1 14-2l2 2v6H4v-6Z"/><path d="M8 10l2 3m3-5 2 4M6 16h12"/>',
+   'deserti':'<path d="M4 19h16M6 19l2-11h8l2 11M8 8c0-3 2-5 4-5s4 2 4 5M9 13h6"/>'
  };
  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${paths[id]||''}</svg>`;
 }

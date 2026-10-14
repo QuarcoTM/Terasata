@@ -246,11 +246,11 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  assert(js.includes('footer-desktop-icon'),'SVG footer icon missing');
  assert(js.includes('<circle cx="12" cy="12" r="9"/>'),'SVG clock drawing missing');
  assert(js.includes('>Facebook</span>')&&js.includes('>Instagram</span>'),'Social links missing their labels');
- assert(home.includes('styles.css?v=20261014-readable-type-v1'));
+ assert(home.includes('styles.css?v=20261014-2row-v1'));
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
-  assert(html.includes('styles.css?v=20261014-readable-type-v1'),'CSS cache not updated for '+route);
-  assert(html.includes('site.js?v=20261014-desktop-polish-v1'),'JS cache not updated for '+route);
+  assert(html.includes('styles.css?v=20261014-2row-v1'),'CSS cache not updated for '+route);
+  assert(html.includes('site.js?v=20261014-mark-menu-v1'),'JS cache not updated for '+route);
  }
 });
 
@@ -267,7 +267,7 @@ test('Desktop Cyrillic readability is consistent across every public page, witho
  }
  assert(patch.includes('Arial, Tahoma'),'Bulgarian Cyrillic should use Windows-safe font fallback');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/'])
-  assert(read(slug+'index.html').includes('styles.css?v=20261014-readable-type-v1'),'Old CSS cache on '+slug);
+  assert(read(slug+'index.html').includes('styles.css?v=20261014-2row-v1'),'Old CSS cache on '+slug);
 });
 
 test('Printed menu adds 9 salads and 4 new categories with 28 dishes',()=>{
@@ -282,4 +282,21 @@ test('Printed menu adds 9 salads and 4 new categories with 28 dishes',()=>{
  const values=require('node:vm');const ctx={window:{}};values.runInNewContext(read('assets/js/content.js'),ctx);
  assert.equal(ctx.window.TERASATA_CONTENT.categories.length,11,'Static content matches seed');
  assert.equal(ctx.window.TERASATA_CONTENT.regularMenu.salati.length,9);
+});
+
+test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
+ const svg=read('assets/images/terasata-mark-original.svg');
+ const js=read('assets/js/site.js'),css=read('assets/css/styles.css');
+ assert(svg.includes('viewBox="0 0 427 500"'),'Original source silhouette missing');
+ assert(js.includes('class="brand-mark"')&&js.includes('class="footer-brand-mark"'));
+ for(const c of ['sandvichi','garnituri','hlyab','deserti'])assert(js.includes("'"+c+"':"),'Missing homepage category icon');
+ assert(css.includes('grid-template-rows:repeat(2,minmax(78px,auto))'));
+ assert(css.includes('grid-auto-flow:column'));
+ assert(css.includes('.menu-anchor-nav {'));
+ assert(css.includes('.footer-social .footer-desktop-icon {display:block'),'Mobile social icons must be visible');
+ for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
+  const html=read(slug+'index.html');
+  assert(html.includes('styles.css?v=20261014-2row-v1'));
+  assert(html.includes('site.js?v=20261014-mark-menu-v1'));
+ }
 });

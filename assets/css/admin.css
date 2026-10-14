@@ -145,3 +145,7 @@ button:disabled{opacity:.48;cursor:not-allowed}
 .seasonal-publish-row .mini{margin:6px 0 0}
 .seasonal-publish-row .btn{flex-shrink:0}
 @media(max-width:580px){.seasonal-publish-row{flex-direction:column;align-items:stretch}.seasonal-publish-row .btn{width:100%}}
+
+/* Keep 11 dish categories plus the seasonal tab on two swipeable lines in admin. */
+#view-content .tabs {display:grid;grid-auto-flow:column;grid-template-columns:none;grid-template-rows:repeat(2,auto);grid-auto-columns:max-content;justify-content:start;overflow-x:auto;overflow-y:hidden;flex-wrap:initial;gap:7px;max-width:100%;padding:2px 1px 11px;scrollbar-width:thin}
+#view-content .tabs button {white-space:nowrap}

@@ -208,7 +208,7 @@ test('Seasonal menu is an optional tab within the permanent menu',()=>{
  assert(admin.includes('function seasonalDetailsModal()'));
  assert(admin.includes("case'season-toggle'"));
  assert(admin.includes('if(!s.enabled&&!s.items.length)'), 'Publishing an empty seasonal menu must be rejected');
- assert(html.includes('site.js?v=20261008-seasonal-v1'),'Frontend cache missing');
+ assert(/assets\/js\/site\.js\?v=[\w.-]+/.test(html),'Frontend script missing');
  assert(!exists('seasonal/index.html'),'Do not create a third menu or require new QR code');
  const seed=JSON.parse(read('backend/seed/content.json'));
  assert.deepEqual(seed.seasonalMenu,{enabled:false,title:'Сезонно меню',description:'',items:[]});

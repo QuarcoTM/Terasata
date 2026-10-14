@@ -225,3 +225,31 @@ test('Seasonal menu visitor-visibility decision',()=>{
  assert.equal(result(sample,{enabled:true},false),true,'Show enabled on public page');
  assert.equal(result(sample,{enabled:false},true),true,'Draft is previewable only in local preview');
 });
+
+
+test('Desktop-only five visual fixes retain mobile fallback icons and old pages',()=>{
+ const home=read('index.html');
+ const css=read('assets/css/styles.css');
+ const js=read('assets/js/site.js');
+ const guard=css.indexOf('/* Desktop-only refinement. Existing phone and tablet rules are untouched. */');
+ assert(guard>0,'Desktop-only styles absent');
+ const suffix=css.slice(guard);
+ assert(suffix.includes('@media (min-width:1050px)'),'Desktop breakpoint absent');
+ assert(!suffix.includes('@media (max-width:'),'Desktop patch must not change phone rules');
+ assert(suffix.includes('.events-split {width:min(calc(100% - 112px),1360px)'),'Event photo not inset');
+ assert(suffix.includes('.hero-shade {background:linear-gradient('),'Hero contrast unchanged');
+ assert(suffix.includes('.category-tile .category-arrow::before'),'Missing reliable category arrows');
+ assert(suffix.includes('.hero-actions .btn > span[aria-hidden="true"]::before'),'Missing reliable button arrows');
+ for(const glyph of ['⌖','✆','◷']){
+  assert(js.includes('footer-icon-fallback">'+glyph+'</span>'),'Mobile fallback glyph missing: '+glyph);
+ }
+ assert(js.includes('footer-desktop-icon'),'SVG footer icon missing');
+ assert(js.includes('<circle cx="12" cy="12" r="9"/>'),'SVG clock drawing missing');
+ assert(js.includes('>Facebook</span>')&&js.includes('>Instagram</span>'),'Social links missing their labels');
+ assert(home.includes('styles.css?v=20261014-desktop-polish-v1'));
+ for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
+  const html=read(route+'index.html');
+  assert(html.includes('styles.css?v=20261014-desktop-polish-v1'),'CSS cache not updated for '+route);
+  assert(html.includes('site.js?v=20261014-desktop-polish-v1'),'JS cache not updated for '+route);
+ }
+});

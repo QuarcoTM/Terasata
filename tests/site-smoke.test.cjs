@@ -246,10 +246,26 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  assert(js.includes('footer-desktop-icon'),'SVG footer icon missing');
  assert(js.includes('<circle cx="12" cy="12" r="9"/>'),'SVG clock drawing missing');
  assert(js.includes('>Facebook</span>')&&js.includes('>Instagram</span>'),'Social links missing their labels');
- assert(home.includes('styles.css?v=20261014-desktop-polish-v1'));
+ assert(home.includes('styles.css?v=20261014-readable-type-v1'));
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
-  assert(html.includes('styles.css?v=20261014-desktop-polish-v1'),'CSS cache not updated for '+route);
+  assert(html.includes('styles.css?v=20261014-readable-type-v1'),'CSS cache not updated for '+route);
   assert(html.includes('site.js?v=20261014-desktop-polish-v1'),'JS cache not updated for '+route);
  }
+});
+
+
+test('Desktop Cyrillic readability is consistent across every public page, without mobile edits',()=>{
+ const css=read('assets/css/styles.css');
+ const start=css.indexOf('/* Readable Cyrillic typography on desktop and legacy Windows monitors.');
+ assert(start>=0,'Readable desktop typography block is missing');
+ const patch=css.slice(start);
+ assert(patch.includes('@media (min-width:1050px), (min-width:800px) and (hover:hover) and (pointer:fine)'),'Desktop-only breakpoint and old-screen fallback missing');
+ assert(!patch.includes('@media (max-width:'),'Do not modify existing phone media rules');
+ for(const selector of ['.hero h1','.hero-copy p','.page-intro h1','.category-tile .tile-name','.dish-item h3','.footer-brand .brand-subtitle','.footer-col .footer-map-link','.footer-social a','.events-copy p','.space-card h3','.gallery-item span','.detail-block p']){
+  assert(patch.includes(selector),'Missing readability coverage: '+selector);
+ }
+ assert(patch.includes('Arial, Tahoma'),'Bulgarian Cyrillic should use Windows-safe font fallback');
+ for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/'])
+  assert(read(slug+'index.html').includes('styles.css?v=20261014-readable-type-v1'),'Old CSS cache on '+slug);
 });

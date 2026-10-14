@@ -660,3 +660,123 @@ p {line-height:1.6}
   .hero-actions .btn > span[aria-hidden="true"]::before {content:"";display:block;width:19px;height:19px;background:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4%2012h15M13%206l6%206-6%206%22%2F%3E%3C%2Fsvg%3E') center/contain no-repeat}
   .category-tile .category-arrow::before {content:"";display:block;width:18px;height:18px;background:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a17b31%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4%2012h15M13%206l6%206-6%206%22%2F%3E%3C%2Fsvg%3E') center/contain no-repeat}
 }
+
+
+/* Readable Cyrillic typography on desktop and legacy Windows monitors.
+   Font replacement, sizing and color contrast only; phone layout remains unchanged. */
+@media (min-width:1050px), (min-width:800px) and (hover:hover) and (pointer:fine) {
+  :root {
+    --sans: Arial, Tahoma, "Segoe UI", sans-serif;
+    --serif: Arial, Tahoma, "Segoe UI", sans-serif;
+    --ink: #27241f;
+    --muted: #504b43;
+    --gold-dark: #72531d;
+  }
+  body {
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.62;
+    -webkit-font-smoothing:auto;
+    text-rendering:auto;
+    color:var(--ink);
+  }
+  h1,h2,h3 {
+    font-family:var(--sans);
+    font-weight:700;
+    letter-spacing:normal;
+    line-height:1.22;
+  }
+  p {line-height:1.65}
+  .brand-name {
+    font-family:var(--sans);
+    font-weight:700;
+    letter-spacing:-.025em;
+    line-height:1.06;
+    font-size:37px;
+  }
+  .brand-subtitle {
+    font-family:var(--sans);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.075em;
+    line-height:1.4;
+    color:#745722;
+  }
+  .desktop-nav a {font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:normal}
+  .header-call {font-size:13px;font-weight:700}
+  .eyebrow {font-size:12px;font-weight:700;letter-spacing:.08em;color:#73541e}
+  .lead,.compact-header .lead {font-size:17px;color:#403b33;line-height:1.6}
+  .section-header h2,.compact-header h2,.page-intro h1,.editorial-layout h2,
+  .events-copy h2,.menu-section-head h2,.detail-block h2 {
+    letter-spacing:normal;
+    font-family:var(--sans);
+    font-weight:700;
+  }
+  .section-header h2 {line-height:1.2}
+  .heading-line {gap:16px}
+  .btn {font-family:var(--sans);font-weight:700;font-size:14px;line-height:1.42}
+  .text-link,.gallery-head .text-link {font-size:14px;font-weight:700;color:#76561f}
+
+  /* The photograph remains untouched; text is rendered with stronger weight and contrast. */
+  .hero-kicker {font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.09em;color:#f6dfb3}
+  .hero h1 {font-family:var(--sans);font-weight:700;letter-spacing:-.018em;line-height:1.13}
+  .hero-copy p {font-size:20px;font-weight:600;line-height:1.55;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.74)}
+  .hero-actions .btn {font-size:15px;font-weight:700}
+
+  /* Home menu and short announcements. */
+  .category-tile .tile-name {font:700 17px/1.32 var(--sans);letter-spacing:normal;color:#2e281f}
+  .lunch-intro h2,.lunch-group h3,.lunch-full-header h2 {font-family:var(--sans);font-weight:700;line-height:1.22}
+  .lunch-description {font-size:16px;color:#454137}
+  .lunch-date {font-size:13px;color:#715727}
+  .lunch-notes {font-size:14px}
+  .lunch-group li,.lunch-group li strong {font-size:14px;line-height:1.45}
+  .lunch-group li small,.lunch-weight {font-size:12px;color:#5c5546}
+  .lunch-intro .btn {font-size:14px}
+  .events-copy p {font-size:16px;line-height:1.6;color:#3a352d}
+  .events-more {font-size:14px;font-weight:700}
+  .events-tags span {font-size:14px;line-height:1.5;color:#51473a}
+  .events-tags span::before {
+    content:"";
+    display:inline-block;
+    width:6px;height:6px;border-radius:50%;
+    background:#98712a;
+    vertical-align:middle;
+    margin:0 10px 2px 0;
+  }
+  .news-card h3 {font-size:20px;font-weight:700}
+  .news-card p:not(.eyebrow) {font-size:15px;color:#4a453d}
+  .home-contact p,.home-contact a {font-size:14px}
+  .home-contact p {color:#453e33}
+
+  /* Permanent / seasonal / daily menus. */
+  .page-intro p,.empty-state p,.lunch-full-header p:not(.eyebrow) {font-size:16px;color:#50493f}
+  .intro-meta {font-size:15px;color:#514b42}
+  .notice,.menu-pending {font-size:15px;color:#433e35}
+  .notice p {font-size:14px;color:#50483e}
+  .menu-anchor-nav button,.filter-btn {font-size:14px;font-weight:650;color:#352f25}
+  .dish-item h3 {font:700 16px/1.4 var(--sans);color:#27231e}
+  .dish-item p {font-size:14px;color:#4e483f;line-height:1.55}
+  .dish-weight,.dish-allergens {font-size:13px!important;color:#554d41!important}
+  .dish-item strong {font-size:15px;font-weight:700;color:#34291b}
+  .seasonal-description,.menu-section .seasonal-preview-message {font-size:15px}
+
+  /* Events, gallery and contact pages. */
+  .editorial-layout p {font-size:16px;color:#423c33}
+  .space-card h3 {font:700 18px/1.36 var(--sans)}
+  .space-no-image p,.space-description-only p {font-size:14px;color:#51483e;line-height:1.6}
+  .space-caption-top span {font-size:13px;letter-spacing:.07em;color:#775722}
+  .cta-block p {font-size:16px;color:#433d33}
+  .gallery-item span {font-size:14px;font-weight:700}
+  .detail-block p {font-size:15px;line-height:1.6;color:#484239}
+  .contact-big-number {font:700 clamp(24px,2.3vw,36px)/1.25 var(--sans)}
+  .contact-social a,.map-bottom a {font-size:14px;font-weight:700}
+  .map-bottom {font-size:13px;color:#464036}
+
+  /* Footer: stop rendering tiny gray links / overly spaced captions. */
+  .footer-brand .brand-name {font:700 36px/1.08 var(--sans);letter-spacing:-.022em}
+  .footer-brand .brand-subtitle {font-size:10px;letter-spacing:.055em;color:#6e5220;font-weight:700}
+  .footer-col p,.footer-col .footer-phone {font-size:14px;line-height:1.5;color:#302b23}
+  .footer-col .footer-map-link {font-size:13px!important;color:#725119;font-weight:700}
+  .footer-social a {font-size:14px!important;font-weight:700}
+  .footer-bottom {font-size:12px;color:#524a3e}
+}

@@ -819,3 +819,45 @@ p {line-height:1.6}
  .category-grid {grid-auto-columns:clamp(146px,62vw,185px)}
  .brand-mark {width:27px;height:33px}
 }
+
+
+/* Restaurant-themed scrollbars: warm parchment track, gold thumb.
+   Decorative only: no custom JavaScript scrolling or changed scroll behavior. */
+html, body {
+  scrollbar-color: #a7843c #f3ede1;
+  scrollbar-width: thin;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  width: 12px;
+  height: 10px;
+}
+html::-webkit-scrollbar-track, body::-webkit-scrollbar-track {
+  background: #f3ede1;
+}
+html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb {
+  background: #a7843c;
+  border: 2px solid #f3ede1;
+  border-radius: 999px;
+}
+html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
+  background: #765820;
+}
+/* Match the small side-to-side category scrollers to the same palette. */
+.category-grid, .menu-anchor-nav {
+  scrollbar-color: #a7843c #efe6d7;
+}
+.category-grid::-webkit-scrollbar, .menu-anchor-nav::-webkit-scrollbar {
+  height: 10px;
+}
+.category-grid::-webkit-scrollbar-track, .menu-anchor-nav::-webkit-scrollbar-track {
+  background: #efe6d7;
+  border-radius: 999px;
+}
+.category-grid::-webkit-scrollbar-thumb, .menu-anchor-nav::-webkit-scrollbar-thumb {
+  background: #a7843c;
+  border: 2px solid #efe6d7;
+  border-radius: 999px;
+}
+.category-grid::-webkit-scrollbar-thumb:hover, .menu-anchor-nav::-webkit-scrollbar-thumb:hover {
+  background: #765820;
+}

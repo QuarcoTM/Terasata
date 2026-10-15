@@ -149,3 +149,34 @@ button:disabled{opacity:.48;cursor:not-allowed}
 /* Keep 11 dish categories plus the seasonal tab on two swipeable lines in admin. */
 #view-content .tabs {display:grid;grid-auto-flow:column;grid-template-columns:none;grid-template-rows:repeat(2,auto);grid-auto-columns:max-content;justify-content:start;overflow-x:auto;overflow-y:hidden;flex-wrap:initial;gap:7px;max-width:100%;padding:2px 1px 11px;scrollbar-width:thin}
 #view-content .tabs button {white-space:nowrap}
+
+
+/* Same brand-colored scrollbars in the admin, without changing scrolling logic. */
+html, body, #view-content .tabs, .admin-menu-popover, dialog {
+  scrollbar-color: #a7843c #f3ede1;
+  scrollbar-width: thin;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar,
+#view-content .tabs::-webkit-scrollbar,
+.admin-menu-popover::-webkit-scrollbar, dialog::-webkit-scrollbar {
+  width: 12px;
+  height: 10px;
+}
+html::-webkit-scrollbar-track, body::-webkit-scrollbar-track,
+#view-content .tabs::-webkit-scrollbar-track,
+.admin-menu-popover::-webkit-scrollbar-track, dialog::-webkit-scrollbar-track {
+  background: #f3ede1;
+  border-radius: 999px;
+}
+html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
+#view-content .tabs::-webkit-scrollbar-thumb,
+.admin-menu-popover::-webkit-scrollbar-thumb, dialog::-webkit-scrollbar-thumb {
+  background: #a7843c;
+  border: 2px solid #f3ede1;
+  border-radius: 999px;
+}
+html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover,
+#view-content .tabs::-webkit-scrollbar-thumb:hover,
+.admin-menu-popover::-webkit-scrollbar-thumb:hover, dialog::-webkit-scrollbar-thumb:hover {
+  background: #765820;
+}

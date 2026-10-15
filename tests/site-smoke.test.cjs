@@ -246,10 +246,10 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  assert(js.includes('footer-desktop-icon'),'SVG footer icon missing');
  assert(js.includes('<circle cx="12" cy="12" r="9"/>'),'SVG clock drawing missing');
  assert(js.includes('>Facebook</span>')&&js.includes('>Instagram</span>'),'Social links missing their labels');
- assert(home.includes('styles.css?v=20261014-2row-v1'));
+ assert(home.includes('styles.css?v=20261015-scrollbar-v1'));
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
-  assert(html.includes('styles.css?v=20261014-2row-v1'),'CSS cache not updated for '+route);
+  assert(html.includes('styles.css?v=20261015-scrollbar-v1'),'CSS cache not updated for '+route);
   assert(html.includes('site.js?v=20261014-mark-menu-v1'),'JS cache not updated for '+route);
  }
 });
@@ -267,7 +267,7 @@ test('Desktop Cyrillic readability is consistent across every public page, witho
  }
  assert(patch.includes('Arial, Tahoma'),'Bulgarian Cyrillic should use Windows-safe font fallback');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/'])
-  assert(read(slug+'index.html').includes('styles.css?v=20261014-2row-v1'),'Old CSS cache on '+slug);
+  assert(read(slug+'index.html').includes('styles.css?v=20261015-scrollbar-v1'),'Old CSS cache on '+slug);
 });
 
 test('Printed menu adds 9 salads and 4 new categories with 28 dishes',()=>{
@@ -296,7 +296,28 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  assert(css.includes('.footer-social .footer-desktop-icon {display:block'),'Mobile social icons must be visible');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
-  assert(html.includes('styles.css?v=20261014-2row-v1'));
+  assert(html.includes('styles.css?v=20261015-scrollbar-v1'));
   assert(html.includes('site.js?v=20261014-mark-menu-v1'));
  }
+});
+
+
+test('Gold and parchment scrollbars use native scrolling across site and admin',()=>{
+ const publicCss=read('assets/css/styles.css'),adminCss=read('assets/css/admin.css');
+ const publicMark=publicCss.indexOf('/* Restaurant-themed scrollbars: warm parchment track, gold thumb.');
+ const adminMark=adminCss.indexOf('/* Same brand-colored scrollbars in the admin, without changing scrolling logic.');
+ assert(publicMark>0&&adminMark>0,'Scrollbar style blocks missing');
+ const pub=publicCss.slice(publicMark),adm=adminCss.slice(adminMark);
+ for(const style of [pub,adm]){
+   assert(style.includes('scrollbar-color: #a7843c #f3ede1;'),'Missing branded scrollbar colors');
+   assert(style.includes('::-webkit-scrollbar-thumb'),'WebKit/Chromium thumb missing');
+   assert(style.includes('border-radius: 999px;'),'Scrollbar should have rounded corners');
+   assert(style.includes('background: #765820;'),'Scrollbar hover color missing');
+ }
+ for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
+   assert(read(route+'index.html').includes('styles.css?v=20261015-scrollbar-v1'),'Missing public CSS cache refresh '+route);
+ }
+ assert(read('admin/index.html').includes('admin.css?v=20261015-scrollbar-v1'),'Missing admin CSS cache refresh');
+ assert(pub.includes('.category-grid, .menu-anchor-nav'),'Category scrolling should retain gold thumb');
+ assert(!pub.includes('overflow: hidden'),'Scrollbar theme must not hide the native scrollbars');
 });

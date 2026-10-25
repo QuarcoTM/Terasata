@@ -360,7 +360,7 @@ test('One Sushi evening per week is an opt-in announcement, not an everyday cate
  assert.equal(visible({...config,endTime:'18:00'},valid),false);
  assert(site.includes("publicCategories=d.categories.filter(c=>c.id!=='sushi'||sushiReady||previewActive)"));
  assert(site.includes("name:'Суши'"));
- assert(site.includes('само веднъж седмично'));
+ assert(site.includes('const sushiWhen='),'Weekly schedule must remain visible');
  const admin=read('assets/js/admin.js');
  assert(admin.includes("activeCategory==='sushi'?sushiSchedulePanel()"));
  assert(admin.includes('function sushiScheduleModal()'));

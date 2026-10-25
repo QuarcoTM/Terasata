@@ -92,7 +92,7 @@ if(!SECURE&&ensureSushiCategory(state.content)){
  try{localStorage.setItem(KEY,JSON.stringify(state));}catch(err){console.warn('Could not persist updated categories:',err);}
 }
 
-const titles={qr:['QR кодове','Две отделни табелки с работещ QR код, готови за печат.'],stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай постоянното меню, сезонните предложения и седмичната суши вечер.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
+const titles={qr:['QR кодове','Две отделни табелки с работещ QR код, готови за печат.'],stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай постоянното меню, сезонните предложения и седмичното предлагане на суши.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
 function notice(t){const box=qs('#toast');box.textContent=t;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3200)}
 function save(){
  state.savedAt=new Date().toISOString();
@@ -193,15 +193,15 @@ function sushiSchedulePanel(){
  const s=ensureSushiNight(),ready=sushiConfigured(s);
  const when=ready?SUSHI_DAYS[s.weekday]+' · '+s.startTime+' – '+s.endTime+(s.endTime<s.startTime?' (до следващия ден)':''):'Денят и часовете още не са уточнени.';
  const demoNote=s.demo===true?'<p class="mini sushi-admin-demo"><strong>ДЕМО ГРАФИК.</strong> Събота 18:00–23:00 е пример за представяне, не потвърдено работно време за суши.</p>':'';
- return '<section class="panel sushi-admin-panel"><div class="section-head"><div><p class="eyebrow">СПЕЦИАЛНО ВЕДНЪЖ СЕДМИЧНО</p><h2>Суши вечер</h2><p class="mini muted">'+e(when)+'</p></div><span class="badge '+(s.enabled?'green':'yellow')+'">'+(s.enabled?'Показва се':'Скрито')+'</span></div>'+
+ return '<section class="panel sushi-admin-panel"><div class="section-head"><div><p class="eyebrow">СПЕЦИАЛНО ВЕДНЪЖ СЕДМИЧНО</p><h2>Суши</h2><p class="mini muted">'+e(when)+'</p></div><span class="badge '+(s.enabled?'green':'yellow')+'">'+(s.enabled?'Показва се':'Скрито')+'</span></div>'+
  demoNote+'<p class="mini muted">След включване сайтът показва деня и часовете през цялата седмица. Суши не се предлага всеки ден.</p>'+
  '<div class="toolbar-row">'+btn('Задай ден и часове','sushi-schedule','secondary')+
- btn(s.enabled?'Скрий суши вечерта':'Покажи суши вечерта','sushi-toggle',s.enabled?'secondary':'primary',!ready&&!s.enabled?'disabled title="Първо задайте график"':'')+'</div>'+
+ btn(s.enabled?'Скрий суши':'Покажи суши','sushi-toggle',s.enabled?'secondary':'primary',!ready&&!s.enabled?'disabled title="Първо задайте график"':'')+'</div>'+
  '<p class="mini muted">Добави суши предложенията по-долу. Публичните промени изискват експорт на content.js в GitHub, докато няма активен бекенд.</p></section>';
 }
 function sushiScheduleModal(){
  const s=ensureSushiNight();
- openEditor('График на суши вечерта',[
+ openEditor('График на суши',[
  ['weekday','Ден от седмицата','select',SUSHI_DAYS[s.weekday||0],true,SUSHI_DAYS],
  ['startTime','Начало','time',s.startTime,true],
  ['endTime','Край','time',s.endTime,true]

@@ -250,7 +250,7 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
   assert(html.includes('styles.css?v=20261025-saturday-demo-v2'),'CSS cache not updated for '+route);
-  assert(html.includes('site.js?v=20261025-saturday-demo-v2'),'JS cache not updated for '+route);
+  assert(html.includes('site.js?v=20261025-sushi-name-v1'),'JS cache not updated for '+route);
  }
 });
 
@@ -297,7 +297,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
   assert(html.includes('styles.css?v=20261025-saturday-demo-v2'));
-  assert(html.includes('site.js?v=20261025-saturday-demo-v2'));
+  assert(html.includes('site.js?v=20261025-sushi-name-v1'));
  }
 });
 
@@ -359,7 +359,7 @@ test('One Sushi evening per week is an opt-in announcement, not an everyday cate
  assert.equal(visible({...config,startTime:''},valid),false);
  assert.equal(visible({...config,endTime:'18:00'},valid),false);
  assert(site.includes("publicCategories=d.categories.filter(c=>c.id!=='sushi'||sushiReady||previewActive)"));
- assert(site.includes("name:'Суши вечер'"));
+ assert(site.includes("name:'Суши'"));
  assert(site.includes('само веднъж седмично'));
  const admin=read('assets/js/admin.js');
  assert(admin.includes("activeCategory==='sushi'?sushiSchedulePanel()"));
@@ -390,4 +390,21 @@ test('Saturday demo shows a grammatically correct schedule directly on homepage'
  assert(site.includes("const sushiPrefix=[3,6,7].includes(sushi.weekday)?'Всяка ':'Всеки ';"));
  assert(site.includes('sushi-tile-date'),'Visitors should see example times without opening permanent menu');
  assert(read('assets/css/styles.css').includes('.category-tile .sushi-tile-date'));
+});
+
+
+test('Sushi has short public and admin label without changing weekly demo schedule',()=>{
+ const frontend=read('assets/js/site.js'),admin=read('assets/js/admin.js');
+ const data=JSON.parse(read('backend/seed/content.json'));
+ assert(frontend.includes("name:'Суши'"));
+ assert(frontend.includes('<strong>Суши</strong>'));
+ assert(!frontend.includes('Суши вечер'));
+ assert(admin.includes('<h2>Суши</h2>'));
+ assert(!admin.includes('Суши вечер'));
+ assert.deepEqual(data.sushiNight,{enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true});
+ assert.deepEqual(data.regularMenu.sushi,[]);
+ for(const p of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
+  assert(read(p+'index.html').includes('site.js?v=20261025-sushi-name-v1'),p+' old public script cache');
+ }
+ assert(read('admin/index.html').includes('admin.js?v=20261025-sushi-name-v1'),'Admin script cache not updated');
 });

@@ -4,6 +4,7 @@ require __DIR__.'/../backend/private/bootstrap.php';
 $data=json_decode(file_get_contents(__DIR__.'/../backend/seed/content.json'),true,512,JSON_THROW_ON_ERROR);
 function ensure(bool $condition,string $label): void {if(!$condition)throw new RuntimeException("FAIL ".$label);echo "PASS ".$label."\n";}
 ensure(count($data['categories'])===12,'Twelve categories');
+ensure(($data['sushiNight']['weekday']??null)===6&&($data['sushiNight']['demo']??false)===true,'Sushi sample Saturday visible only as a demo');
 $count=0;foreach($data['categories'] as $c)$count+=count($data['regularMenu'][$c['id']]??[]);
 ensure($count===68,'All 68 dishes seeded');
 ensure(count($data['gallery'])===5,'Five real gallery photos');

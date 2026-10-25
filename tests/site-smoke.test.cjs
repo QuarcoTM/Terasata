@@ -250,7 +250,7 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
   assert(html.includes('styles.css?v=20261025-sushievening-v1'),'CSS cache not updated for '+route);
-  assert(html.includes('site.js?v=20261025-sushievening-v1'),'JS cache not updated for '+route);
+  assert(html.includes('site.js?v=20261025-saturday-demo-v1'),'JS cache not updated for '+route);
  }
 });
 
@@ -297,7 +297,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
   assert(html.includes('styles.css?v=20261025-sushievening-v1'));
-  assert(html.includes('site.js?v=20261025-sushievening-v1'));
+  assert(html.includes('site.js?v=20261025-saturday-demo-v1'));
  }
 });
 
@@ -344,7 +344,7 @@ test('Sushi is a dedicated empty category without invented products or prices',(
 
 test('One Sushi evening per week is an opt-in announcement, not an everyday category',()=>{
  const seed=JSON.parse(read('backend/seed/content.json'));
- assert.deepEqual(seed.sushiNight,{enabled:false,weekday:null,startTime:'',endTime:''});
+ assert.deepEqual(seed.sushiNight,{enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true});
  assert.equal(seed.categories.length,12);
  assert.equal(seed.categories.reduce((n,c)=>n+(seed.regularMenu[c.id]||[]).length,0),68);
  const site=read('assets/js/site.js');
@@ -366,4 +366,21 @@ test('One Sushi evening per week is an opt-in announcement, not an everyday cate
  assert(admin.includes('function sushiScheduleModal()'));
  assert(admin.includes("case'sushi-toggle'"));
  assert(admin.includes("if(!s.enabled&&!sushiConfigured(s))"));
+});
+
+test('Sushi Saturday example is immediately visible, honestly labelled and editable',()=>{
+ const content=read('assets/js/content.js'),seed=JSON.parse(read('backend/seed/content.json'));
+ assert(content.includes("sushiNight: {enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true}"));
+ assert.equal(seed.sushiNight.demo,true);
+ const site=read('assets/js/site.js');
+ assert(site.includes('Примерен график за представяне, не е потвърден от ресторанта.'));
+ assert(site.includes("const sushiDemo=sushi.demo===true;"));
+ assert(site.includes('Видовете суши и цените ще бъдат добавени'));
+ const admin=read('assets/js/admin.js');
+ assert(admin.includes('demo:true};changed=true'),'Existing local drafts should get the sample schedule');
+ assert(admin.includes('s.demo=false;'),'Saving confirmed schedule must clear demonstration label');
+ assert(admin.includes('ДЕМО ГРАФИК'));
+ assert.equal(seed.categories.length,12);
+ assert.deepEqual(seed.regularMenu.sushi,[]);
+ assert.equal(seed.categories.reduce((n,c)=>n+(seed.regularMenu[c.id]||[]).length,0),68);
 });

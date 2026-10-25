@@ -80,6 +80,12 @@ function ensureSushiCategory(content){
  if(!Array.isArray(content.regularMenu.sushi)){
   content.regularMenu.sushi=[];changed=true;
  }
+ // Upgrade the old, entirely unset default to an explicit sample for this demo.
+ const schedule=content.sushiNight;
+ if(!schedule||typeof schedule!=='object'||Array.isArray(schedule)||
+   (schedule.enabled===false&&schedule.weekday==null&&!schedule.startTime&&!schedule.endTime)){
+  content.sushiNight={enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true};changed=true;
+ }
  return changed;
 }
 if(!SECURE&&ensureSushiCategory(state.content)){
@@ -175,7 +181,7 @@ const SUSHI_DAYS=['Избери ден','Понеделник','Вторник',
 const validSushiClock=t=>typeof t==='string'&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(t);
 function ensureSushiNight(){
  let s=state.content.sushiNight;
- if(!s||typeof s!=='object'||Array.isArray(s))s=state.content.sushiNight={enabled:false,weekday:null,startTime:'',endTime:''};
+ if(!s||typeof s!=='object'||Array.isArray(s))s=state.content.sushiNight={enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true};
  if(typeof s.enabled!=='boolean')s.enabled=false;
  if(!Number.isInteger(s.weekday)||s.weekday<1||s.weekday>7)s.weekday=null;
  if(typeof s.startTime!=='string')s.startTime='';
@@ -186,8 +192,9 @@ function sushiConfigured(s){return Number.isInteger(s.weekday)&&s.weekday>=1&&s.
 function sushiSchedulePanel(){
  const s=ensureSushiNight(),ready=sushiConfigured(s);
  const when=ready?SUSHI_DAYS[s.weekday]+' · '+s.startTime+' – '+s.endTime+(s.endTime<s.startTime?' (до следващия ден)':''):'Денят и часовете още не са уточнени.';
+ const demoNote=s.demo===true?'<p class="mini sushi-admin-demo"><strong>ДЕМО ГРАФИК.</strong> Събота 18:00–23:00 е пример за представяне, не потвърдено работно време за суши.</p>':'';
  return '<section class="panel sushi-admin-panel"><div class="section-head"><div><p class="eyebrow">СПЕЦИАЛНО ВЕДНЪЖ СЕДМИЧНО</p><h2>Суши вечер</h2><p class="mini muted">'+e(when)+'</p></div><span class="badge '+(s.enabled?'green':'yellow')+'">'+(s.enabled?'Показва се':'Скрито')+'</span></div>'+
- '<p class="mini muted">След включване сайтът показва деня и часовете през цялата седмица. Суши не се предлага всеки ден.</p>'+
+ demoNote+'<p class="mini muted">След включване сайтът показва деня и часовете през цялата седмица. Суши не се предлага всеки ден.</p>'+
  '<div class="toolbar-row">'+btn('Задай ден и часове','sushi-schedule','secondary')+
  btn(s.enabled?'Скрий суши вечерта':'Покажи суши вечерта','sushi-toggle',s.enabled?'secondary':'primary',!ready&&!s.enabled?'disabled title="Първо задайте график"':'')+'</div>'+
  '<p class="mini muted">Добави суши предложенията по-долу. Публичните промени изискват експорт на content.js в GitHub, докато няма активен бекенд.</p></section>';
@@ -203,7 +210,7 @@ function sushiScheduleModal(){
   if(day<1||!validSushiClock(form.startTime)||!validSushiClock(form.endTime)||form.startTime===form.endTime){
    notice('Избери ден и валидни, различни начален и краен час.');return false;
   }
-  s.weekday=day;s.startTime=form.startTime;s.endTime=form.endTime;
+  s.weekday=day;s.startTime=form.startTime;s.endTime=form.endTime;s.demo=false;
   return save();
  });
 }

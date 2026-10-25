@@ -84,6 +84,7 @@
   const publicCategories=d.categories.filter(c=>c.id!=='sushi'||sushiReady||previewActive).map(c=>c.id==='sushi'?{...c,name:'Суши вечер'}:c);
   const sushiHours=sushiClock(sushi.startTime)&&sushiClock(sushi.endTime)?sushi.startTime+' – '+sushi.endTime+(sushi.endTime<sushi.startTime?' (до следващия ден)':''):'';
   const sushiWhen=sushiDays[sushi.weekday]&&sushiHours?'Всеки '+sushiDays[sushi.weekday]+' · '+sushiHours:'Денят и часовете още не са уточнени';
+  const sushiDemo=sushi.demo===true;
 
   // Categories currently offered by the restaurant.
   const cats=$('#category-grid');
@@ -145,9 +146,9 @@
     const renderDish=item=>'<article class="dish-item"><div><h3>'+esc(item.name)+'</h3>'+(item.description?'<p>'+esc(item.description)+'</p>':'')+(item.allergens?.length?'<p class="dish-allergens">Алергени: '+esc(item.allergens.join(', '))+'</p>':'')+'<span class="dish-weight">'+esc(item.weight||'')+'</span></div><strong>'+esc(item.price||'')+'</strong></article>';
     contents.innerHTML=available.map(c=>{
       const special=c.id==='seasonal',items=special?itemsSeasonal:(d.regularMenu[c.id]||[]);
-      const categoryNote=!special&&c.id==='deserti'?'<p class="menu-category-note">Десерти от „Фърст груп“. За наличност попитайте вашия сервитьор.</p>':c.id==='sushi'?'<div class="sushi-evening-notice"><strong>Суши вечер — само веднъж седмично</strong><span>'+esc(sushiWhen)+'</span><small>Суши се предлага само през посочените часове, не всеки ден.</small>'+(preview&&!sushiReady?'<small>Локален преглед — графикът не е публикуван.</small>':'')+'</div>':'';
+      const categoryNote=!special&&c.id==='deserti'?'<p class="menu-category-note">Десерти от „Фърст груп“. За наличност попитайте вашия сервитьор.</p>':c.id==='sushi'?'<div class="sushi-evening-notice"><strong>Суши вечер — само веднъж седмично</strong><span>'+esc(sushiWhen)+'</span>'+(sushiDemo?'<small class="sushi-demo-label">ДЕМО · Примерен график за представяне, не е потвърден от ресторанта.</small>':'<small>Суши се предлага само през посочените часове, не всеки ден.</small>')+(preview&&!sushiReady?'<small>Локален преглед — графикът не е публикуван.</small>':'')+'</div>':'';
       const extra=special?'<p class="eyebrow seasonal-eyebrow">СПЕЦИАЛНИ СЕЗОННИ ПРЕДЛОЖЕНИЯ</p>'+(seasonal.description?'<p class="seasonal-description">'+esc(seasonal.description)+'</p>':'')+(preview&&!seasonal.enabled?'<p class="seasonal-preview-message">Локален преглед — сезонното меню е скрито за посетителите.</p>':''):'';
-      const body=items.length?'<div class="dish-grid">'+items.map(renderDish).join('')+'</div>':'<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>';
+      const body=items.length?'<div class="dish-grid">'+items.map(renderDish).join('')+'</div>':c.id==='sushi'?'<p class="menu-pending">Това е демонстрация на „Суши вечер“. Видовете суши и цените ще бъдат добавени след уточняване с ресторанта.</p>':'<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>';
       return '<section class="menu-section '+(special?'seasonal-menu-section ':'')+(c.id===activeCat?'is-active':'')+'" id="'+esc(c.id)+'" data-cat="'+esc(c.id)+'">'+extra+'<div class="menu-section-head"><h2>'+esc(c.name)+'</h2></div>'+categoryNote+body+'</section>';
     }).join('');
     const activateCategory=catId=>{

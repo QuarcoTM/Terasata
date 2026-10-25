@@ -20,6 +20,7 @@ window.TERASATA_CONTENT = {
     { id: 'osnovni-yastiya', name: 'Основни ястия' },
     { id: 'skara', name: 'Скара' },
     { id: 'riba-i-morski-darove', name: 'Риба и морски дарове' },
+    { id: 'sushi', name: 'Суши' },
     { id: 'sandvichi', name: 'Сандвичи и бургери' },
     { id: 'garnituri', name: 'Гарнитури' },
     { id: 'hlyab', name: 'Хляб' },
@@ -459,6 +460,7 @@ window.TERASATA_CONTENT = {
       ]
     }
   ],
+  "sushi": [],
   "sandvichi": [
     {
         "name": "Принцеса с кайма и кашкавал",

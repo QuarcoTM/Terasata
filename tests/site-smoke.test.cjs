@@ -272,7 +272,7 @@ test('Desktop Cyrillic readability is consistent across every public page, witho
 
 test('Printed menu adds 9 salads and 4 new categories with 28 dishes',()=>{
  const seed=JSON.parse(read('backend/seed/content.json'));
- assert.equal(seed.categories.length,11);
+ assert.equal(seed.categories.length,12);
  for(const [id,n] of [['salati',9],['sandvichi',4],['garnituri',6],['hlyab',3],['deserti',6]]){
   assert.equal(seed.regularMenu[id].length,n,id);
   assert(seed.regularMenu[id].every(x=>x.price.endsWith(' €')),'Missing euro price in '+id);
@@ -280,7 +280,7 @@ test('Printed menu adds 9 salads and 4 new categories with 28 dishes',()=>{
  assert.equal(seed.regularMenu.kartofi[3].weight,'300 г','Original menu preserved');
  assert.equal(seed.regularMenu.garnituri[0].weight,'150 г','Side portion differs from regular potatoes');
  const values=require('node:vm');const ctx={window:{}};values.runInNewContext(read('assets/js/content.js'),ctx);
- assert.equal(ctx.window.TERASATA_CONTENT.categories.length,11,'Static content matches seed');
+ assert.equal(ctx.window.TERASATA_CONTENT.categories.length,12,'Static content matches seed');
  assert.equal(ctx.window.TERASATA_CONTENT.regularMenu.salati.length,9);
 });
 
@@ -320,4 +320,24 @@ test('Gold and parchment scrollbars use native scrolling across site and admin',
  assert(read('admin/index.html').includes('admin.css?v=20261015-scrollbar-v1'),'Missing admin CSS cache refresh');
  assert(pub.includes('.category-grid, .menu-anchor-nav'),'Category scrolling should retain gold thumb');
  assert(!pub.includes('overflow: hidden'),'Scrollbar theme must not hide the native scrollbars');
+});
+
+test('Sushi is a dedicated empty category without invented products or prices',()=>{
+ const seed=JSON.parse(read('backend/seed/content.json'));
+ const content=read('assets/js/content.js');
+ const site=read('assets/js/site.js');
+ const admin=read('assets/js/admin.js');
+ const i=seed.categories.findIndex(c=>c.id==='sushi');
+ assert(i>0 && seed.categories[i-1].id==='riba-i-morski-darove','Sushi category should follow fish');
+ assert.equal(seed.categories[i].name,'Суши');
+ assert.deepEqual(seed.regularMenu.sushi,[],'Do not invent sushi items');
+ assert.equal(seed.categories.reduce((n,c)=>n+(seed.regularMenu[c.id]||[]).length,0),68,'Keep original 68 dishes');
+ assert(content.includes("{ id: 'sushi', name: 'Суши' }"));
+ assert(content.includes('"sushi": []'));
+ assert(site.includes("'sushi':"),'Homepage icon needed');
+ assert(admin.includes('function ensureSushiCategory(content)'),'Older local drafts must gain the new category');
+ assert(admin.includes("localStorage.setItem(KEY,JSON.stringify(state))"),'Existing drafts should persist category migration');
+ const vm=require('node:vm'),context={window:{}};
+ vm.runInNewContext(content,context);
+ assert.deepEqual(Array.from(context.window.TERASATA_CONTENT.regularMenu.sushi),[]);
 });

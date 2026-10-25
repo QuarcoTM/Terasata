@@ -243,6 +243,7 @@ function categoryIcon(id) {
    'osnovni-yastiya':'<path d="M3 18h18M5 18a7 7 0 0 1 14 0M12 8V6M10 6h4M3 21h18"/>',
    'skara':'<path d="M3 10h18l-3 7H6l-3-7ZM7 17l-2 5M17 17l2 5M8 7l-1-4M12 7l1-4M16 7l1-4"/>',
    'riba-i-morski-darove':'<path d="M3 12c3-5 7-7 12-6l5-4v8l-3 2 3 2v8l-5-4c-5 1-9-1-12-6Z"/><circle cx="12.5" cy="10" r="1"/><path d="M6 12h5"/>',
+   'sushi':'<rect x="2.5" y="8" width="5.5" height="8" rx="1"/><rect x="9.25" y="7" width="5.5" height="9" rx="1"/><rect x="16" y="8" width="5.5" height="8" rx="1"/><circle cx="5.25" cy="12" r="1"/><circle cx="12" cy="11.5" r="1"/><circle cx="18.75" cy="12" r="1"/><path d="M3 18h18"/>',
    'sandvichi':'<path d="M4 9h16v3H4zm1 5h14m-12 2h10m-10-10h10"/><path d="M5 6l2-2h10l2 2M5 19l2 2h10l2-2"/>',
    'garnituri':'<path d="M4 12h16l-2 8H6l-2-8Z"/><path d="M7 9l-1-5m5 5V3m4 6 2-5M8 15h8"/>',
    'hlyab':'<path d="M4 13a7 7 0 0 1 14-2l2 2v6H4v-6Z"/><path d="M8 10l2 3m3-5 2 4M6 16h12"/>',

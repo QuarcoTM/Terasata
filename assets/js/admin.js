@@ -66,6 +66,26 @@ function sectionAllowed(section){
 }
 
 if(!SECURE){try{const stored=JSON.parse(localStorage.getItem(KEY)||'null');if(stored&&stored.format==='terasata-local-v1'&&stored.content?.categories?.length&&stored.content.regularMenu)state=stored}catch(err){console.warn('Local draft could not be loaded:',err)}}
+
+/* Preserve existing local edits when a new official category is introduced.
+   Idempotent: adding Sushi never overwrites older dish or category changes. */
+function ensureSushiCategory(content){
+ if(!content||!Array.isArray(content.categories)||!content.regularMenu||typeof content.regularMenu!=='object')return false;
+ let changed=false;
+ if(!content.categories.some(c=>c&&c.id==='sushi')){
+  const fish=content.categories.findIndex(c=>c&&c.id==='riba-i-morski-darove');
+  content.categories.splice(fish<0?content.categories.length:fish+1,0,{id:'sushi',name:'Суши'});
+  changed=true;
+ }
+ if(!Array.isArray(content.regularMenu.sushi)){
+  content.regularMenu.sushi=[];changed=true;
+ }
+ return changed;
+}
+if(!SECURE&&ensureSushiCategory(state.content)){
+ try{localStorage.setItem(KEY,JSON.stringify(state));}catch(err){console.warn('Could not persist updated categories:',err);}
+}
+
 const titles={qr:['QR кодове','Две отделни табелки с работещ QR код, готови за печат.'],stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай постоянното меню и сезонни предложения с показване/скриване.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
 function notice(t){const box=qs('#toast');box.textContent=t;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3200)}
 function save(){

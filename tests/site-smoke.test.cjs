@@ -250,7 +250,7 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
   assert(html.includes('styles.css?v=20261015-scrollbar-v1'),'CSS cache not updated for '+route);
-  assert(html.includes('site.js?v=20261014-mark-menu-v1'),'JS cache not updated for '+route);
+  assert(html.includes('site.js?v=20261025-sushi-v1'),'JS cache not updated for '+route);
  }
 });
 
@@ -297,7 +297,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
   assert(html.includes('styles.css?v=20261015-scrollbar-v1'));
-  assert(html.includes('site.js?v=20261014-mark-menu-v1'));
+  assert(html.includes('site.js?v=20261025-sushi-v1'));
  }
 });
 

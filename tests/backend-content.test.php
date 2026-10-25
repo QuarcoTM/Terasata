@@ -30,3 +30,13 @@ ensure($seasonHidden['seasonalMenu']['enabled']===false && $seasonHidden['season
 $data['seasonalMenu']['enabled']=true;
 $seasonShown=public_content($data);
 ensure($seasonShown['seasonalMenu']['enabled']===true && count($seasonShown['seasonalMenu']['items'])===1,'Enabled seasonal dish appears in public API');
+
+$data['sushiNight']=['enabled'=>false,'weekday'=>null,'startTime'=>'','endTime'=>''];
+$off=public_content($data);
+ensure($off['sushiNight']['enabled']===false,'Unscheduled sushi is hidden');
+$data['sushiNight']=['enabled'=>true,'weekday'=>5,'startTime'=>'18:00','endTime'=>'22:00'];
+$on=public_content($data);
+ensure($on['sushiNight']['enabled']===true&&$on['sushiNight']['weekday']===5,'Published weekly sushi schedule');
+$data['sushiNight']['startTime']='bad';
+$invalid=public_content($data);
+ensure($invalid['sushiNight']['enabled']===false,'Invalid sushi schedule is never publicly enabled');

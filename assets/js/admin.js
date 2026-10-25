@@ -86,7 +86,7 @@ if(!SECURE&&ensureSushiCategory(state.content)){
  try{localStorage.setItem(KEY,JSON.stringify(state));}catch(err){console.warn('Could not persist updated categories:',err);}
 }
 
-const titles={qr:['QR кодове','Две отделни табелки с работещ QR код, готови за печат.'],stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай постоянното меню и сезонни предложения с показване/скриване.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
+const titles={qr:['QR кодове','Две отделни табелки с работещ QR код, готови за печат.'],stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай постоянното меню, сезонните предложения и седмичната суши вечер.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
 function notice(t){const box=qs('#toast');box.textContent=t;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3200)}
 function save(){
  state.savedAt=new Date().toISOString();
@@ -170,6 +170,44 @@ function renderStats(el,tools){
 }
 
 function renderDashboard(el){const noOfDays=Object.values(state.content.lunchByDate||{}).filter(d=>d.published).length;el.innerHTML=`<div class="stats"><div class="stat"><strong>${countDishes()}</strong><span>ястия в постоянното меню</span></div><div class="stat"><strong>${state.content.categories.length}</strong><span>категории</span></div><div class="stat"><strong>${state.content.gallery.length}</strong><span>снимки в галерията</span></div><div class="stat"><strong>${noOfDays}</strong><span>публикувани дневни менюта</span></div></div><div class="hint"><strong>Работен режим:</strong> ${SECURE?'Работа със защитен сървър и база данни. Промените се публикуват след потвърден успешен запис.':'Всички промени остават само в този браузър. За преглед отвори сайта с <b>?preview=1</b>. За реално публикуване трябва ръчно да качиш експортирания файл в GitHub. Няма пароли и няма свързване към сървър.'}</div><div class="cards"><article class="card"><h2>Обедно меню</h2><p>Меню по дата, категории, изчерпани ястия и Facebook визия.</p>${btn('Отвори редактора','go:lunch','primary')}</article><article class="card"><h2>Постоянно меню</h2><p>Всички категории и ястия с възможност за промени без работа с код.</p>${btn('Редактирай ястия','go:regular')}</article><article class="card"><h2>Галерия и новини</h2><p>Качвай само реални фотографии и създавай временни публикации.</p>${btn('Към галерията','go:gallery')}</article><article class="card"><h2>Архивиране</h2><p>Сваляй резервно копие и подготвяй content.js за GitHub.</p>${btn('Архив и експорт','go:transfer')}</article></div>`}
+
+const SUSHI_DAYS=['Избери ден','Понеделник','Вторник','Сряда','Четвъртък','Петък','Събота','Неделя'];
+const validSushiClock=t=>typeof t==='string'&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(t);
+function ensureSushiNight(){
+ let s=state.content.sushiNight;
+ if(!s||typeof s!=='object'||Array.isArray(s))s=state.content.sushiNight={enabled:false,weekday:null,startTime:'',endTime:''};
+ if(typeof s.enabled!=='boolean')s.enabled=false;
+ if(!Number.isInteger(s.weekday)||s.weekday<1||s.weekday>7)s.weekday=null;
+ if(typeof s.startTime!=='string')s.startTime='';
+ if(typeof s.endTime!=='string')s.endTime='';
+ return s;
+}
+function sushiConfigured(s){return Number.isInteger(s.weekday)&&s.weekday>=1&&s.weekday<=7&&validSushiClock(s.startTime)&&validSushiClock(s.endTime)&&s.startTime!==s.endTime;}
+function sushiSchedulePanel(){
+ const s=ensureSushiNight(),ready=sushiConfigured(s);
+ const when=ready?SUSHI_DAYS[s.weekday]+' · '+s.startTime+' – '+s.endTime+(s.endTime<s.startTime?' (до следващия ден)':''):'Денят и часовете още не са уточнени.';
+ return '<section class="panel sushi-admin-panel"><div class="section-head"><div><p class="eyebrow">СПЕЦИАЛНО ВЕДНЪЖ СЕДМИЧНО</p><h2>Суши вечер</h2><p class="mini muted">'+e(when)+'</p></div><span class="badge '+(s.enabled?'green':'yellow')+'">'+(s.enabled?'Показва се':'Скрито')+'</span></div>'+
+ '<p class="mini muted">След включване сайтът показва деня и часовете през цялата седмица. Суши не се предлага всеки ден.</p>'+
+ '<div class="toolbar-row">'+btn('Задай ден и часове','sushi-schedule','secondary')+
+ btn(s.enabled?'Скрий суши вечерта':'Покажи суши вечерта','sushi-toggle',s.enabled?'secondary':'primary',!ready&&!s.enabled?'disabled title="Първо задайте график"':'')+'</div>'+
+ '<p class="mini muted">Добави суши предложенията по-долу. Публичните промени изискват експорт на content.js в GitHub, докато няма активен бекенд.</p></section>';
+}
+function sushiScheduleModal(){
+ const s=ensureSushiNight();
+ openEditor('График на суши вечерта',[
+ ['weekday','Ден от седмицата','select',SUSHI_DAYS[s.weekday||0],true,SUSHI_DAYS],
+ ['startTime','Начало','time',s.startTime,true],
+ ['endTime','Край','time',s.endTime,true]
+ ],form=>{
+  const day=SUSHI_DAYS.indexOf(form.weekday);
+  if(day<1||!validSushiClock(form.startTime)||!validSushiClock(form.endTime)||form.startTime===form.endTime){
+   notice('Избери ден и валидни, различни начален и краен час.');return false;
+  }
+  s.weekday=day;s.startTime=form.startTime;s.endTime=form.endTime;
+  return save();
+ });
+}
+
 function renderRegular(el,tools){
  const cats=state.content.categories;
  if(activeCategory==='seasonal'){renderSeasonal(el,tools,cats);return;}
@@ -181,7 +219,7 @@ function renderRegular(el,tools){
  el.innerHTML='<div class="tabs" role="group" aria-label="Категории">'
   +cats.map(c=>'<button type="button" data-cat="'+e(c.id)+'" aria-pressed="'+(activeCategory===c.id)+'">'+e(c.name)+' ('+(state.content.regularMenu[c.id]||[]).length+')</button>').join('')
   +'<button type="button" class="seasonal-admin-tab" data-cat="seasonal" aria-pressed="false">✦ Сезонно меню</button>'
-  +'</div><div class="panel"><div class="section-head"><h2>'+e(current.name)+'</h2><div class="row-actions">'
+  +'</div>'+(activeCategory==='sushi'?sushiSchedulePanel():'')+'<div class="panel"><div class="section-head"><h2>'+e(current.name)+'</h2><div class="row-actions">'
   +btn('Категория ↑','cat-up','secondary slim',categoryIndex===0?'disabled':'')
   +btn('Категория ↓','cat-down','secondary slim',categoryIndex===cats.length-1?'disabled':'')
   +'<span class="badge">'+items.length+' ястия</span></div></div>'
@@ -536,6 +574,14 @@ case'season-up':case'season-down':{
   [list[idx],list[target]]=[list[target],list[idx]];
   save();render();
  }
+ break;
+}
+case'sushi-schedule':sushiScheduleModal();break;
+case'sushi-toggle':{
+ const s=ensureSushiNight();
+ if(!s.enabled&&!sushiConfigured(s)){notice('Първо задай ден и часове.');break;}
+ s.enabled=!s.enabled;save();render();
+ notice(s.enabled?'Включено локално. За публично показване експортирай в GitHub.':'Скрито локално. За публична промяна експортирай в GitHub.');
  break;
 }
 case'dish-add':dishModal(null);break;

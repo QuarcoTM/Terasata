@@ -180,3 +180,11 @@ html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover,
 .admin-menu-popover::-webkit-scrollbar-thumb:hover, dialog::-webkit-scrollbar-thumb:hover {
   background: #765820;
 }
+
+/* Schedule editor for one recurring Sushi evening. */
+.sushi-admin-panel{border-left:4px solid #b38a3b;background:#fffaf0}
+.sushi-admin-panel .section-head{align-items:start}
+.sushi-admin-panel .section-head h2{margin:0 0 9px}
+.sushi-admin-panel .section-head .badge{white-space:nowrap}
+.sushi-admin-panel .toolbar-row{margin:12px 0 16px}
+@media(max-width:580px){.sushi-admin-panel .section-head{align-items:start;flex-direction:column}}

@@ -246,11 +246,11 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  assert(js.includes('footer-desktop-icon'),'SVG footer icon missing');
  assert(js.includes('<circle cx="12" cy="12" r="9"/>'),'SVG clock drawing missing');
  assert(js.includes('>Facebook</span>')&&js.includes('>Instagram</span>'),'Social links missing their labels');
- assert(home.includes('styles.css?v=20261015-scrollbar-v1'));
+ assert(home.includes('styles.css?v=20261025-sushievening-v1'));
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
-  assert(html.includes('styles.css?v=20261015-scrollbar-v1'),'CSS cache not updated for '+route);
-  assert(html.includes('site.js?v=20261025-sushi-v1'),'JS cache not updated for '+route);
+  assert(html.includes('styles.css?v=20261025-sushievening-v1'),'CSS cache not updated for '+route);
+  assert(html.includes('site.js?v=20261025-sushievening-v1'),'JS cache not updated for '+route);
  }
 });
 
@@ -267,7 +267,7 @@ test('Desktop Cyrillic readability is consistent across every public page, witho
  }
  assert(patch.includes('Arial, Tahoma'),'Bulgarian Cyrillic should use Windows-safe font fallback');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/'])
-  assert(read(slug+'index.html').includes('styles.css?v=20261015-scrollbar-v1'),'Old CSS cache on '+slug);
+  assert(read(slug+'index.html').includes('styles.css?v=20261025-sushievening-v1'),'Old CSS cache on '+slug);
 });
 
 test('Printed menu adds 9 salads and 4 new categories with 28 dishes',()=>{
@@ -296,8 +296,8 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  assert(css.includes('.footer-social .footer-desktop-icon {display:block'),'Mobile social icons must be visible');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
-  assert(html.includes('styles.css?v=20261015-scrollbar-v1'));
-  assert(html.includes('site.js?v=20261025-sushi-v1'));
+  assert(html.includes('styles.css?v=20261025-sushievening-v1'));
+  assert(html.includes('site.js?v=20261025-sushievening-v1'));
  }
 });
 
@@ -315,7 +315,7 @@ test('Gold and parchment scrollbars use native scrolling across site and admin',
    assert(style.includes('background: #765820;'),'Scrollbar hover color missing');
  }
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-   assert(read(route+'index.html').includes('styles.css?v=20261015-scrollbar-v1'),'Missing public CSS cache refresh '+route);
+   assert(read(route+'index.html').includes('styles.css?v=20261025-sushievening-v1'),'Missing public CSS cache refresh '+route);
  }
  assert(read('admin/index.html').includes('admin.css?v=20261015-scrollbar-v1'),'Missing admin CSS cache refresh');
  assert(pub.includes('.category-grid, .menu-anchor-nav'),'Category scrolling should retain gold thumb');
@@ -340,4 +340,30 @@ test('Sushi is a dedicated empty category without invented products or prices',(
  const vm=require('node:vm'),context={window:{}};
  vm.runInNewContext(content,context);
  assert.deepEqual(Array.from(context.window.TERASATA_CONTENT.regularMenu.sushi),[]);
+});
+
+test('One Sushi evening per week is an opt-in announcement, not an everyday category',()=>{
+ const seed=JSON.parse(read('backend/seed/content.json'));
+ assert.deepEqual(seed.sushiNight,{enabled:false,weekday:null,startTime:'',endTime:''});
+ assert.equal(seed.categories.length,12);
+ assert.equal(seed.categories.reduce((n,c)=>n+(seed.regularMenu[c.id]||[]).length,0),68);
+ const site=read('assets/js/site.js');
+ const raw=site.match(/const sushiReady=([^;]+);/);
+ assert(raw,'Sushi public visibility condition missing');
+ const visible=new Function('sushi','sushiClock','return ('+raw[1]+');');
+ const valid=t=>/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(t);
+ const config={enabled:true,weekday:5,startTime:'18:00',endTime:'22:00'};
+ assert.equal(visible(config,valid),true);
+ assert.equal(visible({...config,enabled:false},valid),false);
+ assert.equal(visible({...config,weekday:null},valid),false);
+ assert.equal(visible({...config,startTime:''},valid),false);
+ assert.equal(visible({...config,endTime:'18:00'},valid),false);
+ assert(site.includes("publicCategories=d.categories.filter(c=>c.id!=='sushi'||sushiReady||previewActive)"));
+ assert(site.includes("name:'Суши вечер'"));
+ assert(site.includes('само веднъж седмично'));
+ const admin=read('assets/js/admin.js');
+ assert(admin.includes("activeCategory==='sushi'?sushiSchedulePanel()"));
+ assert(admin.includes('function sushiScheduleModal()'));
+ assert(admin.includes("case'sushi-toggle'"));
+ assert(admin.includes("if(!s.enabled&&!sushiConfigured(s))"));
 });

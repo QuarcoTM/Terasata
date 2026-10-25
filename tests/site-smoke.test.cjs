@@ -246,11 +246,11 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  assert(js.includes('footer-desktop-icon'),'SVG footer icon missing');
  assert(js.includes('<circle cx="12" cy="12" r="9"/>'),'SVG clock drawing missing');
  assert(js.includes('>Facebook</span>')&&js.includes('>Instagram</span>'),'Social links missing their labels');
- assert(home.includes('styles.css?v=20261025-sushievening-v1'));
+ assert(home.includes('styles.css?v=20261025-saturday-demo-v2'));
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
-  assert(html.includes('styles.css?v=20261025-sushievening-v1'),'CSS cache not updated for '+route);
-  assert(html.includes('site.js?v=20261025-saturday-demo-v1'),'JS cache not updated for '+route);
+  assert(html.includes('styles.css?v=20261025-saturday-demo-v2'),'CSS cache not updated for '+route);
+  assert(html.includes('site.js?v=20261025-saturday-demo-v2'),'JS cache not updated for '+route);
  }
 });
 
@@ -267,7 +267,7 @@ test('Desktop Cyrillic readability is consistent across every public page, witho
  }
  assert(patch.includes('Arial, Tahoma'),'Bulgarian Cyrillic should use Windows-safe font fallback');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/'])
-  assert(read(slug+'index.html').includes('styles.css?v=20261025-sushievening-v1'),'Old CSS cache on '+slug);
+  assert(read(slug+'index.html').includes('styles.css?v=20261025-saturday-demo-v2'),'Old CSS cache on '+slug);
 });
 
 test('Printed menu adds 9 salads and 4 new categories with 28 dishes',()=>{
@@ -296,8 +296,8 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  assert(css.includes('.footer-social .footer-desktop-icon {display:block'),'Mobile social icons must be visible');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
-  assert(html.includes('styles.css?v=20261025-sushievening-v1'));
-  assert(html.includes('site.js?v=20261025-saturday-demo-v1'));
+  assert(html.includes('styles.css?v=20261025-saturday-demo-v2'));
+  assert(html.includes('site.js?v=20261025-saturday-demo-v2'));
  }
 });
 
@@ -315,7 +315,7 @@ test('Gold and parchment scrollbars use native scrolling across site and admin',
    assert(style.includes('background: #765820;'),'Scrollbar hover color missing');
  }
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-   assert(read(route+'index.html').includes('styles.css?v=20261025-sushievening-v1'),'Missing public CSS cache refresh '+route);
+   assert(read(route+'index.html').includes('styles.css?v=20261025-saturday-demo-v2'),'Missing public CSS cache refresh '+route);
  }
  assert(read('admin/index.html').includes('admin.css?v=20261025-sushievening-v1'),'Missing admin CSS cache refresh');
  assert(pub.includes('.category-grid, .menu-anchor-nav'),'Category scrolling should retain gold thumb');
@@ -383,4 +383,11 @@ test('Sushi Saturday example is immediately visible, honestly labelled and edita
  assert.equal(seed.categories.length,12);
  assert.deepEqual(seed.regularMenu.sushi,[]);
  assert.equal(seed.categories.reduce((n,c)=>n+(seed.regularMenu[c.id]||[]).length,0),68);
+});
+
+test('Saturday demo shows a grammatically correct schedule directly on homepage',()=>{
+ const site=read('assets/js/site.js');
+ assert(site.includes("const sushiPrefix=[3,6,7].includes(sushi.weekday)?'Всяка ':'Всеки ';"));
+ assert(site.includes('sushi-tile-date'),'Visitors should see example times without opening permanent menu');
+ assert(read('assets/css/styles.css').includes('.category-tile .sushi-tile-date'));
 });

@@ -869,3 +869,6 @@ html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
 .sushi-evening-notice small{font-size:13px;line-height:1.5;color:#5e5140}
 .category-tile[href*="cat=sushi"]{border-color:#c9a666}
 .menu-anchor-nav button[data-cat="sushi"]{border-color:#c9a666}
+
+/* Keep the sample Saturday and hours visible directly on the homepage tile. */
+.category-tile .sushi-tile-date{display:block;margin-top:5px;font-family:var(--sans);font-size:11px;line-height:1.3;font-weight:700;color:#7d5b23}

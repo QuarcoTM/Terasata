@@ -83,12 +83,13 @@
   const previewActive=window.TERASATA_PREVIEW_ACTIVE===true;
   const publicCategories=d.categories.filter(c=>c.id!=='sushi'||sushiReady||previewActive).map(c=>c.id==='sushi'?{...c,name:'Суши вечер'}:c);
   const sushiHours=sushiClock(sushi.startTime)&&sushiClock(sushi.endTime)?sushi.startTime+' – '+sushi.endTime+(sushi.endTime<sushi.startTime?' (до следващия ден)':''):'';
-  const sushiWhen=sushiDays[sushi.weekday]&&sushiHours?'Всеки '+sushiDays[sushi.weekday]+' · '+sushiHours:'Денят и часовете още не са уточнени';
+  const sushiPrefix=[3,6,7].includes(sushi.weekday)?'Всяка ':'Всеки ';
+  const sushiWhen=sushiDays[sushi.weekday]&&sushiHours?sushiPrefix+sushiDays[sushi.weekday]+' · '+sushiHours:'Денят и часовете още не са уточнени';
   const sushiDemo=sushi.demo===true;
 
   // Categories currently offered by the restaurant.
   const cats=$('#category-grid');
-  if(cats) cats.innerHTML=publicCategories.map((c)=>`<a class="category-tile" href="menu/?cat=${encodeURIComponent(c.id)}"><span class="category-icon" aria-hidden="true">${categoryIcon(c.id)}</span><span class="tile-name">${esc(c.name)}</span><span class="category-arrow" aria-hidden="true">→</span></a>`).join('');
+  if(cats) cats.innerHTML=publicCategories.map((c)=>`<a class="category-tile" href="menu/?cat=${encodeURIComponent(c.id)}"><span class="category-icon" aria-hidden="true">${categoryIcon(c.id)}</span><span class="tile-name">${esc(c.name)}${c.id==='sushi'?`<small class="sushi-tile-date">${esc(sushiWhen)}${sushiDemo?' · демо':''}</small>`:''}</span><span class="category-arrow" aria-hidden="true">→</span></a>`).join('');
 
   const currentMenuDate = () => {
     const now = new Date();

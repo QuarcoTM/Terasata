@@ -75,9 +75,19 @@
     anchor.childNodes.forEach(node=>{if(node.nodeType===3 && node.textContent.includes('089 295 9030'))node.textContent=node.textContent.replaceAll('089 295 9030',d.phoneDisplay);});
   });
 
-  // The seven categories are taken from the supplied printed menu; no drinks/desserts.
+  // Sushi evening is advertised in advance only after a valid weekly schedule is enabled.
+  const sushi=d.sushiNight||{enabled:false,weekday:null,startTime:'',endTime:''};
+  const sushiDays=['','понеделник','вторник','сряда','четвъртък','петък','събота','неделя'];
+  const sushiClock=v=>typeof v==='string'&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(v);
+  const sushiReady=sushi.enabled===true&&Number.isInteger(sushi.weekday)&&sushi.weekday>=1&&sushi.weekday<=7&&sushiClock(sushi.startTime)&&sushiClock(sushi.endTime)&&sushi.startTime!==sushi.endTime;
+  const previewActive=window.TERASATA_PREVIEW_ACTIVE===true;
+  const publicCategories=d.categories.filter(c=>c.id!=='sushi'||sushiReady||previewActive).map(c=>c.id==='sushi'?{...c,name:'Суши вечер'}:c);
+  const sushiHours=sushiClock(sushi.startTime)&&sushiClock(sushi.endTime)?sushi.startTime+' – '+sushi.endTime+(sushi.endTime<sushi.startTime?' (до следващия ден)':''):'';
+  const sushiWhen=sushiDays[sushi.weekday]&&sushiHours?'Всеки '+sushiDays[sushi.weekday]+' · '+sushiHours:'Денят и часовете още не са уточнени';
+
+  // Categories currently offered by the restaurant.
   const cats=$('#category-grid');
-  if(cats) cats.innerHTML=d.categories.map((c)=>`<a class="category-tile" href="menu/?cat=${encodeURIComponent(c.id)}"><span class="category-icon" aria-hidden="true">${categoryIcon(c.id)}</span><span class="tile-name">${esc(c.name)}</span><span class="category-arrow" aria-hidden="true">→</span></a>`).join('');
+  if(cats) cats.innerHTML=publicCategories.map((c)=>`<a class="category-tile" href="menu/?cat=${encodeURIComponent(c.id)}"><span class="category-icon" aria-hidden="true">${categoryIcon(c.id)}</span><span class="tile-name">${esc(c.name)}</span><span class="category-arrow" aria-hidden="true">→</span></a>`).join('');
 
   const currentMenuDate = () => {
     const now = new Date();
@@ -122,11 +132,11 @@
   const menuCategories=$('#menu-categories');
   if(menuCategories){
     const params=new URLSearchParams(location.search);
-    const preview=window.TERASATA_PREVIEW_ACTIVE===true;
+    const preview=previewActive;
     const seasonal=d.seasonalMenu||{enabled:false,title:'Сезонно меню',description:'',items:[]};
     const itemsSeasonal=Array.isArray(seasonal.items)?seasonal.items:[];
     const showSeasonal=itemsSeasonal.length>0 && (seasonal.enabled===true || preview);
-    const available=d.categories.concat(showSeasonal?[{id:'seasonal',name:seasonal.title||'Сезонно меню'}]:[]);
+    const available=publicCategories.concat(showSeasonal?[{id:'seasonal',name:seasonal.title||'Сезонно меню'}]:[]);
     const validIds=available.map(c=>c.id);
     let activeCat=params.get('cat');
     if(!validIds.includes(activeCat))activeCat=validIds[0];
@@ -135,7 +145,7 @@
     const renderDish=item=>'<article class="dish-item"><div><h3>'+esc(item.name)+'</h3>'+(item.description?'<p>'+esc(item.description)+'</p>':'')+(item.allergens?.length?'<p class="dish-allergens">Алергени: '+esc(item.allergens.join(', '))+'</p>':'')+'<span class="dish-weight">'+esc(item.weight||'')+'</span></div><strong>'+esc(item.price||'')+'</strong></article>';
     contents.innerHTML=available.map(c=>{
       const special=c.id==='seasonal',items=special?itemsSeasonal:(d.regularMenu[c.id]||[]);
-      const categoryNote=!special&&c.id==='deserti'?'<p class="menu-category-note">Десерти от „Фърст груп“. За наличност попитайте вашия сервитьор.</p>':'';
+      const categoryNote=!special&&c.id==='deserti'?'<p class="menu-category-note">Десерти от „Фърст груп“. За наличност попитайте вашия сервитьор.</p>':c.id==='sushi'?'<div class="sushi-evening-notice"><strong>Суши вечер — само веднъж седмично</strong><span>'+esc(sushiWhen)+'</span><small>Суши се предлага само през посочените часове, не всеки ден.</small>'+(preview&&!sushiReady?'<small>Локален преглед — графикът не е публикуван.</small>':'')+'</div>':'';
       const extra=special?'<p class="eyebrow seasonal-eyebrow">СПЕЦИАЛНИ СЕЗОННИ ПРЕДЛОЖЕНИЯ</p>'+(seasonal.description?'<p class="seasonal-description">'+esc(seasonal.description)+'</p>':'')+(preview&&!seasonal.enabled?'<p class="seasonal-preview-message">Локален преглед — сезонното меню е скрито за посетителите.</p>':''):'';
       const body=items.length?'<div class="dish-grid">'+items.map(renderDish).join('')+'</div>':'<p class="menu-pending">Предложенията в тази категория ще бъдат публикувани след потвърждение на актуалните ястия и цени.</p>';
       return '<section class="menu-section '+(special?'seasonal-menu-section ':'')+(c.id===activeCat?'is-active':'')+'" id="'+esc(c.id)+'" data-cat="'+esc(c.id)+'">'+extra+'<div class="menu-section-head"><h2>'+esc(c.name)+'</h2></div>'+categoryNote+body+'</section>';

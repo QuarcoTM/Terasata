@@ -861,3 +861,11 @@ html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
 .category-grid::-webkit-scrollbar-thumb:hover, .menu-anchor-nav::-webkit-scrollbar-thumb:hover {
   background: #765820;
 }
+
+/* Weekly Sushi event: scheduled availability, not a daily menu item. */
+.sushi-evening-notice{display:flex;flex-direction:column;gap:8px;padding:18px 20px;margin:4px 0 25px;border:1px solid #d8bc80;border-left:4px solid #9d7631;background:#f7efdf;border-radius:6px;color:#382d1e}
+.sushi-evening-notice strong{font-size:18px;font-weight:750}
+.sushi-evening-notice span{font-size:17px;font-weight:650;color:#76551e}
+.sushi-evening-notice small{font-size:13px;line-height:1.5;color:#5e5140}
+.category-tile[href*="cat=sushi"]{border-color:#c9a666}
+.menu-anchor-nav button[data-cat="sushi"]{border-color:#c9a666}

@@ -87,6 +87,13 @@ function public_content(array $source): array {
         if(preg_match('/^\d{4}-\d{2}-\d{2}$/',(string)$date) && is_array($day) && ($day['published']??false)===true)$days[$date]=$day;
     }
     $copy['lunchByDate']=(object)$days;
+    $s=$source['sushiNight']??null;
+    $validSushi=is_array($s)&&($s['enabled']??false)===true&&is_int($s['weekday']??null)
+       &&$s['weekday']>=1&&$s['weekday']<=7&&is_string($s['startTime']??null)
+       &&is_string($s['endTime']??null)&&preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/',$s['startTime'])
+       &&preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/',$s['endTime'])
+       &&$s['startTime']!==$s['endTime'];
+    if(!$validSushi)$copy['sushiNight']=['enabled'=>false,'weekday'=>null,'startTime'=>'','endTime'=>''];
     if(!isset($copy['seasonalMenu'])||!is_array($copy['seasonalMenu'])||empty($copy['seasonalMenu']['enabled'])||empty($copy['seasonalMenu']['items'])){
         $copy['seasonalMenu']=['enabled'=>false,'title'=>'Сезонно меню','description'=>'','items'=>[]];
     }
@@ -97,7 +104,7 @@ function public_content(array $source): array {
 function validate_content(array $next): void {
     $required=['restaurantName','phoneDisplay','phoneHref','addressDisplay','mapsUrl','facebookUrl','instagramUrl','categories','regularMenu','lunchByDate','news','gallery'];
     foreach($required as $key)if(!array_key_exists($key,$next))json_fail('Missing content field: '.$key,422);
-    $allowed=[...$required,'galleryCategories','lunchPoster','posterSettings','seasonalMenu'];
+    $allowed=[...$required,'galleryCategories','lunchPoster','posterSettings','seasonalMenu','sushiNight'];
     foreach(array_keys($next) as $key)if(!in_array($key,$allowed,true))json_fail('Unsupported content field',422);
     foreach(['categories','news','gallery'] as $key)if(!is_array($next[$key])||count($next[$key])>300)json_fail('Invalid '.$key,422);
     foreach(['regularMenu','lunchByDate'] as $key)if(!is_array($next[$key]))json_fail('Invalid '.$key,422);
@@ -106,6 +113,16 @@ function validate_content(array $next): void {
     }
     if(!preg_match('/^tel:\+?[0-9]{9,16}$/',$next['phoneHref']))json_fail('Invalid phone',422);
     foreach(['mapsUrl','facebookUrl','instagramUrl'] as $key)if(!preg_match('~^https://~i',$next[$key]))json_fail('Only HTTPS links are allowed',422);
+    if(isset($next['sushiNight'])){
+      $s=$next['sushiNight'];
+      if(!is_array($s)||array_is_list($s)||!is_bool($s['enabled']??null)
+       ||!(($s['weekday']??null)===null||(is_int($s['weekday'])&&$s['weekday']>=1&&$s['weekday']<=7))
+       ||!is_string($s['startTime']??null)||!is_string($s['endTime']??null)
+       ||($s['startTime']!==''&&!preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/',$s['startTime']))
+       ||($s['endTime']!==''&&!preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/',$s['endTime']))
+       ||($s['enabled']&&($s['weekday']===null||$s['startTime']===''||$s['endTime']===''||$s['startTime']===$s['endTime'])))
+        json_fail('Invalid Sushi evening schedule',422);
+    }
     if(isset($next['seasonalMenu'])){
         $season=$next['seasonalMenu'];
         if(!is_array($season)||array_is_list($season)||!is_bool($season['enabled']??null)

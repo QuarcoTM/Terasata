@@ -631,6 +631,8 @@ window.TERASATA_CONTENT = {
     }
 ]
 },
+  // Sushi is a once-weekly evening; keep it unpublished until its schedule is confirmed.
+  sushiNight: {enabled:false,weekday:null,startTime:'',endTime:''},
   // Seasonal offers are separate from the permanent menu and hidden initially.
   seasonalMenu: {enabled:false,title:'Сезонно меню',description:'',items:[]},
   // Each date must be YYYY-MM-DD in Europe/Sofia local time.

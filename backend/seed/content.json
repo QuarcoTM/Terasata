@@ -699,5 +699,11 @@
     "title": "Сезонно меню",
     "description": "",
     "items": []
+  },
+  "sushiNight": {
+    "enabled": false,
+    "weekday": null,
+    "startTime": "",
+    "endTime": ""
   }
 }

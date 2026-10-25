@@ -317,7 +317,7 @@ test('Gold and parchment scrollbars use native scrolling across site and admin',
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
    assert(read(route+'index.html').includes('styles.css?v=20261025-sushievening-v1'),'Missing public CSS cache refresh '+route);
  }
- assert(read('admin/index.html').includes('admin.css?v=20261015-scrollbar-v1'),'Missing admin CSS cache refresh');
+ assert(read('admin/index.html').includes('admin.css?v=20261025-sushievening-v1'),'Missing admin CSS cache refresh');
  assert(pub.includes('.category-grid, .menu-anchor-nav'),'Category scrolling should retain gold thumb');
  assert(!pub.includes('overflow: hidden'),'Scrollbar theme must not hide the native scrollbars');
 });

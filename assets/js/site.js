@@ -28,11 +28,14 @@
     ['contacts', 'Контакти', 'kontakti/']
   ];
 
-  // Header navigation without duplicate branding; the original mark appears on the home photograph.
+  // Temporary restaurant name in typography only. NOT a recreation of the logo.
   const header = $('#site-header');
   if (header) header.innerHTML = `
     <div class="header-shell container">
-      <a class="brand-phone" href="${d.phoneHref}" aria-label="Обади се на ${esc(d.phoneDisplay)}">${phoneIcon()}<span>${esc(d.phoneDisplay)}</span></a>
+      <div class="brand">
+        <a class="brand-home" href="./" aria-label="Терасата — начало"><img class="brand-mark" src="assets/images/terasata-mark-original.svg" alt="" aria-hidden="true" width="40" height="47"><span class="brand-wording"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></span></a>
+        <a class="brand-phone" href="${d.phoneHref}" aria-label="Обади се на ${esc(d.phoneDisplay)}">${phoneIcon()}<span>${esc(d.phoneDisplay)}</span></a>
+      </div>
       <nav class="desktop-nav" aria-label="Основна навигация">
         ${nav.map(([id,name,href])=>`<a href="${href}" ${id===page?'aria-current="page"':''}>${name}</a>`).join('')}
       </nav>

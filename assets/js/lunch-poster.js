@@ -80,15 +80,14 @@
     }
     ctx.restore();
   }
-  function drawWatermark(ctx){
-    // Decorative architecture motif. Original logo asset is not available;
-    // no inaccurate reconstruction is presented as the original logo.
-    ctx.save();ctx.strokeStyle='#68626d';ctx.globalAlpha=.16;ctx.lineWidth=4;
-    ctx.beginPath();ctx.moveTo(470,1020);ctx.lineTo(470,750);ctx.moveTo(518,1020);ctx.lineTo(518,730);
-    ctx.moveTo(566,1020);ctx.lineTo(566,711);ctx.moveTo(614,1020);ctx.lineTo(614,703);
-    ctx.moveTo(662,1020);ctx.lineTo(662,718);ctx.moveTo(710,1020);ctx.lineTo(710,739);
-    ctx.moveTo(460,1023);ctx.bezierCurveTo(540,1005,639,1005,725,1023);
-    ctx.moveTo(477,742);ctx.quadraticCurveTo(584,658,702,742);ctx.stroke();ctx.restore();
+  function drawWatermark(ctx,logoImage){
+    // Original napkin emblem, rendered in the exact center of the A4 page.
+    if(!logoImage||!logoImage.complete||logoImage.naturalWidth<=0)return;
+    const width=440, height=width*500/427;
+    ctx.save();
+    ctx.globalAlpha=.12;
+    ctx.drawImage(logoImage,(W-width)/2,(H-height)/2,width,height);
+    ctx.restore();
   }
   function drawFitted(ctx,text,x,y,maxWidth,font,maxHeight=40){
     ctx.font=font;ctx.textAlign='center';
@@ -113,14 +112,8 @@
     ctx.fillStyle=YELLOW;ctx.fillRect(253,42,772,151);ctx.strokeStyle=INK;ctx.lineWidth=10;ctx.strokeRect(253,42,772,151);
     ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 94px Arial, sans-serif';ctx.fillText('Обедно меню',640,147);
     ctx.font='italic 21px Arial, sans-serif';ctx.fillText(fmtDate(date),640,226);
-    // Original logo image from the restaurant's napkin, loaded as SVG.
-    if(logoImage&&logoImage.complete&&logoImage.naturalWidth>0){
-      ctx.drawImage(logoImage,72,67,130,146);
-      ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 17px Arial, sans-serif';
-      ctx.fillText('ТЕРАСАТА',137,228);
-    }
     ctx.strokeStyle=INK;ctx.lineWidth=2.3;ctx.beginPath();ctx.moveTo(627,270);ctx.lineTo(627,750);ctx.stroke();
-    drawDots(ctx,315,670,Math.PI*.55,Math.PI*1.52);drawDots(ctx,951,610,-Math.PI*.7,Math.PI*.5);drawWatermark(ctx);
+    drawDots(ctx,315,670,Math.PI*.55,Math.PI*1.52);drawDots(ctx,951,610,-Math.PI*.7,Math.PI*.5);drawWatermark(ctx,logoImage);
     pages[pageIndex].forEach((rows,index)=>{
       const conf=CATS[index],borderY=conf.headingY,bodyStart=conf.bodyY;
       // Always show section headings, with same short dark outline.
@@ -145,8 +138,6 @@
         y+=height;
       });
     });
-    // Slanted original-name watermark (not an invented image-based brand logo).
-    ctx.save();ctx.translate(W/2,1350);ctx.rotate(-.18);ctx.globalAlpha=.52;ctx.fillStyle='#6b666e';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='italic 96px Georgia, serif';ctx.fillText('Ресторант Терасата',0,0);ctx.restore();
     // Footer: four lines as in the supplied flyer, editable PRICES only.
     ctx.fillStyle=INK;ctx.textAlign='center';
     const footerLines=[

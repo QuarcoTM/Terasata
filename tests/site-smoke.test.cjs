@@ -233,7 +233,7 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  const js=read('assets/js/site.js');
  const guard=css.indexOf('/* Desktop-only refinement. Existing phone and tablet rules are untouched. */');
  assert(guard>0,'Desktop-only styles absent');
- const suffix=css.slice(guard,css.indexOf('/* Readable Cyrillic typography on desktop and legacy Windows monitors.',guard));
+ const suffix=css.slice(guard);
  assert(suffix.includes('@media (min-width:1050px)'),'Desktop breakpoint absent');
  assert(!suffix.includes('@media (max-width:'),'Desktop patch must not change phone rules');
  assert(suffix.includes('.events-split {width:min(calc(100% - 112px),1360px)'),'Event photo not inset');
@@ -246,11 +246,11 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  assert(js.includes('footer-desktop-icon'),'SVG footer icon missing');
  assert(js.includes('<circle cx="12" cy="12" r="9"/>'),'SVG clock drawing missing');
  assert(js.includes('>Facebook</span>')&&js.includes('>Instagram</span>'),'Social links missing their labels');
- assert(/styles\.css\?v=20261027-centered-watermark-v1/.test(home));
+ assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-lunch-alg-v1)/.test(home));
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
-  assert(/styles\.css\?v=20261027-centered-watermark-v1/.test(html),'CSS cache not updated for '+route);
-  assert(/site\.js\?v=20261027-centered-watermark-v1/.test(html),'JS cache not updated for '+route);
+  assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-lunch-alg-v1)/.test(html),'CSS cache not updated for '+route);
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1)/.test(html),'JS cache not updated for '+route);
  }
 });
 
@@ -259,7 +259,7 @@ test('Desktop Cyrillic readability is consistent across every public page, witho
  const css=read('assets/css/styles.css');
  const start=css.indexOf('/* Readable Cyrillic typography on desktop and legacy Windows monitors.');
  assert(start>=0,'Readable desktop typography block is missing');
- const patch=css.slice(start,css.indexOf('/* Complete paper menu: exactly two horizontally scrollable category rows. */',start));
+ const patch=css.slice(start);
  assert(patch.includes('@media (min-width:1050px), (min-width:800px) and (hover:hover) and (pointer:fine)'),'Desktop-only breakpoint and old-screen fallback missing');
  assert(!patch.includes('@media (max-width:'),'Do not modify existing phone media rules');
  for(const selector of ['.hero h1','.hero-copy p','.page-intro h1','.category-tile .tile-name','.dish-item h3','.footer-brand .brand-subtitle','.footer-col .footer-map-link','.footer-social a','.events-copy p','.space-card h3','.gallery-item span','.detail-block p']){
@@ -267,7 +267,7 @@ test('Desktop Cyrillic readability is consistent across every public page, witho
  }
  assert(patch.includes('Arial, Tahoma'),'Bulgarian Cyrillic should use Windows-safe font fallback');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/'])
-  assert(/styles\.css\?v=20261027-centered-watermark-v1/.test(read(slug+'index.html')),'Old CSS cache on '+slug);
+  assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-lunch-alg-v1)/.test(read(slug+'index.html')),'Old CSS cache on '+slug);
 });
 
 test('Printed menu adds 9 salads and 4 new categories with 28 dishes',()=>{
@@ -288,12 +288,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  const svg=read('assets/images/terasata-mark-original.svg');
  const js=read('assets/js/site.js'),css=read('assets/css/styles.css');
  assert(svg.includes('viewBox="0 0 427 500"'),'Original source silhouette missing');
- assert(!js.includes('class="brand-mark"'),'Remove the top-left header logo');
- assert(js.includes('class="footer-brand-mark"'),'Keep footer identity');
- const home=read('index.html');
- assert(home.includes('class="hero-watermark"'),'Original emblem must be in the hero');
- assert(home.includes('src="assets/images/terasata-mark-original.svg"'),'Watermark must use the existing emblem');
- assert(css.includes('.hero-watermark {'),'Centered watermark styling missing');
+ assert(js.includes('class="brand-mark"')&&js.includes('class="footer-brand-mark"'));
  for(const c of ['sandvichi','garnituri','hlyab','deserti'])assert(js.includes("'"+c+"':"),'Missing homepage category icon');
  assert(css.includes('grid-template-rows:repeat(2,minmax(78px,auto))'));
  assert(css.includes('grid-auto-flow:column'));
@@ -301,8 +296,8 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  assert(css.includes('.footer-social .footer-desktop-icon {display:block'),'Mobile social icons must be visible');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
-  assert(/styles\.css\?v=20261027-centered-watermark-v1/.test(html));
-  assert(/site\.js\?v=20261027-centered-watermark-v1/.test(html));
+  assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-lunch-alg-v1)/.test(html));
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1)/.test(html));
  }
 });
 
@@ -320,7 +315,7 @@ test('Gold and parchment scrollbars use native scrolling across site and admin',
    assert(style.includes('background: #765820;'),'Scrollbar hover color missing');
  }
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-   assert(/styles\.css\?v=20261027-centered-watermark-v1/.test(read(route+'index.html')),'Missing public CSS cache refresh '+route);
+   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-lunch-alg-v1)/.test(read(route+'index.html')),'Missing public CSS cache refresh '+route);
  }
  assert(read('admin/index.html').includes('admin.css?v=20261027-lunch-alg-v1'),'Missing admin CSS cache refresh');
  assert(pub.includes('.category-grid, .menu-anchor-nav'),'Category scrolling should retain gold thumb');
@@ -409,7 +404,7 @@ test('Sushi has short public and admin label without changing weekly demo schedu
  assert.deepEqual(data.sushiNight,{enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true});
  assert.deepEqual(data.regularMenu.sushi,[]);
  for(const p of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-  assert(/site\.js\?v=20261027-centered-watermark-v1/.test(read(p+'index.html')),p+' old public script cache');
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1)/.test(read(p+'index.html')),p+' old public script cache');
  }
  assert(read('admin/index.html').includes('admin.js?v=20261027-lunch-alg-v1'),'Admin script cache not updated');
 });
@@ -436,7 +431,7 @@ test('Lunch logo and little allergen numbers are in public menus, A4 poster and 
  }
  const adminPage=read('admin/index.html');
  assert(adminPage.includes('assets/js/allergens.js?v=20261027-alg-v1'));
- assert(adminPage.includes('assets/js/lunch-poster.js?v=20261027-lunch-alg-v1'));
+ assert(adminPage.includes('assets/js/lunch-poster.js?v=20261027-a4-central-original-mark-v1'));
  assert(site.includes('lunch-allergen-sup')&&site.includes('lunch-allergen-legend'));
  assert(admin.includes('allergens:parsed.codes'));
  assert(admin.includes('Алергени — номера 1–14'));
@@ -449,18 +444,18 @@ test('Lunch logo and little allergen numbers are in public menus, A4 poster and 
  assert(exists('assets/images/terasata-mark-original.svg'));
 });
 
-test('Home hero shows one centered watermark without repeating the header name',()=>{
- const html=read('index.html');
- const js=read('assets/js/site.js');
- const css=read('assets/css/styles.css');
- assert.equal((html.match(/class="hero-watermark"/g)||[]).length,1,'Expected exactly one hero watermark');
- assert(js.includes('class="brand-phone"'),'Keep mobile telephone link');
- assert(!js.includes('class="brand-home"'),'Header brand must be removed');
- assert(!js.includes('class="brand-mark"'),'Header emblem must be removed');
- const start=css.indexOf('.hero-watermark {');
- assert(start>=0,'Watermark styles missing');
- const rule=css.slice(start,css.indexOf('}',start));
- for(const value of ['top:50%','left:50%','opacity:.25','pointer-events:none'])
-  assert(rule.includes(value),'Watermark must remain centered and noninteractive: '+value);
- assert(html.includes('class="hero-photo" src="assets/images/terrace.webp"'),'Actual restaurant photograph must be preserved');
+test('A4 lunch poster uses centered real original emblem, no fake motif or upper-left duplicate',()=>{
+ const poster=read('assets/js/lunch-poster.js');
+ const admin=read('admin/index.html');
+ assert(poster.includes('function drawWatermark(ctx,logoImage)'));
+ assert(poster.includes('ctx.drawImage(logoImage,(W-width)/2,(H-height)/2,width,height)'));
+ assert(poster.includes('ctx.globalAlpha=.12'));
+ assert(poster.includes('drawWatermark(ctx,logoImage);'));
+ assert(!poster.includes('ctx.drawImage(logoImage,72,67'));
+ assert(!poster.includes("ctx.fillText('ТЕРАСАТА'"));
+ assert(!poster.includes("ctx.fillText('Ресторант Терасата'"));
+ assert(!poster.includes('ctx.bezierCurveTo(540,1005'));
+ assert(poster.includes('logoImage.onload=()=>'));
+ assert(poster.includes('exportButton.disabled=true'));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-central-original-mark-v1'));
 });

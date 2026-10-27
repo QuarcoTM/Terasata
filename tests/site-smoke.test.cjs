@@ -619,3 +619,13 @@ test('Both QR plates show the unchanged original vector logo and preserve scanna
   assert(!card.includes('href="assets/images/'),'No external image dependencies inside printable SVG');
  }
 });
+
+test('Contacts show five guest parking spaces beside address without promising availability',()=>{
+ const contacts=read('kontakti/index.html'),css=read('assets/css/styles.css');
+ assert(contacts.includes('5 паркоместа за гостите на „Терасата“'));
+ assert(contacts.includes('<strong>Паркиране</strong>'));
+ assert(contacts.includes('class="contact-parking"'));
+ assert(contacts.indexOf('class="contact-parking"')<contacts.indexOf('РЕЗЕРВАЦИИ И ЗАПИТВАНИЯ'),'Parking should appear with the address');
+ assert(css.includes('.contact-parking{display:flex'));
+ assert(css.includes('.contact-parking-symbol{display:grid'));
+});

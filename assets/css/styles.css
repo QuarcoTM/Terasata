@@ -882,3 +882,10 @@ html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
 .lunch-allergen-legend strong{margin-right:7px}
 .lunch-allergen-legend span{display:inline-block;margin-right:12px;white-space:nowrap}
 @media(max-width:760px){.lunch-branded-heading{gap:9px}.lunch-branded-heading img{height:33px;max-width:32px}.lunch-intro .lunch-branded-heading img{height:32px;max-width:28px}.lunch-allergen-legend{font-size:11px}}
+
+/* Five guest parking spaces shown directly next to the restaurant address. */
+.contact-parking{display:flex;align-items:center;gap:12px;margin-top:21px;max-width:370px}
+.contact-parking-symbol{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border:1px solid #cbb183;border-radius:8px;background:#f5ecdb;color:#826128;font:800 18px/1 var(--sans)}
+.contact-parking p{margin:0;font:500 13px/1.45 var(--sans);color:#635b4a}
+.contact-parking strong{display:block;color:#473b2c;font-size:13px;font-weight:750;margin-bottom:1px}
+.contact-parking p span{display:block}

@@ -7,7 +7,7 @@
   const CATS = [
     {name:'Салати', gm:'250 г', x:112, priceX:530, bodyY:375, endY:750, font:29, leading:36, nameW:295, headingX:192, headingY:238, headingW:260, headingH:116},
     {name:'Супи', gm:'350 мл', x:671, priceX:1064, bodyY:375, endY:750, font:29, leading:36, nameW:270, headingX:786, headingY:238, headingW:263, headingH:116},
-    {name:'Готвено', gm:'450 г', x:113, priceX:1010, bodyY:941, endY:1315, font:30, leading:38, nameW:760, headingX:455, headingY:760, headingW:325, headingH:138}
+    {name:'Готвено', gm:'450 г', x:113, priceX:1010, bodyY:941, endY:1315, font:30, leading:38, nameW:760, headingX:455, headingY:760, headingW:325, headingH:116}
   ];
   const escapeHtml = v => String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmtDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value) ? value.split('-').reverse().join('-') : value;
@@ -106,20 +106,21 @@
   function draw(canvas,pages,pageIndex,settings,date,logoImage){
     const ctx=canvas.getContext('2d'),footer=(settings.footerItems||defaultFooter()).map((item,i)=>({label:defaultFooter()[i].label,price:String(item?.price??defaultFooter()[i].price)}));
     ctx.clearRect(0,0,W,H);ctx.fillStyle=WHITE;ctx.fillRect(0,0,W,H);
-    // True edge-to-edge diagonal: its midpoint is always exactly halfway down A4.
-    // Top-left yellow and bottom-right ivory, with no abrupt vertical or horizontal edges.
-    const diagonalLeft=H*.72,diagonalRight=H*.28;
+    // Exact corner-to-corner diagonal from bottom-left to top-right.
+    // The yellow field fills the upper-left triangle and the existing paper tone fills the rest.
     ctx.fillStyle=YELLOW;ctx.beginPath();
-    ctx.moveTo(0,0);ctx.lineTo(W,0);ctx.lineTo(W,diagonalRight);
-    ctx.lineTo(0,diagonalLeft);ctx.closePath();ctx.fill();
+    ctx.moveTo(0,0);ctx.lineTo(W,0);ctx.lineTo(0,H);ctx.closePath();ctx.fill();
     ctx.strokeStyle='rgba(92,78,49,.22)';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(0,diagonalLeft);ctx.lineTo(W,diagonalRight);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(W,0);ctx.stroke();
     // Title box: matches original placement near the upper edge.
     ctx.fillStyle='rgba(255,251,239,.93)';ctx.fillRect(253,42,772,151);ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.strokeRect(253,42,772,151);
     ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 88px Arial, sans-serif';ctx.fillText('Обедно меню',640,147);
     ctx.font='600 23px Arial, sans-serif';ctx.fillText(fmtDate(date),640,228);
     ctx.strokeStyle=INK;ctx.lineWidth=2.3;ctx.beginPath();ctx.moveTo(627,270);ctx.lineTo(627,750);ctx.stroke();
     drawWatermark(ctx,logoImage);
+    // Restore the original dotted ornaments on both sides of the emblem.
+    drawDots(ctx,315,1055,Math.PI*.55,Math.PI*1.52);
+    drawDots(ctx,925,1055,-Math.PI*.7,Math.PI*.5);
     pages[pageIndex].forEach((rows,index)=>{
       const conf=CATS[index],borderY=conf.headingY,bodyStart=conf.bodyY;
       // Always show section headings, with same short dark outline.

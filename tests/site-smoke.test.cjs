@@ -620,36 +620,20 @@ test('Both QR plates show the unchanged original vector logo and preserve scanna
  }
 });
 
-test('Contacts show five guest parking spaces beside address without promising availability',()=>{
- const contacts=read('kontakti/index.html'),css=read('assets/css/styles.css');
- assert(contacts.includes('5 паркоместа за гостите на „Терасата“'));
- assert(contacts.includes('<strong>Паркиране</strong>'));
- assert(contacts.includes('class="contact-parking"'));
- assert(contacts.indexOf('class="contact-parking"')<contacts.indexOf('РЕЗЕРВАЦИИ И ЗАПИТВАНИЯ'),'Parking should appear with the address');
- assert(css.includes('.contact-parking{display:flex'));
- assert(css.includes('.contact-parking-symbol{display:grid'));
-});
 
-test('Contact parking uses fresh stylesheet URL and readable mobile alignment',()=>{
+test('Contacts present eight confirmed restaurant amenities without duplicating parking',()=>{
  const html=read('kontakti/index.html'),css=read('assets/css/styles.css');
- assert(html.includes('styles.css?v=20261025-saturday-demo-v2-guest-amenities-v3'),'Visitors must load updated amenity and parking CSS instead of cached version');
- assert(css.includes('.contact-parking{display:flex;flex-direction:row;align-items:center;justify-content:flex-start'),'Parking icon and text must share one row');
- assert(css.includes('.contact-parking p{display:flex;flex-direction:column;gap:3px'),'Parking title and spaces must occupy separate lines');
- assert(css.includes('.contact-parking-symbol{display:grid'),'P badge must have intended styling');
- assert(css.includes('@media(max-width:580px){.contact-parking'),'Parking needs narrow screen styling');
- assert(html.includes('<strong>Паркиране</strong><span>5 паркоместа за гостите на „Терасата“</span>'));
-});
-
-test('Contacts list only confirmed Wi-Fi, high chairs and garden play area, with mobile layout',()=>{
- const html=read('kontakti/index.html'),css=read('assets/css/styles.css');
- for(const amenity of ['Wi-Fi за гостите','Детски столчета','Детски кът в градината']){
-  assert(html.includes(amenity),'Confirmed amenity missing: '+amenity);
- }
+ for(const label of [
+  '5 паркоместа','Безплатен Wi-Fi','Детски столчета','Детски кът в градината',
+  'Плащане с карта','Достъп с детска количка','Климатизирани зали','Маси на открито с чадъри/навеси'
+ ])assert(html.includes('<span>'+label+'</span>'),label+' should appear in amenities');
  assert(html.includes('УДОБСТВА ЗА ГОСТИТЕ'));
- assert(html.includes('5 паркоместа за гостите на „Терасата“'),'Existing parking must remain');
- assert(html.includes('styles.css?v=20261025-saturday-demo-v2-guest-amenities-v3'));
- assert(css.includes('.contact-amenities{list-style:none;display:grid;'));
- assert(css.includes('.contact-amenities .amenity-icon svg{width:21px;'));
- assert(css.includes('@media(max-width:580px){.contact-amenities'));
- assert(!html.includes('Повивалник'),'Do not announce unconfirmed amenities');
+ assert(!html.includes('class="contact-parking"'),'Parking must appear only in amenities');
+ assert(html.match(/<ul class="contact-amenities">([\s\S]*?)<\/ul>/)[1].match(/<li>/g).length===8);
+ assert(html.indexOf('class="contact-amenities"')<html.indexOf('СОЦИАЛНИ МРЕЖИ'));
+ assert(html.includes('styles.css?v=20261027-guest-amenities-v4'),'Force fresh stylesheet on phones');
+ assert(css.includes('.contact-amenities-block{grid-column:1/-1}'));
+ assert(css.includes('.contact-amenities{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))'));
+ assert(css.includes('@media(max-width:760px){.contact-amenities{grid-template-columns:minmax(0,1fr)'));
+ for(const unsupported of ['Повивалник','Достъп с инвалидна количка','Домашни любимци'])assert(!html.includes(unsupported));
 });

@@ -883,17 +883,10 @@ html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
 .lunch-allergen-legend span{display:inline-block;margin-right:12px;white-space:nowrap}
 @media(max-width:760px){.lunch-branded-heading{gap:9px}.lunch-branded-heading img{height:33px;max-width:32px}.lunch-intro .lunch-branded-heading img{height:32px;max-width:28px}.lunch-allergen-legend{font-size:11px}}
 
-/* Compact parking info next to the address, readable on mobile and desktop. */
-.contact-parking{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:13px;max-width:100%;margin-top:19px;padding-top:17px;border-top:1px solid #ded0b8}
-.contact-parking-symbol{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px solid #cbb183;border-radius:8px;background:#f5ecdb;color:#826128;font:800 19px/1 var(--sans)}
-.contact-parking p{display:flex;flex-direction:column;gap:3px;flex:1 1 auto;min-width:0;margin:0;font:500 14px/1.45 var(--sans);color:#635b4a}
-.contact-parking strong{display:block;color:#473b2c;font:750 14px/1.35 var(--sans)}
-.contact-parking p span{display:block;overflow-wrap:break-word}
-@media(max-width:580px){.contact-parking{gap:11px;padding-top:15px}.contact-parking p{font-size:13px}.contact-parking-symbol{flex-basis:36px;width:36px;height:36px}}
-
-/* Confirmed family-friendly amenities, visually matched to parking and contact details. */
-.contact-amenities{list-style:none;display:grid;grid-template-columns:minmax(0,1fr);gap:15px;margin:12px 0 0;padding:0}
+/* Confirmed amenities, including 5 parking spaces. No duplicated parking below address. */
+.contact-amenities-block{grid-column:1/-1}
+.contact-amenities{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:21px;row-gap:16px;margin:12px 0 0;padding:0}
 .contact-amenities li{display:flex;align-items:center;gap:12px;min-width:0;color:#4d4538;font:600 14px/1.45 var(--sans)}
 .contact-amenities .amenity-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border:1px solid #cbb183;border-radius:8px;background:#f5ecdb;color:#826128}
 .contact-amenities .amenity-icon svg{width:21px;height:21px;display:block}
-@media(max-width:580px){.contact-amenities{gap:13px;margin-top:10px}.contact-amenities li{font-size:14px;gap:11px}}
+@media(max-width:760px){.contact-amenities{grid-template-columns:minmax(0,1fr);gap:13px;margin-top:10px}.contact-amenities li{font-size:14px;gap:11px}}

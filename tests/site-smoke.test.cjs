@@ -632,10 +632,24 @@ test('Contacts show five guest parking spaces beside address without promising a
 
 test('Contact parking uses fresh stylesheet URL and readable mobile alignment',()=>{
  const html=read('kontakti/index.html'),css=read('assets/css/styles.css');
- assert(html.includes('styles.css?v=20261025-saturday-demo-v2-parking-layout-v2'),'Visitors must load updated parking CSS instead of cached version');
+ assert(html.includes('styles.css?v=20261025-saturday-demo-v2-guest-amenities-v3'),'Visitors must load updated amenity and parking CSS instead of cached version');
  assert(css.includes('.contact-parking{display:flex;flex-direction:row;align-items:center;justify-content:flex-start'),'Parking icon and text must share one row');
  assert(css.includes('.contact-parking p{display:flex;flex-direction:column;gap:3px'),'Parking title and spaces must occupy separate lines');
  assert(css.includes('.contact-parking-symbol{display:grid'),'P badge must have intended styling');
  assert(css.includes('@media(max-width:580px){.contact-parking'),'Parking needs narrow screen styling');
  assert(html.includes('<strong>Паркиране</strong><span>5 паркоместа за гостите на „Терасата“</span>'));
+});
+
+test('Contacts list only confirmed Wi-Fi, high chairs and garden play area, with mobile layout',()=>{
+ const html=read('kontakti/index.html'),css=read('assets/css/styles.css');
+ for(const amenity of ['Wi-Fi за гостите','Детски столчета','Детски кът в градината']){
+  assert(html.includes(amenity),'Confirmed amenity missing: '+amenity);
+ }
+ assert(html.includes('УДОБСТВА ЗА ГОСТИТЕ'));
+ assert(html.includes('5 паркоместа за гостите на „Терасата“'),'Existing parking must remain');
+ assert(html.includes('styles.css?v=20261025-saturday-demo-v2-guest-amenities-v3'));
+ assert(css.includes('.contact-amenities{list-style:none;display:grid;'));
+ assert(css.includes('.contact-amenities .amenity-icon svg{width:21px;'));
+ assert(css.includes('@media(max-width:580px){.contact-amenities'));
+ assert(!html.includes('Повивалник'),'Do not announce unconfirmed amenities');
 });

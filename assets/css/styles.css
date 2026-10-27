@@ -890,3 +890,10 @@ html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
 .contact-parking strong{display:block;color:#473b2c;font:750 14px/1.35 var(--sans)}
 .contact-parking p span{display:block;overflow-wrap:break-word}
 @media(max-width:580px){.contact-parking{gap:11px;padding-top:15px}.contact-parking p{font-size:13px}.contact-parking-symbol{flex-basis:36px;width:36px;height:36px}}
+
+/* Confirmed family-friendly amenities, visually matched to parking and contact details. */
+.contact-amenities{list-style:none;display:grid;grid-template-columns:minmax(0,1fr);gap:15px;margin:12px 0 0;padding:0}
+.contact-amenities li{display:flex;align-items:center;gap:12px;min-width:0;color:#4d4538;font:600 14px/1.45 var(--sans)}
+.contact-amenities .amenity-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border:1px solid #cbb183;border-radius:8px;background:#f5ecdb;color:#826128}
+.contact-amenities .amenity-icon svg{width:21px;height:21px;display:block}
+@media(max-width:580px){.contact-amenities{gap:13px;margin-top:10px}.contact-amenities li{font-size:14px;gap:11px}}

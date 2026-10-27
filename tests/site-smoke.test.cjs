@@ -629,3 +629,13 @@ test('Contacts show five guest parking spaces beside address without promising a
  assert(css.includes('.contact-parking{display:flex'));
  assert(css.includes('.contact-parking-symbol{display:grid'));
 });
+
+test('Contact parking uses fresh stylesheet URL and readable mobile alignment',()=>{
+ const html=read('kontakti/index.html'),css=read('assets/css/styles.css');
+ assert(html.includes('styles.css?v=20261025-saturday-demo-v2-parking-layout-v2'),'Visitors must load updated parking CSS instead of cached version');
+ assert(css.includes('.contact-parking{display:flex;flex-direction:row;align-items:center;justify-content:flex-start'),'Parking icon and text must share one row');
+ assert(css.includes('.contact-parking p{display:flex;flex-direction:column;gap:3px'),'Parking title and spaces must occupy separate lines');
+ assert(css.includes('.contact-parking-symbol{display:grid'),'P badge must have intended styling');
+ assert(css.includes('@media(max-width:580px){.contact-parking'),'Parking needs narrow screen styling');
+ assert(html.includes('<strong>Паркиране</strong><span>5 паркоместа за гостите на „Терасата“</span>'));
+});

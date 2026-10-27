@@ -431,7 +431,7 @@ test('Lunch logo and little allergen numbers are in public menus, A4 poster and 
  }
  const adminPage=read('admin/index.html');
  assert(adminPage.includes('assets/js/allergens.js?v=20261027-alg-v1'));
- assert(adminPage.includes('assets/js/lunch-poster.js?v=20261027-a4-central-original-mark-v1'));
+ assert(adminPage.includes('assets/js/lunch-poster.js?v=20261027-a4-brand-readable-v2'));
  assert(site.includes('lunch-allergen-sup')&&site.includes('lunch-allergen-legend'));
  assert(admin.includes('allergens:parsed.codes'));
  assert(admin.includes('Алергени — номера 1–14'));
@@ -449,7 +449,7 @@ test('A4 lunch poster uses centered real original emblem, no fake motif or upper
  const admin=read('admin/index.html');
  assert(poster.includes('function drawWatermark(ctx,logoImage)'));
  assert(poster.includes('ctx.drawImage(logoImage,(W-width)/2,(H-height)/2,width,height)'));
- assert(poster.includes('ctx.globalAlpha=.12'));
+ assert(poster.includes('ctx.globalAlpha=.34'));
  assert(poster.includes('drawWatermark(ctx,logoImage);'));
  assert(!poster.includes('ctx.drawImage(logoImage,72,67'));
  assert(!poster.includes("ctx.fillText('ТЕРАСАТА'"));
@@ -458,4 +458,18 @@ test('A4 lunch poster uses centered real original emblem, no fake motif or upper
  assert(poster.includes('logoImage.onload=()=>'));
  assert(poster.includes('exportButton.disabled=true'));
  assert(admin.includes('lunch-poster.js?v=20261027-a4-central-original-mark-v1'));
+});
+
+test('Lunch A4 has strong centered logo, name and clean readable type',()=>{
+ const poster=read('assets/js/lunch-poster.js'),admin=read('admin/index.html');
+ assert(poster.includes('const width=525, height=width*500/427;'));
+ assert(poster.includes('ctx.globalAlpha=.34'));
+ assert(poster.includes("ctx.fillText('Терасата',W/2,1354)"));
+ assert(poster.includes('const footerRows=[[0,1],[2,3],[4,5]]'));
+ assert(poster.includes("ctx.fillText('Хляб и добавки',W/2,1415)"));
+ assert(poster.includes("ctx.font='500 33px Arial, sans-serif'"));
+ assert(poster.includes('font=`600 ${conf.font}px Arial, sans-serif`'));
+ assert(!poster.includes("italic bold 41px"));
+ assert(!poster.includes("italic 700 25px"));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-brand-readable-v2'));
 });

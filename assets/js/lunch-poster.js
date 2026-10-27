@@ -3,11 +3,11 @@
   'use strict';
   const W = 1240, H = 1754;
   const ALLERGENS=window.TERASATA_ALLERGENS;
-  const INK = '#302c3b', YELLOW = '#f8d35e', WHITE = '#faf9f7';
+  const INK = '#272923', YELLOW = '#f8d35e', WHITE = '#faf9f7';
   const CATS = [
-    {name:'Салати', gm:'/250гр./', x:112, priceX:530, bodyY:375, endY:750, font:29, leading:36, nameW:295, headingX:192, headingY:238, headingW:260, headingH:116},
-    {name:'Супи', gm:'/350мл./', x:671, priceX:1064, bodyY:375, endY:750, font:29, leading:36, nameW:270, headingX:786, headingY:238, headingW:263, headingH:116},
-    {name:'Готвено', gm:'/450гр./', x:113, priceX:1010, bodyY:941, endY:1315, font:30, leading:38, nameW:760, headingX:455, headingY:760, headingW:325, headingH:138}
+    {name:'Салати', gm:'250 г', x:112, priceX:530, bodyY:375, endY:750, font:29, leading:36, nameW:295, headingX:192, headingY:238, headingW:260, headingH:116},
+    {name:'Супи', gm:'350 мл', x:671, priceX:1064, bodyY:375, endY:750, font:29, leading:36, nameW:270, headingX:786, headingY:238, headingW:263, headingH:116},
+    {name:'Готвено', gm:'450 г', x:113, priceX:1010, bodyY:941, endY:1315, font:30, leading:38, nameW:760, headingX:455, headingY:760, headingW:325, headingH:138}
   ];
   const escapeHtml = v => String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmtDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value) ? value.split('-').reverse().join('-') : value;
@@ -41,7 +41,7 @@
   function makePages(day){
     const groups=parseGroups(day),tester=document.createElement('canvas').getContext('2d');
     const arrays=groups.map((items,index)=>{
-      const conf=CATS[index], font=`italic 700 ${conf.font}px Arial, sans-serif`, rowNoteFont='19px Arial, sans-serif';
+      const conf=CATS[index], font=`600 ${conf.font}px Arial, sans-serif`, rowNoteFont='20px Arial, sans-serif';
       return items.map(item=>{
         const allergenNumbers=ALLERGENS?.codes(item.allergens)||[];
         const superscript=allergenNumbers.join(',');
@@ -83,9 +83,9 @@
   function drawWatermark(ctx,logoImage){
     // Original napkin emblem, rendered in the exact center of the A4 page.
     if(!logoImage||!logoImage.complete||logoImage.naturalWidth<=0)return;
-    const width=440, height=width*500/427;
+    const width=525, height=width*500/427;
     ctx.save();
-    ctx.globalAlpha=.12;
+    ctx.globalAlpha=.34;
     ctx.drawImage(logoImage,(W-width)/2,(H-height)/2,width,height);
     ctx.restore();
   }
@@ -109,22 +109,22 @@
     ctx.fillStyle='#fafaf9';ctx.beginPath();ctx.moveTo(1140,0);ctx.lineTo(W,0);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.lineTo(0,1635);ctx.closePath();ctx.fill();
     ctx.fillStyle=YELLOW;ctx.fillRect(0,0,1140,46);
     // Title box: matches original placement near the upper edge.
-    ctx.fillStyle=YELLOW;ctx.fillRect(253,42,772,151);ctx.strokeStyle=INK;ctx.lineWidth=10;ctx.strokeRect(253,42,772,151);
-    ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 94px Arial, sans-serif';ctx.fillText('Обедно меню',640,147);
-    ctx.font='italic 21px Arial, sans-serif';ctx.fillText(fmtDate(date),640,226);
+    ctx.fillStyle=YELLOW;ctx.fillRect(253,42,772,151);ctx.strokeStyle=INK;ctx.lineWidth=5;ctx.strokeRect(253,42,772,151);
+    ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 88px Arial, sans-serif';ctx.fillText('Обедно меню',640,147);
+    ctx.font='600 23px Arial, sans-serif';ctx.fillText(fmtDate(date),640,228);
     ctx.strokeStyle=INK;ctx.lineWidth=2.3;ctx.beginPath();ctx.moveTo(627,270);ctx.lineTo(627,750);ctx.stroke();
-    drawDots(ctx,315,670,Math.PI*.55,Math.PI*1.52);drawDots(ctx,951,610,-Math.PI*.7,Math.PI*.5);drawWatermark(ctx,logoImage);
+    drawWatermark(ctx,logoImage);
     pages[pageIndex].forEach((rows,index)=>{
       const conf=CATS[index],borderY=conf.headingY,bodyStart=conf.bodyY;
       // Always show section headings, with same short dark outline.
       ctx.fillStyle=index===0?'rgba(255,224,120,.52)':'rgba(255,251,246,.34)';
       ctx.fillRect(conf.headingX,borderY,conf.headingW,conf.headingH);
-      ctx.strokeStyle=INK;ctx.lineWidth=6;ctx.strokeRect(conf.headingX,borderY,conf.headingW,conf.headingH);
-      ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='italic bold 38px Arial, sans-serif';ctx.fillText(conf.name,conf.headingX+conf.headingW/2,borderY+49);
-      ctx.font='italic bold 31px Arial, sans-serif';ctx.fillText(conf.gm,conf.headingX+conf.headingW/2,borderY+92);
+      ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.strokeRect(conf.headingX,borderY,conf.headingW,conf.headingH);
+      ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 37px Arial, sans-serif';ctx.fillText(conf.name,conf.headingX+conf.headingW/2,borderY+49);
+      ctx.font='500 26px Arial, sans-serif';ctx.fillText(conf.gm,conf.headingX+conf.headingW/2,borderY+92);
       let y=bodyStart;
       rows.forEach(({item,lines,sub,height,font,rowNoteFont,allergenNumbers})=>{
-        ctx.fillStyle=INK;ctx.beginPath();ctx.arc(conf.x-15,y+10,8,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=INK;ctx.beginPath();ctx.arc(conf.x-15,y+10,5.5,0,Math.PI*2);ctx.fill();
         ctx.textAlign='left';ctx.font=font;
         lines.forEach((line,i)=>ctx.fillText(line,conf.x,y+17+i*conf.leading));
         if(allergenNumbers.length){
@@ -133,23 +133,48 @@
           ctx.fillText(allergenNumbers.join(','),conf.x+measureLastLineWidth(ctx,last,font)+6,y+1+(lines.length-1)*conf.leading);
         }
         if(sub.length){ctx.fillStyle='#45414a';ctx.font=rowNoteFont;sub.forEach((line,i)=>ctx.fillText(line,conf.x,y+17+lines.length*conf.leading+i*22));}
-        ctx.fillStyle=INK;ctx.textAlign='right';ctx.font='italic 700 25px Arial, sans-serif';ctx.fillText(String(item.price||''),conf.priceX,y+17);
+        ctx.fillStyle=INK;ctx.textAlign='right';ctx.font='bold 26px Arial, sans-serif';ctx.fillText(String(item.price||'').replace(/\s*€/g,' €'),conf.priceX,y+17);
         if(item.soldOut){ctx.textAlign='left';ctx.fillStyle='#a14634';ctx.font='bold 16px Arial';ctx.fillText('ИЗЧЕРПАНО',conf.x,y+height-2);}
         y+=height;
       });
     });
-    // Footer: four lines as in the supplied flyer, editable PRICES only.
+    // The exact restaurant name sits below its centered graphic mark.
+    ctx.save();
+    ctx.globalAlpha=.90;
     ctx.fillStyle=INK;ctx.textAlign='center';
-    const footerLines=[
-      footer[0].label+' '+footer[0].price+'    '+footer[1].label+' '+footer[1].price,
-      footer[2].label+' '+footer[2].price+'    '+footer[3].label+' '+footer[3].price,
-      footer[4].label+' '+footer[4].price,
-      footer[5].label+' '+footer[5].price
-    ];
-    [1399,1445,1491,1537].forEach((y,i)=>drawFitted(ctx,footerLines[i],620,y,1050,'italic bold 29px Arial, sans-serif'));
-    ctx.fillStyle=INK;ctx.font='italic bold 36px Arial, sans-serif';ctx.textAlign='center';
-    ctx.fillText('Десерти:',620,1616);
-    ctx.font='italic bold 41px Arial, sans-serif';ctx.fillText('Попитайте Вашия сервитьор!',620,1665);
+    ctx.font='bold 62px Arial, sans-serif';
+    ctx.fillText('Терасата',W/2,1354);
+    ctx.restore();
+
+    // Readable, structured footer. Items and prices are kept unchanged.
+    ctx.save();
+    ctx.fillStyle='rgba(255,255,255,.90)';
+    ctx.fillRect(80,1381,1080,183);
+    ctx.strokeStyle='#b8ad99';ctx.lineWidth=1.8;
+    ctx.strokeRect(80,1381,1080,183);
+    ctx.fillStyle=INK;ctx.font='bold 25px Arial, sans-serif';ctx.textAlign='center';
+    ctx.fillText('Хляб и добавки',W/2,1415);
+    ctx.strokeStyle='#c9c0b0';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(113,1429);ctx.lineTo(1127,1429);ctx.stroke();
+    const formatPrice=value=>String(value||'').trim().replace(/\s*€/g,' €');
+    const footerRows=[[0,1],[2,3],[4,5]];
+    footerRows.forEach((pair,rowIndex)=>pair.forEach((index,column)=>{
+      const entry=footer[index],x=column?659:113,priceX=column?1126:578,y=1462+rowIndex*43;
+      ctx.textAlign='left';ctx.fillStyle=INK;
+      let size=25;
+      ctx.font='500 '+size+'px Arial, sans-serif';
+      while(size>20&&ctx.measureText(entry.label).width>priceX-x-108){
+        size--;ctx.font='500 '+size+'px Arial, sans-serif';
+      }
+      ctx.fillText(entry.label,x,y);
+      ctx.textAlign='right';ctx.font='bold 24px Arial, sans-serif';
+      ctx.fillText(formatPrice(entry.price),priceX,y);
+    }));
+    ctx.restore();
+
+    ctx.fillStyle=INK;ctx.textAlign='center';
+    ctx.font='bold 30px Arial, sans-serif';ctx.fillText('Десерти',W/2,1608);
+    ctx.font='500 33px Arial, sans-serif';ctx.fillText('Попитайте Вашия сервитьор!',W/2,1654);
     // Legend is printed only for numbered allergens actually entered on this page.
     const used=[...new Set(pages[pageIndex].flatMap(rows=>rows.flatMap(row=>row.allergenNumbers)))].sort((a,b)=>a-b);
     if(used.length&&ALLERGENS){
@@ -159,7 +184,7 @@
       legendLines.slice(0,3).forEach((line,i)=>ctx.fillText(line,W/2,1694+i*19));
       ctx.restore();
     }
-    if(pages.length>1){ctx.textAlign='right';ctx.font='16px Arial';ctx.fillText('Стр. '+(pageIndex+1)+'/'+pages.length,1180,1679);}
+    if(pages.length>1){ctx.fillStyle=INK;ctx.textAlign='right';ctx.font='18px Arial';ctx.fillText('Стр. '+(pageIndex+1)+'/'+pages.length,1180,1732);}
   }
   function open({day,date,settings,download,notice}){
     if(!day||!day.groups?.some(g=>g.items?.length)){notice('Няма въведено обедно меню за тази дата.');return;}

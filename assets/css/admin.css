@@ -195,3 +195,9 @@ html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover,
 .lunch-allergen-guide summary{cursor:pointer;font-size:13px;font-weight:700;color:#614c29}
 .lunch-allergen-guide-grid{display:flex;flex-wrap:wrap;gap:7px 13px;margin:13px 0}
 .lunch-allergen-guide-grid span{font-size:12px;color:#4f4639;white-space:nowrap}
+
+/* Site announcement switch — checkbox and text remain side by side on phones. */
+#site-notice-form .site-notice-toggle{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;width:fit-content;max-width:100%;cursor:pointer;color:var(--ink);font-size:14px;font-weight:700;line-height:1.4;margin:8px 0 4px}
+#site-notice-form .site-notice-toggle input[type="checkbox"]{appearance:auto;width:22px;height:22px;min-width:22px;max-width:22px;min-height:22px;margin:0;flex:0 0 22px;accent-color:var(--gold);cursor:pointer}
+#site-notice-form .site-notice-toggle span{display:block;min-width:0;flex:0 1 auto;overflow-wrap:normal}
+@media(max-width:580px){#site-notice-form .site-notice-toggle{gap:11px;font-size:15px}}

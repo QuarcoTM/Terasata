@@ -165,7 +165,7 @@ test('Print-ready QR cards are available with two distinct real codes',()=>{
  const css=read('assets/css/admin.css');
  assert(admin.includes('data-view="qr"'),'QR section missing');
  assert(admin.includes('assets/js/vendor/qrcode-generator.js?v=1'),'Bundled QR generator missing');
- assert(admin.includes('assets/js/qr-cards.js?v=1'),'QR card module missing');
+ assert(admin.includes('assets/js/qr-cards.js?v=20261027-notice-toggle-qr-mark-v2'),'QR card module missing');
  assert(admin.includes('id="qr-print-surface"'),'Print surface missing');
  assert(script.includes('function renderQrCards(el)'),'Admin routing missing');
  for(const text of ['Обедно меню','Основно меню','utm_campaign=lunch','utm_campaign=main-menu','window.print()','savePng(type)','saveSvg(type)','getModuleCount()','isDark(row,col)'])
@@ -406,7 +406,7 @@ test('Sushi has short public and admin label without changing weekly demo schedu
  for(const p of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1)/.test(read(p+'index.html')),p+' old public script cache');
  }
- assert(read('admin/index.html').includes('admin.js?v=20261027-lunch-alg-v1'),'Admin script cache not updated');
+ assert(read('admin/index.html').includes('admin.js?v=20261027-notice-toggle-qr-mark-v2'),'Admin script cache not updated');
 });
 
 
@@ -582,4 +582,40 @@ test('Social media formats use independent PNG generators and do not alter appro
  assert(html.includes('social-poster.js?v=20261027-social-formats-v1'));
  assert(css.includes('.social-dialog .preview-frame'));
  assert(html.includes('lunch-poster.js?v=20261027-a4-euro-prices-v6'),'Old A4 generator must remain unchanged');
+});
+
+test('Announcement checkbox text stays adjacent on narrow screens',()=>{
+ const admin=read('assets/js/admin.js'),css=read('assets/css/admin.css'),html=read('admin/index.html');
+ assert(admin.includes('<label class="site-notice-toggle"><input type="checkbox" name="enabled"'));
+ assert(admin.includes('<span>Показвай съобщението на сайта</span></label>'));
+ assert(css.includes('#site-notice-form .site-notice-toggle{display:flex;flex-direction:row;align-items:center;justify-content:flex-start'));
+ assert(css.includes('flex:0 0 22px;'),'Checkbox must never stretch to field width');
+ assert(css.includes('#site-notice-form .site-notice-toggle span{display:block;min-width:0'));
+ assert(html.includes('admin.css?v=20261027-notice-toggle-qr-mark-v2'));
+ assert(html.includes('admin.js?v=20261027-notice-toggle-qr-mark-v2'));
+});
+test('Both QR plates show the unchanged original vector logo and preserve scannable/exportable matrices',()=>{
+ const vm=require('node:vm'),qrSrc=read('assets/js/qr-cards.js');
+ const original=read('assets/images/terasata-mark-original.svg');
+ const originalPath=original.match(/<path fill="#302b23" fill-rule="evenodd" d="([^"]+)"/)[1];
+ const admin=read('admin/index.html');
+ assert(qrSrc.includes("function originalMark()"));
+ assert(qrSrc.includes("'<svg x=\"360\" y=\"31\" width=\"80\" height=\"94\""));
+ assert(qrSrc.includes('<rect x="103" y="294" width="594" height="594"'),'QR frame must stay put');
+ assert(admin.includes('qr-cards.js?v=20261027-notice-toggle-qr-mark-v2'));
+ const ctx={document:{baseURI:'https://quarcotm.github.io/Terasata/'},localStorage:{getItem:()=>null},URL,console};
+ ctx.window=ctx;
+ vm.createContext(ctx);
+ vm.runInContext(read('assets/js/vendor/qrcode-generator.js'),ctx);
+ vm.runInContext(qrSrc,ctx);
+ const mod=ctx.window.TERASATA_QR_CARDS;
+ for(const kind of ['lunch','main']){
+  const card=mod.svg(kind,mod.defaultUrls[kind]);
+  assert(card.includes(originalPath),'Exact source image path must appear in '+kind);
+  assert(card.includes('viewBox="0 0 427 500"'),'Vector mark missing on '+kind);
+  assert(card.includes('shape-rendering="crispEdges"'),'The QR matrix must remain crisp');
+  assert(card.includes('fill="#101010"'),'The QR matrix must retain pure dark modules');
+  assert(card.includes('<svg x="112" y="302" width="576" height="576"'),'QR position must remain unchanged');
+  assert(!card.includes('href="assets/images/'),'No external image dependencies inside printable SVG');
+ }
 });

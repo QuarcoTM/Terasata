@@ -559,7 +559,7 @@ function renderNotice(el){
  <h2>Текстът е изцяло твой</h2>
  <p class="mini muted">Напиши свободно съобщение за празник, събитие или промяна в работното време. Няма готови шаблони. Показва се под менюто на всички страници, само когато е включено и датата е в зададения период.</p>
  <label class="form-field" for="notice-message">Съобщение<textarea id="notice-message" name="message" maxlength="800" rows="5" placeholder="Напиши съобщението, което посетителите ще прочетат...">${e(current.message||'')}</textarea></label>
- <label class="form-field"><span class="notice-check"><input type="checkbox" name="enabled" ${current.enabled?'checked':''}> Показвай съобщението на сайта</span></label>
+ <label class="site-notice-toggle"><input type="checkbox" name="enabled" ${current.enabled?'checked':''}><span>Показвай съобщението на сайта</span></label>
  <div class="form-settings">
  <label class="form-field">Показвай от (по желание)<input type="date" name="startDate" value="${e(current.startDate||'')}"></label>
  <label class="form-field">Показвай до (по желание)<input type="date" name="endDate" value="${e(current.endDate||'')}"></label>

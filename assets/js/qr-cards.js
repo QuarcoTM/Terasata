@@ -10,6 +10,13 @@
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
  try{const v=JSON.parse(localStorage.getItem(STORAGE)||'null');if(v)for(const k of Object.keys(types))if(typeof v[k]==='string'&&valid(v[k]))urls[k]=v[k]}catch(_){}
  const dotRing=()=>{let s='';for(let n=0;n<3;n++)for(let k=0;k<26;k++){const angle=-1.17+(k/25)*2.34,y=593+Math.sin(angle)*(260+n*14),x=91-n*13-Math.cos(angle)*12;s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(2+n*.7)+'" fill="#d4ae5a" opacity=".36"/><circle cx="'+(800-x).toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(2+n*.7)+'" fill="#d4ae5a" opacity=".36"/>'}return s};
+ // Self-contained version of the existing original napkin emblem. Keeping the
+ // authentic SVG path inline is essential: printed SVG and PNG export must
+ // remain crisp without loading an external image or tainting the canvas.
+ const originalMarkPath='M90,35L88,38L90,36L95,37L89,40L91,42L89,43L94,46L98,56L106,66L107,64L109,66L109,71L115,77L115,80L113,79L112,81L113,88L110,91L112,94L110,139L113,212L110,307L111,339L109,339L107,352L99,352L93,356L95,354L98,355L93,359L95,362L105,362L109,365L99,460L96,472L27,474L27,481L241,482L274,480L426,480L426,472L378,472L374,465L374,455L376,453L381,461L383,459L378,446L377,435L375,436L376,426L373,415L374,362L379,360L382,363L399,355L393,353L375,353L374,356L373,353L155,354L132,353L130,351L130,272L132,258L143,236L158,214L174,196L198,176L213,171L231,172L242,182L238,191L231,190L231,183L222,191L231,196L243,195L249,191L249,186L243,178L246,175L263,185L330,210L356,215L361,214L394,219L405,218L412,226L414,243L416,241L416,222L414,216L407,213L384,214L358,211L359,208L378,207L362,206L344,201L342,203L340,200L331,200L324,196L311,194L308,189L305,191L300,186L298,188L296,185L293,186L291,182L290,184L285,183L279,176L281,178L278,179L275,176L277,175L249,158L275,175L273,176L250,164L245,158L224,144L217,135L235,149L216,133L215,135L214,131L211,131L168,84L151,58L147,56L150,58L147,59L148,63L175,99L220,145L211,142L198,134L158,93L140,68L136,66L130,55L124,52L123,54L131,64L131,67L155,95L192,131L190,132L145,98L116,68L113,63L115,62L105,53L106,51L101,46L102,44L94,38L96,37ZM174,362L177,365L178,404L180,399L180,369L183,363L223,363L225,365L233,440L225,459L223,472L173,473L170,469L171,452L180,465L179,456L171,440L169,414L170,369ZM156,363L159,376L158,385L165,419L164,445L158,457L157,471L155,473L113,473L119,366L124,365L119,458L122,459L128,366L137,363ZM292,362L301,424L300,445L295,456L293,470L291,472L242,473L238,467L237,454L241,453L245,463L248,462L239,435L238,367L241,363L244,365L246,396L247,365L249,363ZM359,361L362,365L364,405L368,424L367,447L361,459L360,470L352,472L308,472L306,455L308,453L313,461L315,456L310,442L306,438L308,435L305,415L306,371L304,369L307,368L309,362L315,364L320,361ZM157,356L178,356ZM308,354L306,356L300,355ZM115,93L121,165L126,193L127,346L124,353L120,352L120,267L118,258L119,238L113,105ZM121,83L129,88L128,90L150,112L157,115L159,120L225,165L222,168L213,167L206,169L178,187L160,206L134,245L131,243L131,238L140,220L166,190L159,193L150,203L148,202L147,206L144,206L144,210L141,211L133,226L130,218L129,179L125,160L126,149L124,148L121,110L119,108L118,86Z';
+ function originalMark(){
+  return '<svg x="360" y="31" width="80" height="94" viewBox="0 0 427 500" aria-hidden="true"><path fill="#302b23" fill-rule="evenodd" d="'+originalMarkPath+'"/></svg>';
+ }
  function qr(url){
   if(typeof window.qrcode!=='function')throw Error('QR библиотеката не е заредена.');
   const code=window.qrcode(0,'M');code.addData(url,'Byte');code.make();
@@ -30,9 +37,10 @@
   return '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1040" viewBox="0 0 800 1040" role="img" aria-label="Терасата, QR код за '+title+'">'
    +'<rect width="800" height="1040" fill="#fdfaf3"/>'+decoration(type)
    +'<rect x="23" y="23" width="754" height="994" rx="21" fill="none" stroke="#c49b3b" stroke-width="'+(lunch?2:4)+'"/>'
-   +'<text x="400" y="172" fill="#272727" font-family="Georgia,serif" font-size="84" font-weight="700" text-anchor="middle">Терасата</text>'
-   +'<text x="400" y="234" fill="#2b2927" font-family="Arial,sans-serif" font-size="19" letter-spacing="4" text-anchor="middle">РЕСТОРАНТ · КЮСТЕНДИЛ</text>'
-   +'<path d="M290 259h220" fill="none" stroke="#e4b539" stroke-width="5" stroke-linecap="round"/>'
+   +originalMark()
+   +'<text x="400" y="201" fill="#272727" font-family="Georgia,serif" font-size="76" font-weight="700" text-anchor="middle">Терасата</text>'
+   +'<text x="400" y="248" fill="#2b2927" font-family="Arial,sans-serif" font-size="19" letter-spacing="4" text-anchor="middle">РЕСТОРАНТ · КЮСТЕНДИЛ</text>'
+   +'<path d="M290 269h220" fill="none" stroke="#e4b539" stroke-width="5" stroke-linecap="round"/>'
    +'<rect x="103" y="294" width="594" height="594" rx="10" fill="white" stroke="#d7b04b" stroke-width="'+(lunch?8:2)+'"/>'
    +qr(url)
    +'<rect x="161" y="911" width="478" height="86" fill="#f4c957" stroke="#252525" stroke-width="5"/>'

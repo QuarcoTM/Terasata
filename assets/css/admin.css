@@ -188,3 +188,9 @@ html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover,
 .sushi-admin-panel .section-head .badge{white-space:nowrap}
 .sushi-admin-panel .toolbar-row{margin:12px 0 16px}
 @media(max-width:580px){.sushi-admin-panel .section-head{align-items:start;flex-direction:column}}
+
+.admin-allergen-sup{font-size:10px;vertical-align:super;line-height:0;margin-left:4px;color:#865f22}
+.lunch-allergen-guide{margin:0 0 18px;padding:13px 16px;background:#fff9ef;border:1px solid #e1d0ad;border-radius:5px}
+.lunch-allergen-guide summary{cursor:pointer;font-size:13px;font-weight:700;color:#614c29}
+.lunch-allergen-guide-grid{display:flex;flex-wrap:wrap;gap:7px 13px;margin:13px 0}
+.lunch-allergen-guide-grid span{font-size:12px;color:#4f4639;white-space:nowrap}

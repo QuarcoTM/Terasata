@@ -110,9 +110,18 @@
   // Refresh a public page when the Sofia calendar date has changed during an open session.
   if(!previewSelected){const refreshDate=()=>{if(currentMenuDate().key!==todayKey) location.reload();};document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDate();});window.addEventListener('pageshow',refreshDate);}
 
+  const LUNCH_ALLERGENS=window.TERASATA_ALLERGENS;
+  const lunchCodes=item=>LUNCH_ALLERGENS?LUNCH_ALLERGENS.codes(item?.allergens):[];
+  const lunchAnnotation=item=>{
+    const nums=lunchCodes(item);
+    return nums.length?'<sup class="lunch-allergen-sup" aria-label="Алергени '+nums.join(', ')+'" title="'+esc(LUNCH_ALLERGENS.legendText(nums))+'">'+nums.join(',')+'</sup>':'';
+  };
+  const activeLunchAllergens=activeLunch?[...new Set(dayData.groups.flatMap(g=>(g.items||[]).flatMap(lunchCodes)))].sort((a,b)=>a-b):[];
+  const lunchLegend=activeLunchAllergens.length?'<div class="lunch-allergen-legend"><strong>Алергени:</strong> '+LUNCH_ALLERGENS.legendHtml(activeLunchAllergens)+'</div>':'';
+
   const renderLunch = () => {
     if(!activeLunch) return '';
-    return `<div class="lunch-grid">${dayData.groups.filter(g=>g.items?.length).map(g=>`<section class="lunch-group"><h3>${esc(g.title)}</h3>${(g.weightNote?`<p class="lunch-weight">${esc(g.weightNote)}</p>`:'')}<ul>${g.items.map(item=>`<li><div><span class="lunch-item-title">${esc(item.name)}</span>${item.weight?`<small>${esc(item.weight)}</small>`:''}${item.soldOut?'<small class="sold-out">Изчерпано</small>':''}</div><strong>${esc(item.price)}</strong></li>`).join('')}</ul></section>`).join('')}</div>`;
+    return `<div class="lunch-grid">${dayData.groups.filter(g=>g.items?.length).map(g=>`<section class="lunch-group"><h3>${esc(g.title)}</h3>${(g.weightNote?`<p class="lunch-weight">${esc(g.weightNote)}</p>`:'')}<ul>${g.items.map(item=>`<li><div><span class="lunch-item-title">${esc(item.name)}${lunchAnnotation(item)}</span>${item.weight?`<small>${esc(item.weight)}</small>`:''}${item.soldOut?'<small class="sold-out">Изчерпано</small>':''}</div><strong>${esc(item.price)}</strong></li>`).join('')}</ul></section>`).join('')}</div>${lunchLegend}`;
   };
   const lunchHome=$('#lunch-home');
   if(lunchHome && activeLunch){

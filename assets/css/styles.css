@@ -872,3 +872,13 @@ html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
 
 /* Keep the sample Saturday and hours visible directly on the homepage tile. */
 .category-tile .sushi-tile-date{display:block;margin-top:5px;font-family:var(--sans);font-size:11px;line-height:1.3;font-weight:700;color:#7d5b23}
+
+/* Lunch logo and unobtrusive numeric superscripts after dish titles. */
+.lunch-branded-heading{display:flex;align-items:center;gap:12px}
+.lunch-branded-heading img{height:43px;width:auto;max-width:44px;flex:none;object-fit:contain}
+.lunch-intro .lunch-branded-heading img{height:39px;max-width:33px}
+.lunch-item-title .lunch-allergen-sup{display:inline;position:relative;top:-.16em;vertical-align:super;font-size:.68em;line-height:0;margin-left:4px;color:#886426;font-weight:750;white-space:nowrap}
+.lunch-allergen-legend{margin-top:17px;padding:13px 15px;border:1px solid #dfd1b9;border-radius:5px;color:#53493d;font-size:12px;line-height:1.9}
+.lunch-allergen-legend strong{margin-right:7px}
+.lunch-allergen-legend span{display:inline-block;margin-right:12px;white-space:nowrap}
+@media(max-width:760px){.lunch-branded-heading{gap:9px}.lunch-branded-heading img{height:33px;max-width:32px}.lunch-intro .lunch-branded-heading img{height:32px;max-width:28px}.lunch-allergen-legend{font-size:11px}}

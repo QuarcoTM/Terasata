@@ -560,6 +560,8 @@ test('Free-text site notice is editable by all signed-in staff, date-gated and p
  for(const p of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   assert(read(p).includes('restaurant-notice.js?v=20261027-custom-notice-v1'),p+' missing notice script');
   assert(read(p).includes('restaurant-notice.css?v=20261027-custom-notice-v1'),p+' missing notice CSS');
+  const html=read(p);
+  assert(html.indexOf('site-preview.js')<html.indexOf('restaurant-notice.js'),p+' must prepare local draft before showing notice');
  }
 });
 

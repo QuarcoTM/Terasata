@@ -26,6 +26,11 @@
     if(current)lines.push(current);
     return lines.length?lines:[''];
   }
+  // Preserve the entered numeric value; display one euro symbol after every nonempty price.
+  const formatPrice = value => {
+    const text=String(value??'').trim().replace(/\s*€/g,'').trim();
+    return text ? text+' €' : '';
+  };
   function defaultFooter(){return [
     {label:'Питка 250гр.',price:'1.45€'}, {label:'Чабата 120гр.',price:'0.97€'},
     {label:'Хляб филия',price:'0.15€'}, {label:'Хляб филия препечен',price:'0.15€'},
@@ -142,7 +147,7 @@
           ctx.fillText(allergenNumbers.join(','),conf.x+measureLastLineWidth(ctx,last,font)+6,y+1+(lines.length-1)*conf.leading);
         }
         if(sub.length){ctx.fillStyle='#45414a';ctx.font=rowNoteFont;sub.forEach((line,i)=>ctx.fillText(line,conf.x,y+17+lines.length*conf.leading+i*22));}
-        ctx.fillStyle=INK;ctx.textAlign='right';ctx.font='bold 26px Arial, sans-serif';ctx.fillText(String(item.price||'').replace(/\s*€/g,' €'),conf.priceX,y+17);
+        ctx.fillStyle=INK;ctx.textAlign='right';ctx.font='bold 26px Arial, sans-serif';ctx.fillText(formatPrice(item.price),conf.priceX,y+17);
         if(item.soldOut){ctx.textAlign='left';ctx.fillStyle='#a14634';ctx.font='bold 16px Arial';ctx.fillText('ИЗЧЕРПАНО',conf.x,y+height-2);}
         y+=height;
       });
@@ -164,7 +169,6 @@
     ctx.moveTo(118,1407);ctx.lineTo(442,1407);
     ctx.moveTo(798,1407);ctx.lineTo(1122,1407);
     ctx.stroke();
-    const formatPrice=value=>String(value||'').trim().replace(/\s*€/g,' €');
     const footerRows=[[0,1],[2,3],[4,5]];
     footerRows.forEach((pair,rowIndex)=>pair.forEach((index,column)=>{
       const entry=footer[index],x=column?659:120,priceX=column?1120:575,y=1467+rowIndex*45;

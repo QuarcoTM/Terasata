@@ -431,7 +431,7 @@ test('Lunch logo and little allergen numbers are in public menus, A4 poster and 
  }
  const adminPage=read('admin/index.html');
  assert(adminPage.includes('assets/js/allergens.js?v=20261027-alg-v1'));
- assert(adminPage.includes('assets/js/lunch-poster.js?v=20261027-a4-corners-ornaments-v5'));
+ assert(adminPage.includes('assets/js/lunch-poster.js?v=20261027-a4-euro-prices-v6'));
  assert(site.includes('lunch-allergen-sup')&&site.includes('lunch-allergen-legend'));
  assert(admin.includes('allergens:parsed.codes'));
  assert(admin.includes('Алергени — номера 1–14'));
@@ -457,7 +457,7 @@ test('A4 lunch poster uses centered real original emblem, no fake motif or upper
  assert(!poster.includes('ctx.bezierCurveTo(540,1005'));
  assert(poster.includes('logoImage.onload=()=>'));
  assert(poster.includes('exportButton.disabled=true'));
- assert(admin.includes('lunch-poster.js?v=20261027-a4-corners-ornaments-v5'));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-euro-prices-v6'));
 });
 
 test('Lunch A4 has strong centered logo, name and clean readable type',()=>{
@@ -471,7 +471,7 @@ test('Lunch A4 has strong centered logo, name and clean readable type',()=>{
  assert(poster.includes('font=`600 ${conf.font}px Arial, sans-serif`'));
  assert(!poster.includes("italic bold 41px"));
  assert(!poster.includes("italic 700 25px"));
- assert(admin.includes('lunch-poster.js?v=20261027-a4-corners-ornaments-v5'));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-euro-prices-v6'));
 });
 
 test('A4 menu diagonal reaches both sides and crosses the page midpoint, with open unboxed bread section',()=>{
@@ -486,7 +486,7 @@ test('A4 menu diagonal reaches both sides and crosses the page midpoint, with op
  assert(poster.includes('const footerRows=[[0,1],[2,3],[4,5]];'),'Two price-aligned columns must remain');
  assert(poster.includes('ctx.drawImage(logoImage,(W-width)/2,top,width,height);'),'Keep original centered watermark');
  assert(poster.includes('ctx.fillText(\'Терасата\',W/2,1354);'),'Keep restaurant name');
- assert(admin.includes('lunch-poster.js?v=20261027-a4-corners-ornaments-v5'),'Refresh the poster asset in all browsers');
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-euro-prices-v6'),'Refresh the poster asset in all browsers');
 });
 
 test('A4 preview: clear middle logo, opaque category labels and legible unboxed bread list',()=>{
@@ -500,7 +500,7 @@ test('A4 preview: clear middle logo, opaque category labels and legible unboxed 
  assert(p.includes('ctx.fillText(entry.label,x,y,priceX-x-106);'),'Long labels must not run into the price');
  assert(p.includes("ctx.font='bold 28px Arial, sans-serif'"),'Prices must be easy to read');
  assert(!p.includes('ctx.fillRect(80,1381,1080,183);'),'Do not reintroduce a bread frame');
- assert(a.includes('lunch-poster.js?v=20261027-a4-corners-ornaments-v5'));
+ assert(a.includes('lunch-poster.js?v=20261027-a4-euro-prices-v6'));
 });
 
 test('A4 menu matches reference: yellow diagonal corner to corner, equal cooked header and original dotted decorations',()=>{
@@ -517,5 +517,23 @@ test('A4 menu matches reference: yellow diagonal corner to corner, equal cooked 
  assert(poster.includes("ctx.fillText('Терасата',W/2,1354)"),'Keep the wordmark');
  assert(poster.includes('const footerRows=[[0,1],[2,3],[4,5]]'),'Keep two columns of bread items');
  assert(!poster.includes('ctx.fillRect(80,1381,1080,183);'),'Do not bring back the bread frame');
- assert(admin.includes('lunch-poster.js?v=20261027-a4-corners-ornaments-v5'));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-euro-prices-v6'));
+});
+
+test('A4 renders euro after every nonempty price without changing entered values',()=>{
+ const js=read('assets/js/lunch-poster.js');
+ const admin=read('admin/index.html');
+ assert(js.includes("const text=String(value??'').trim().replace(/\\s*€/g,'').trim();"));
+ assert(js.includes("return text ? text+' €' : '';"));
+ assert(js.includes('ctx.fillText(formatPrice(item.price),conf.priceX,y+17);'));
+ assert(js.includes('ctx.fillText(formatPrice(entry.price),priceX,y);'));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-euro-prices-v6'));
+ const helper=js.match(/const formatPrice = value => \{([\s\S]*?)\n  \};/);
+ assert(helper,'Expected one price display helper');
+ const formatter=new Function('return (value)=>{'+helper[1]+'}')();
+ assert.equal(formatter('7.34'),'7.34 €');
+ assert.equal(formatter('7.34€'),'7.34 €');
+ assert.equal(formatter('7.34 €'),'7.34 €');
+ assert.equal(formatter('0.15'),'0.15 €');
+ assert.equal(formatter(''),'');
 });

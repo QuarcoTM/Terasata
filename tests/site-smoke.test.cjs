@@ -246,10 +246,10 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  assert(js.includes('footer-desktop-icon'),'SVG footer icon missing');
  assert(js.includes('<circle cx="12" cy="12" r="9"/>'),'SVG clock drawing missing');
  assert(js.includes('>Facebook</span>')&&js.includes('>Instagram</span>'),'Social links missing their labels');
- assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-lunch-alg-v1)/.test(home));
+ assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(home));
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
-  assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-lunch-alg-v1)/.test(html),'CSS cache not updated for '+route);
+  assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html),'CSS cache not updated for '+route);
   assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1)/.test(html),'JS cache not updated for '+route);
  }
 });
@@ -267,7 +267,7 @@ test('Desktop Cyrillic readability is consistent across every public page, witho
  }
  assert(patch.includes('Arial, Tahoma'),'Bulgarian Cyrillic should use Windows-safe font fallback');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/'])
-  assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-lunch-alg-v1)/.test(read(slug+'index.html')),'Old CSS cache on '+slug);
+  assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(read(slug+'index.html')),'Old CSS cache on '+slug);
 });
 
 test('Printed menu adds 9 salads and 4 new categories with 28 dishes',()=>{
@@ -296,7 +296,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  assert(css.includes('.footer-social .footer-desktop-icon {display:block'),'Mobile social icons must be visible');
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
-  assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-lunch-alg-v1)/.test(html));
+  assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html));
   assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1)/.test(html));
  }
 });
@@ -315,7 +315,7 @@ test('Gold and parchment scrollbars use native scrolling across site and admin',
    assert(style.includes('background: #765820;'),'Scrollbar hover color missing');
  }
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-lunch-alg-v1)/.test(read(route+'index.html')),'Missing public CSS cache refresh '+route);
+   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(read(route+'index.html')),'Missing public CSS cache refresh '+route);
  }
  assert(/admin\.css\?v=20261027-(?:(?:lunch-alg|social-formats)-v1|notice-toggle-qr-mark-v2)/.test(read('admin/index.html')),'Missing admin CSS cache refresh');
  assert(pub.includes('.category-grid, .menu-anchor-nav'),'Category scrolling should retain gold thumb');

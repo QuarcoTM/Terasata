@@ -882,3 +882,31 @@ html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
 .lunch-allergen-legend strong{margin-right:7px}
 .lunch-allergen-legend span{display:inline-block;margin-right:12px;white-space:nowrap}
 @media(max-width:760px){.lunch-branded-heading{gap:9px}.lunch-branded-heading img{height:33px;max-width:32px}.lunch-intro .lunch-branded-heading img{height:32px;max-width:28px}.lunch-allergen-legend{font-size:11px}}
+
+
+/* Centered restaurant mark on home hero: image watermark, not a logo in the header. */
+.hero-watermark {
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:clamp(150px,21vw,286px);
+  height:auto;
+  max-height:72%;
+  object-fit:contain;
+  transform:translate(-50%,-50%);
+  filter:brightness(0) invert(1);
+  opacity:.25;
+  z-index:0;
+  pointer-events:none;
+  user-select:none;
+}
+.hero-inner {position:relative;z-index:1}
+@media(max-width:1049px) {
+  /* Keep the mobile telephone and menu, without an empty logo area. */
+  .header-shell {min-height:72px;padding-block:8px}
+  .mobile-nav:not([hidden]) {height:calc(100dvh - 72px)}
+  html {scroll-padding-top:80px}
+}
+@media(max-width:760px) {
+  .hero-watermark {width:clamp(140px,37vw,190px);opacity:.22}
+}

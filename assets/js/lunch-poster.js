@@ -81,12 +81,13 @@
     ctx.restore();
   }
   function drawWatermark(ctx,logoImage){
-    // Original napkin emblem, rendered in the exact center of the A4 page.
+    // Keep the original emblem centered horizontally in the clear lower-middle area.
+    // The opaque section headings and lower placement protect readability.
     if(!logoImage||!logoImage.complete||logoImage.naturalWidth<=0)return;
-    const width=525, height=width*500/427;
+    const width=375, height=width*500/427, top=850;
     ctx.save();
-    ctx.globalAlpha=.34;
-    ctx.drawImage(logoImage,(W-width)/2,(H-height)/2,width,height);
+    ctx.globalAlpha=.43;
+    ctx.drawImage(logoImage,(W-width)/2,top,width,height);
     ctx.restore();
   }
   function drawFitted(ctx,text,x,y,maxWidth,font,maxHeight=40){
@@ -123,7 +124,7 @@
       const conf=CATS[index],borderY=conf.headingY,bodyStart=conf.bodyY;
       // Always show section headings, with same short dark outline.
       // Consistent subtle category headings over either half of the diagonal.
-      ctx.fillStyle='rgba(255,252,243,.88)';
+      ctx.fillStyle='#fffaf0';
       ctx.fillRect(conf.headingX,borderY,conf.headingW,conf.headingH);
       ctx.strokeStyle='#746543';ctx.lineWidth=2.5;
       ctx.strokeRect(conf.headingX,borderY,conf.headingW,conf.headingH);
@@ -155,7 +156,7 @@
 
     // Open editorial footer: no enclosing box, just a centered heading and delicate side rules.
     ctx.save();
-    ctx.fillStyle=INK;ctx.font='bold 25px Arial, sans-serif';ctx.textAlign='center';
+    ctx.fillStyle=INK;ctx.font='bold 28px Arial, sans-serif';ctx.textAlign='center';
     ctx.fillText('Хляб и добавки',W/2,1415);
     ctx.strokeStyle='rgba(104,84,48,.48)';ctx.lineWidth=1.6;
     ctx.beginPath();
@@ -165,15 +166,16 @@
     const formatPrice=value=>String(value||'').trim().replace(/\s*€/g,' €');
     const footerRows=[[0,1],[2,3],[4,5]];
     footerRows.forEach((pair,rowIndex)=>pair.forEach((index,column)=>{
-      const entry=footer[index],x=column?659:113,priceX=column?1126:578,y=1462+rowIndex*43;
+      const entry=footer[index],x=column?659:120,priceX=column?1120:575,y=1467+rowIndex*45;
       ctx.textAlign='left';ctx.fillStyle=INK;
-      let size=25;
+      let size=30;
       ctx.font='500 '+size+'px Arial, sans-serif';
-      while(size>20&&ctx.measureText(entry.label).width>priceX-x-108){
+      while(size>23&&ctx.measureText(entry.label).width>priceX-x-106){
         size--;ctx.font='500 '+size+'px Arial, sans-serif';
       }
-      ctx.fillText(entry.label,x,y);
-      ctx.textAlign='right';ctx.font='bold 24px Arial, sans-serif';
+      // Canvas maxWidth prevents long dish labels from touching their prices.
+      ctx.fillText(entry.label,x,y,priceX-x-106);
+      ctx.textAlign='right';ctx.font='bold 28px Arial, sans-serif';
       ctx.fillText(formatPrice(entry.price),priceX,y);
     }));
     ctx.restore();

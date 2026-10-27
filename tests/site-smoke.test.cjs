@@ -431,7 +431,7 @@ test('Lunch logo and little allergen numbers are in public menus, A4 poster and 
  }
  const adminPage=read('admin/index.html');
  assert(adminPage.includes('assets/js/allergens.js?v=20261027-alg-v1'));
- assert(adminPage.includes('assets/js/lunch-poster.js?v=20261027-a4-diagonal-open-footer-v3'));
+ assert(adminPage.includes('assets/js/lunch-poster.js?v=20261027-a4-typography-spacing-v4'));
  assert(site.includes('lunch-allergen-sup')&&site.includes('lunch-allergen-legend'));
  assert(admin.includes('allergens:parsed.codes'));
  assert(admin.includes('Алергени — номера 1–14'));
@@ -448,8 +448,8 @@ test('A4 lunch poster uses centered real original emblem, no fake motif or upper
  const poster=read('assets/js/lunch-poster.js');
  const admin=read('admin/index.html');
  assert(poster.includes('function drawWatermark(ctx,logoImage)'));
- assert(poster.includes('ctx.drawImage(logoImage,(W-width)/2,(H-height)/2,width,height)'));
- assert(poster.includes('ctx.globalAlpha=.34'));
+ assert(poster.includes('ctx.drawImage(logoImage,(W-width)/2,top,width,height)'));
+ assert(poster.includes('ctx.globalAlpha=.43'));
  assert(poster.includes('drawWatermark(ctx,logoImage);'));
  assert(!poster.includes('ctx.drawImage(logoImage,72,67'));
  assert(!poster.includes("ctx.fillText('ТЕРАСАТА'"));
@@ -457,13 +457,13 @@ test('A4 lunch poster uses centered real original emblem, no fake motif or upper
  assert(!poster.includes('ctx.bezierCurveTo(540,1005'));
  assert(poster.includes('logoImage.onload=()=>'));
  assert(poster.includes('exportButton.disabled=true'));
- assert(admin.includes('lunch-poster.js?v=20261027-a4-diagonal-open-footer-v3'));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-typography-spacing-v4'));
 });
 
 test('Lunch A4 has strong centered logo, name and clean readable type',()=>{
  const poster=read('assets/js/lunch-poster.js'),admin=read('admin/index.html');
- assert(poster.includes('const width=525, height=width*500/427;'));
- assert(poster.includes('ctx.globalAlpha=.34'));
+ assert(poster.includes('const width=375, height=width*500/427, top=850;'))
+ assert(poster.includes('ctx.globalAlpha=.43'));
  assert(poster.includes("ctx.fillText('Терасата',W/2,1354)"));
  assert(poster.includes('const footerRows=[[0,1],[2,3],[4,5]]'));
  assert(poster.includes("ctx.fillText('Хляб и добавки',W/2,1415)"));
@@ -471,7 +471,7 @@ test('Lunch A4 has strong centered logo, name and clean readable type',()=>{
  assert(poster.includes('font=`600 ${conf.font}px Arial, sans-serif`'));
  assert(!poster.includes("italic bold 41px"));
  assert(!poster.includes("italic 700 25px"));
- assert(admin.includes('lunch-poster.js?v=20261027-a4-diagonal-open-footer-v3'));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-typography-spacing-v4'));
 });
 
 test('A4 menu diagonal reaches both sides and crosses the page midpoint, with open unboxed bread section',()=>{
@@ -486,7 +486,21 @@ test('A4 menu diagonal reaches both sides and crosses the page midpoint, with op
  assert(poster.includes('ctx.fillText(\'Хляб и добавки\',W/2,1415);'),'Open footer heading must remain');
  assert(poster.includes('ctx.moveTo(118,1407);ctx.lineTo(442,1407);'),'Delicate lines must flank the heading');
  assert(poster.includes('const footerRows=[[0,1],[2,3],[4,5]];'),'Two price-aligned columns must remain');
- assert(poster.includes('ctx.drawImage(logoImage,(W-width)/2,(H-height)/2,width,height);'),'Keep original centered watermark');
+ assert(poster.includes('ctx.drawImage(logoImage,(W-width)/2,top,width,height);'),'Keep original centered watermark');
  assert(poster.includes('ctx.fillText(\'Терасата\',W/2,1354);'),'Keep restaurant name');
- assert(admin.includes('lunch-poster.js?v=20261027-a4-diagonal-open-footer-v3'),'Refresh the poster asset in all browsers');
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-typography-spacing-v4'),'Refresh the poster asset in all browsers');
+});
+
+test('A4 preview: clear middle logo, opaque category labels and legible unboxed bread list',()=>{
+ const p=read('assets/js/lunch-poster.js');
+ const a=read('admin/index.html');
+ assert(p.includes('const width=375, height=width*500/427, top=850;'));
+ assert(p.includes("ctx.fillStyle='#fffaf0';"),'Section headings must mask the watermark');
+ assert(p.includes('ctx.globalAlpha=.43;'));
+ assert(p.includes('y=1467+rowIndex*45;'),'Bread lines should have more vertical space');
+ assert(p.includes('let size=30;'),'Bread and additions need larger typography');
+ assert(p.includes('ctx.fillText(entry.label,x,y,priceX-x-106);'),'Long labels must not run into the price');
+ assert(p.includes("ctx.font='bold 28px Arial, sans-serif'"),'Prices must be easy to read');
+ assert(!p.includes('ctx.fillRect(80,1381,1080,183);'),'Do not reintroduce a bread frame');
+ assert(a.includes('lunch-poster.js?v=20261027-a4-typography-spacing-v4'));
 });

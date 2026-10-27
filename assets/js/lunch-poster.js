@@ -105,11 +105,16 @@
   function draw(canvas,pages,pageIndex,settings,date,logoImage){
     const ctx=canvas.getContext('2d'),footer=(settings.footerItems||defaultFooter()).map((item,i)=>({label:defaultFooter()[i].label,price:String(item?.price??defaultFooter()[i].price)}));
     ctx.clearRect(0,0,W,H);ctx.fillStyle=WHITE;ctx.fillRect(0,0,W,H);
-    ctx.fillStyle=YELLOW;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(1140,0);ctx.lineTo(0,1635);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#fafaf9';ctx.beginPath();ctx.moveTo(1140,0);ctx.lineTo(W,0);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.lineTo(0,1635);ctx.closePath();ctx.fill();
-    ctx.fillStyle=YELLOW;ctx.fillRect(0,0,1140,46);
+    // True edge-to-edge diagonal: its midpoint is always exactly halfway down A4.
+    // Top-left yellow and bottom-right ivory, with no abrupt vertical or horizontal edges.
+    const diagonalLeft=H*.72,diagonalRight=H*.28;
+    ctx.fillStyle=YELLOW;ctx.beginPath();
+    ctx.moveTo(0,0);ctx.lineTo(W,0);ctx.lineTo(W,diagonalRight);
+    ctx.lineTo(0,diagonalLeft);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(92,78,49,.22)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(0,diagonalLeft);ctx.lineTo(W,diagonalRight);ctx.stroke();
     // Title box: matches original placement near the upper edge.
-    ctx.fillStyle=YELLOW;ctx.fillRect(253,42,772,151);ctx.strokeStyle=INK;ctx.lineWidth=5;ctx.strokeRect(253,42,772,151);
+    ctx.fillStyle='rgba(255,251,239,.93)';ctx.fillRect(253,42,772,151);ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.strokeRect(253,42,772,151);
     ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 88px Arial, sans-serif';ctx.fillText('Обедно меню',640,147);
     ctx.font='600 23px Arial, sans-serif';ctx.fillText(fmtDate(date),640,228);
     ctx.strokeStyle=INK;ctx.lineWidth=2.3;ctx.beginPath();ctx.moveTo(627,270);ctx.lineTo(627,750);ctx.stroke();
@@ -117,9 +122,11 @@
     pages[pageIndex].forEach((rows,index)=>{
       const conf=CATS[index],borderY=conf.headingY,bodyStart=conf.bodyY;
       // Always show section headings, with same short dark outline.
-      ctx.fillStyle=index===0?'rgba(255,224,120,.52)':'rgba(255,251,246,.34)';
+      // Consistent subtle category headings over either half of the diagonal.
+      ctx.fillStyle='rgba(255,252,243,.88)';
       ctx.fillRect(conf.headingX,borderY,conf.headingW,conf.headingH);
-      ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.strokeRect(conf.headingX,borderY,conf.headingW,conf.headingH);
+      ctx.strokeStyle='#746543';ctx.lineWidth=2.5;
+      ctx.strokeRect(conf.headingX,borderY,conf.headingW,conf.headingH);
       ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 37px Arial, sans-serif';ctx.fillText(conf.name,conf.headingX+conf.headingW/2,borderY+49);
       ctx.font='500 26px Arial, sans-serif';ctx.fillText(conf.gm,conf.headingX+conf.headingW/2,borderY+92);
       let y=bodyStart;
@@ -146,16 +153,15 @@
     ctx.fillText('Терасата',W/2,1354);
     ctx.restore();
 
-    // Readable, structured footer. Items and prices are kept unchanged.
+    // Open editorial footer: no enclosing box, just a centered heading and delicate side rules.
     ctx.save();
-    ctx.fillStyle='rgba(255,255,255,.90)';
-    ctx.fillRect(80,1381,1080,183);
-    ctx.strokeStyle='#b8ad99';ctx.lineWidth=1.8;
-    ctx.strokeRect(80,1381,1080,183);
     ctx.fillStyle=INK;ctx.font='bold 25px Arial, sans-serif';ctx.textAlign='center';
     ctx.fillText('Хляб и добавки',W/2,1415);
-    ctx.strokeStyle='#c9c0b0';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(113,1429);ctx.lineTo(1127,1429);ctx.stroke();
+    ctx.strokeStyle='rgba(104,84,48,.48)';ctx.lineWidth=1.6;
+    ctx.beginPath();
+    ctx.moveTo(118,1407);ctx.lineTo(442,1407);
+    ctx.moveTo(798,1407);ctx.lineTo(1122,1407);
+    ctx.stroke();
     const formatPrice=value=>String(value||'').trim().replace(/\s*€/g,' €');
     const footerRows=[[0,1],[2,3],[4,5]];
     footerRows.forEach((pair,rowIndex)=>pair.forEach((index,column)=>{

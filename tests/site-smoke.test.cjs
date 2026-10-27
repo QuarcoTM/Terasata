@@ -431,7 +431,7 @@ test('Lunch logo and little allergen numbers are in public menus, A4 poster and 
  }
  const adminPage=read('admin/index.html');
  assert(adminPage.includes('assets/js/allergens.js?v=20261027-alg-v1'));
- assert(adminPage.includes('assets/js/lunch-poster.js?v=20261027-a4-brand-readable-v2'));
+ assert(adminPage.includes('assets/js/lunch-poster.js?v=20261027-a4-diagonal-open-footer-v3'));
  assert(site.includes('lunch-allergen-sup')&&site.includes('lunch-allergen-legend'));
  assert(admin.includes('allergens:parsed.codes'));
  assert(admin.includes('Алергени — номера 1–14'));
@@ -457,7 +457,7 @@ test('A4 lunch poster uses centered real original emblem, no fake motif or upper
  assert(!poster.includes('ctx.bezierCurveTo(540,1005'));
  assert(poster.includes('logoImage.onload=()=>'));
  assert(poster.includes('exportButton.disabled=true'));
- assert(admin.includes('lunch-poster.js?v=20261027-a4-brand-readable-v2'));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-diagonal-open-footer-v3'));
 });
 
 test('Lunch A4 has strong centered logo, name and clean readable type',()=>{
@@ -471,5 +471,22 @@ test('Lunch A4 has strong centered logo, name and clean readable type',()=>{
  assert(poster.includes('font=`600 ${conf.font}px Arial, sans-serif`'));
  assert(!poster.includes("italic bold 41px"));
  assert(!poster.includes("italic 700 25px"));
- assert(admin.includes('lunch-poster.js?v=20261027-a4-brand-readable-v2'));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-diagonal-open-footer-v3'));
+});
+
+test('A4 menu diagonal reaches both sides and crosses the page midpoint, with open unboxed bread section',()=>{
+ const poster=read('assets/js/lunch-poster.js'),admin=read('admin/index.html');
+ assert(poster.includes('const diagonalLeft=H*.72,diagonalRight=H*.28;'),'Diagonal endpoints must be symmetrical around page center');
+ assert(poster.includes('ctx.moveTo(0,0);ctx.lineTo(W,0);ctx.lineTo(W,diagonalRight);'),'Yellow field must meet the top and right edges');
+ assert(poster.includes('ctx.lineTo(0,diagonalLeft);ctx.closePath();ctx.fill();'),'Yellow field must meet the left edge');
+ assert(poster.includes('ctx.moveTo(0,diagonalLeft);ctx.lineTo(W,diagonalRight);ctx.stroke();'),'One straight diagonal must connect both edges');
+ assert(!poster.includes('ctx.lineTo(1140,0);'),'Old diagonal must be gone');
+ assert(!poster.includes('ctx.fillRect(80,1381,1080,183);'),'Bread section must not have a white panel');
+ assert(!poster.includes('ctx.strokeRect(80,1381,1080,183);'),'Bread section must not have a frame');
+ assert(poster.includes('ctx.fillText(\'Хляб и добавки\',W/2,1415);'),'Open footer heading must remain');
+ assert(poster.includes('ctx.moveTo(118,1407);ctx.lineTo(442,1407);'),'Delicate lines must flank the heading');
+ assert(poster.includes('const footerRows=[[0,1],[2,3],[4,5]];'),'Two price-aligned columns must remain');
+ assert(poster.includes('ctx.drawImage(logoImage,(W-width)/2,(H-height)/2,width,height);'),'Keep original centered watermark');
+ assert(poster.includes('ctx.fillText(\'Терасата\',W/2,1354);'),'Keep restaurant name');
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-diagonal-open-footer-v3'),'Refresh the poster asset in all browsers');
 });

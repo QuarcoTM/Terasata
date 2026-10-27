@@ -562,3 +562,22 @@ test('Free-text site notice is editable by all signed-in staff, date-gated and p
   assert(read(p).includes('restaurant-notice.css?v=20261027-custom-notice-v1'),p+' missing notice CSS');
  }
 });
+
+test('Social media formats use independent PNG generators and do not alter approved A4 design',()=>{
+ const social=read('assets/js/social-poster.js'),admin=read('assets/js/admin.js');
+ const html=read('admin/index.html'),css=read('assets/css/admin.css');
+ assert(social.includes('post:{width:1080,height:1350'));
+ assert(social.includes('story:{width:1080,height:1920'));
+ assert(social.includes('const pages=[];let page=[]'));
+ assert(social.includes('const euro=value=>'));
+ assert(social.includes("ctx.drawImage(logo,(W-width)/2,H*.40,width,height)"));
+ assert(social.includes("assets/images/terasata-mark-original.svg"));
+ assert(social.includes("dialog.showModal()"));
+ assert(social.includes("window.TERASATA_SOCIAL_POSTER={open,pagesFor}"));
+ assert(admin.includes("btn('Публикация','social-post')"));
+ assert(admin.includes("btn('Story','social-story')"));
+ assert(admin.includes("case'social-post':case'social-story'"));
+ assert(html.includes('social-poster.js?v=20261027-social-formats-v1'));
+ assert(css.includes('.social-dialog .preview-frame'));
+ assert(html.includes('lunch-poster.js?v=20261027-a4-euro-prices-v6'),'Old A4 generator must remain unchanged');
+});

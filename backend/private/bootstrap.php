@@ -69,6 +69,7 @@ function user(): ?array {
 }
 function require_user(): array { $u=user();if(!$u)json_fail('Authentication required',401);return $u; }
 function can_edit(array $u,string $section): bool {
+    if($section==='notice')return in_array($u['role'],['owner','editor'],true);
     return $u['role']==='owner' || ($u['role']==='editor' && !empty($u['permissions'][$section]));
 }
 function input_json(int $limit=3145728): array {
@@ -104,7 +105,7 @@ function public_content(array $source): array {
 function validate_content(array $next): void {
     $required=['restaurantName','phoneDisplay','phoneHref','addressDisplay','mapsUrl','facebookUrl','instagramUrl','categories','regularMenu','lunchByDate','news','gallery'];
     foreach($required as $key)if(!array_key_exists($key,$next))json_fail('Missing content field: '.$key,422);
-    $allowed=[...$required,'galleryCategories','lunchPoster','posterSettings','seasonalMenu','sushiNight'];
+    $allowed=[...$required,'galleryCategories','lunchPoster','posterSettings','seasonalMenu','sushiNight','siteNotice'];
     foreach(array_keys($next) as $key)if(!in_array($key,$allowed,true))json_fail('Unsupported content field',422);
     foreach(['categories','news','gallery'] as $key)if(!is_array($next[$key])||count($next[$key])>300)json_fail('Invalid '.$key,422);
     foreach(['regularMenu','lunchByDate'] as $key)if(!is_array($next[$key]))json_fail('Invalid '.$key,422);
@@ -113,6 +114,21 @@ function validate_content(array $next): void {
     }
     if(!preg_match('/^tel:\+?[0-9]{9,16}$/',$next['phoneHref']))json_fail('Invalid phone',422);
     foreach(['mapsUrl','facebookUrl','instagramUrl'] as $key)if(!preg_match('~^https://~i',$next[$key]))json_fail('Only HTTPS links are allowed',422);
+    if(isset($next['siteNotice'])){
+        $n=$next['siteNotice'];
+        if(!is_array($n)||array_is_list($n)||!is_bool($n['enabled']??null)
+          ||!is_string($n['message']??null)||mb_strlen($n['message'])>800
+          ||!is_string($n['startDate']??null)||!is_string($n['endDate']??null)
+          ||($n['enabled'] && trim($n['message'])===''))json_fail('Invalid notice',422);
+        foreach(['startDate','endDate'] as $field){
+            $v=$n[$field];
+            if($v!==''){
+                $dt=DateTimeImmutable::createFromFormat('!Y-m-d',$v);
+                if(!$dt||$dt->format('Y-m-d')!==$v)json_fail('Invalid notice date',422);
+            }
+        }
+        if($n['startDate']!==''&&$n['endDate']!==''&&$n['startDate']>$n['endDate'])json_fail('Invalid notice range',422);
+    }
     if(isset($next['sushiNight'])){
       $s=$next['sushiNight'];
       if(!is_array($s)||array_is_list($s)||!is_bool($s['enabled']??null)

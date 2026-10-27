@@ -661,6 +661,7 @@
     "sushi": []
   },
   "lunchByDate": {},
+  "siteNotice": {"enabled": false, "message": "", "startDate": "", "endDate": ""},
   "news": [],
   "gallery": [
     {

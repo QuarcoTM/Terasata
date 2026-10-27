@@ -63,7 +63,7 @@ document.addEventListener('keydown',event=>{
 });
 function sectionAllowed(section){
  if(!titles[section])return false;
- return !SECURE || ['dashboard','stats','transfer','qr'].includes(section) || (section==='staff'?SECURE.user.role==='owner':SECURE.user.role==='owner'||!!SECURE.user.permissions[section]);
+ return !SECURE || ['dashboard','stats','transfer','qr','notice'].includes(section) || (section==='staff'?SECURE.user.role==='owner':SECURE.user.role==='owner'||!!SECURE.user.permissions[section]);
 }
 
 if(!SECURE){try{const stored=JSON.parse(localStorage.getItem(KEY)||'null');if(stored&&stored.format==='terasata-local-v1'&&stored.content?.categories?.length&&stored.content.regularMenu)state=stored}catch(err){console.warn('Local draft could not be loaded:',err)}}
@@ -93,7 +93,7 @@ if(!SECURE&&ensureSushiCategory(state.content)){
  try{localStorage.setItem(KEY,JSON.stringify(state));}catch(err){console.warn('Could not persist updated categories:',err);}
 }
 
-const titles={qr:['QR кодове','Две отделни табелки с работещ QR код, готови за печат.'],stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай постоянното меню, сезонните предложения и седмичното предлагане на суши.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
+const titles={qr:['QR кодове','Две отделни табелки с работещ QR код, готови за печат.'],stats:['Статистика','Посещения, QR отваряния и най-използвани връзки.'],dashboard:['Общ преглед','Всичко важно за проекта на едно място.'],lunch:['Обедно меню','Подготвяй различно меню за всяка дата от понеделник до петък.'],regular:['Постоянно меню','Редактирай постоянното меню, сезонните предложения и седмичното предлагане на суши.'],gallery:['Галерия','Реални снимки, категории и подредба на галерията.'],notice:['Съобщение на сайта','Напиши собствено съобщение и избери кога да се показва.'],news:['Актуално','Новини, събития и специални предложения само на началната страница.'],settings:['Настройки','Контакти и основна информация за ресторанта.'],staff:['Служители и права','Само проект на бъдещите служебни профили — без реален вход.'],transfer:['Архив и експорт','Запази копие на данните или подготви файл за ръчно публикуване.']};
 function notice(t){const box=qs('#toast');box.textContent=t;box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3200)}
 function save(){
  state.savedAt=new Date().toISOString();
@@ -138,7 +138,7 @@ function setView(next,restore=false){
  if(changed&&!restore){window.scrollTo(0,0);rememberNavigation(0);}
  else if(!restore)rememberNavigation();
 }
-function render(){const content=qs('#view-content'),tools=qs('#view-tools');tools.innerHTML='';switch(view){case 'stats':renderStats(content,tools);break;case 'dashboard':renderDashboard(content);break;case 'lunch':renderLunch(content,tools);break;case 'regular':renderRegular(content,tools);break;case 'qr':renderQrCards(content);break;case 'gallery':renderGallery(content,tools);break;case 'news':renderNews(content,tools);break;case 'settings':renderSettings(content);break;case 'staff':renderStaff(content,tools);break;case 'transfer':renderTransfer(content);break;}wrapViewActions(tools);}
+function render(){const content=qs('#view-content'),tools=qs('#view-tools');tools.innerHTML='';switch(view){case 'stats':renderStats(content,tools);break;case 'dashboard':renderDashboard(content);break;case 'lunch':renderLunch(content,tools);break;case 'regular':renderRegular(content,tools);break;case 'qr':renderQrCards(content);break;case 'gallery':renderGallery(content,tools);break;case 'notice':renderNotice(content);break;case 'news':renderNews(content,tools);break;case 'settings':renderSettings(content);break;case 'staff':renderStaff(content,tools);break;case 'transfer':renderTransfer(content);break;}wrapViewActions(tools);}
 function wrapViewActions(tools){
  if(!tools||!tools.firstElementChild)return;
  const details=document.createElement('details');
@@ -551,6 +551,40 @@ function moveNews(index,delta){
  [list[index],list[j]]=[list[j],list[index]];
  save();render();
 }
+function renderNotice(el){
+ const current=state.content.siteNotice||{enabled:false,message:'',startDate:'',endDate:''};
+ const dateLabel=value=>value?formatDisplayDate(value):'Без ограничение';
+ el.innerHTML=`<form id="site-notice-form" class="panel">
+ <p class="eyebrow">СЪОБЩЕНИЕ ЗА ПОСЕТИТЕЛИТЕ</p>
+ <h2>Текстът е изцяло твой</h2>
+ <p class="mini muted">Напиши свободно съобщение за празник, събитие или промяна в работното време. Няма готови шаблони. Показва се под менюто на всички страници, само когато е включено и датата е в зададения период.</p>
+ <label class="form-field" for="notice-message">Съобщение<textarea id="notice-message" name="message" maxlength="800" rows="5" placeholder="Напиши съобщението, което посетителите ще прочетат...">${e(current.message||'')}</textarea></label>
+ <label class="form-field"><span class="notice-check"><input type="checkbox" name="enabled" ${current.enabled?'checked':''}> Показвай съобщението на сайта</span></label>
+ <div class="form-settings">
+ <label class="form-field">Показвай от (по желание)<input type="date" name="startDate" value="${e(current.startDate||'')}"></label>
+ <label class="form-field">Показвай до (по желание)<input type="date" name="endDate" value="${e(current.endDate||'')}"></label>
+ </div>
+ <div class="toolbar-row"><button class="btn primary" type="submit">Запази съобщението</button></div>
+ </form>
+ <section class="panel"><h2>Преглед на съобщението</h2>
+ ${current.message?.trim()?'<div class="site-notice-preview">'+e(current.message.trim()).replace(/\n/g,'<br>')+'</div>':'<p class="mini muted">Няма въведен текст.</p>'}
+ <p class="mini muted">Статус: <strong>${current.enabled?'Включено':'Изключено'}</strong> · Период: ${e(dateLabel(current.startDate))} – ${e(dateLabel(current.endDate))}</p>
+ ${SECURE?'<p class="mini muted">При успешен сървърен запис промените ще са достъпни за посетителите.</p>':'<p class="hint">Сега записът е локален. За да се вижда публично, експортирай content.js от „Архив и експорт“ и го качи в GitHub. Използвай „Виж сайта“ за локален преглед.</p>'}
+ </section>`;
+ el.querySelector('#site-notice-form').addEventListener('submit',event=>{
+   event.preventDefault();
+   const fd=new FormData(event.currentTarget);
+   const message=String(fd.get('message')||'').trim();
+   const startDate=String(fd.get('startDate')||'');
+   const endDate=String(fd.get('endDate')||'');
+   const enabled=fd.has('enabled');
+   if(message.length>800){notice('Текстът е прекалено дълъг.');return;}
+   if(enabled&&!message){notice('Напиши текст, преди да включиш съобщението.');return;}
+   if(startDate&&endDate&&startDate>endDate){notice('Крайната дата е преди началната.');return;}
+   state.content.siteNotice={enabled,message,startDate,endDate};
+   if(save()){render();notice(SECURE?'Изпратено за сървърен запис.':'Запазено локално. За публикуване експортирай content.js.');}
+ });
+}
 function renderSettings(el){const c=state.content;el.innerHTML=`<form id="settings-form" class="panel"><div class="form-settings">${[['restaurantName','Име на ресторанта'],['phoneDisplay','Телефон'],['addressDisplay','Адрес'],['facebookUrl','Facebook'],['instagramUrl','Instagram'],['mapsUrl','Линк към карта']].map(([id,label])=>`<label class="form-field">${label}<input name="${id}" type="${id.endsWith('Url')?'url':id==='phoneDisplay'?'tel':'text'}" value="${e(c[id]||'')}" required></label>`).join('')}</div><div class="toolbar-row"><button type="submit" class="btn primary">Запази настройките</button></div></form><div class="hint">Работно време: всеки ден 10:00–00:00 ч. · Без имейл и без онлайн поръчки. Не сме добавяли оригинално лого, тъй като файлът му още липсва.</div>`;qs('#settings-form').addEventListener('submit',ev=>{ev.preventDefault();const fd=new FormData(ev.target);for(const [k,v] of fd){c[k]=String(v).trim()}for(const k of ['mapsUrl','facebookUrl','instagramUrl']){if(!/^https?:\/\//i.test(c[k])){notice('Линковете трябва да започват с https://');return}}const phone=c.phoneDisplay.replace(/\D/g,'');if(phone.length<9||phone.length>13){notice('Провери телефонния номер');return}c.phoneHref='tel:+359'+(phone.startsWith('0')?phone.slice(1):phone);if(save())notice('Настройките са запазени локално')})}
 const PERMS=[['lunch','Обедно меню'],['regular','Постоянно меню'],['gallery','Галерия'],['news','Актуално'],['settings','Настройки']];
 function renderStaff(el,tools){if(SECURE){tools.innerHTML='';el.innerHTML='<div class="panel"><h2>Реални служебни профили</h2><p>Индивидуален вход и ограничени права, проверявани от сървъра.</p><a class="btn primary" href="backend/panel/users.php">Управление на служители ↗</a></div>';return;}tools.innerHTML=btn('+ Примерен служител','staff-add','primary');el.innerHTML=`<div class="hint"><strong>Само проект на права.</strong> Този редактор е публичен HTML файл и няма автентикация. Не въвеждай истински потребителски имена, пароли или лични данни. Настоящите настройки не ограничават достъпа — реалните служебни профили ще се активират едва през PHP.</div><div class="panel"><h2>Главен администратор</h2><p class="mini">Пълен достъп до всички модули. 2FA ще е по избор в истинската система.</p></div>${state.staff.map((u,i)=>`<div class="panel"><div class="section-head"><h2>${e(u.label)}</h2>${btn('Премахни',`staff-delete:${i}`,'danger slim')}</div><p class="mini muted">Демо права: ${PERMS.filter(([id])=>u.permissions[id]).map(x=>x[1]).join(', ')||'няма'}</p>${btn('Промени правата',`staff-edit:${i}`)}</div>`).join('')}`}
@@ -567,7 +601,7 @@ qs('#dialog-close').addEventListener('click',()=>qs('#edit-dialog').close());qs(
 if(SECURE){qsa('#admin-nav button[data-view]').forEach(button=>{
  const v=button.dataset.view;
  if(v==='staff'&&SECURE.user.role!=='owner')button.remove();
- if(!['dashboard','stats','staff','transfer','qr'].includes(v)&&SECURE.user.role!=='owner'&&!SECURE.user.permissions[v])button.remove();
+ if(!['dashboard','stats','staff','transfer','qr','notice'].includes(v)&&SECURE.user.role!=='owner'&&!SECURE.user.permissions[v])button.remove();
 });}
 qs('#admin-nav').addEventListener('click',ev=>{const b=ev.target.closest('[data-view]');if(b){setView(b.dataset.view);menuToggle?.focus();}});
 qs('#workspace').addEventListener('change',ev=>{if(ev.target.id==='lunch-date'&&ev.target.value){activeDate=ev.target.value;rememberNavigation();render()}});

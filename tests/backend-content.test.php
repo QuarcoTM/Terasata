@@ -41,3 +41,8 @@ ensure($on['sushiNight']['enabled']===true&&$on['sushiNight']['weekday']===5,'Pu
 $data['sushiNight']['startTime']='bad';
 $invalid=public_content($data);
 ensure($invalid['sushiNight']['enabled']===false,'Invalid sushi schedule is never publicly enabled');
+
+$allStaff=['role'=>'editor','permissions'=>[]];
+ensure(can_edit($allStaff,'notice'),'All authenticated editors can update restaurant announcement');
+ensure(!can_edit($allStaff,'settings'),'Announcement permissions do not grant settings permissions');
+ensure(isset($data['siteNotice'])&&$data['siteNotice']['enabled']===false,'No unapproved sample announcement is published');

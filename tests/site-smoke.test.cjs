@@ -537,3 +537,28 @@ test('A4 renders euro after every nonempty price without changing entered values
  assert.equal(formatter('0.15'),'0.15 €');
  assert.equal(formatter(''),'');
 });
+
+test('Free-text site notice is editable by all signed-in staff, date-gated and public on every page',()=>{
+ const admin=read('assets/js/admin.js'),nav=read('admin/index.html');
+ const banner=read('assets/js/restaurant-notice.js'),css=read('assets/css/restaurant-notice.css');
+ const backend=read('backend/private/bootstrap.php'),writes=read('backend/api/document.php');
+ const seed=JSON.parse(read('backend/seed/content.json'));
+ assert(nav.includes('data-view="notice"'));
+ assert(admin.includes('function renderNotice(el)'));
+ assert(admin.includes('name="message" maxlength="800" rows="5"'));
+ assert(admin.includes('state.content.siteNotice={enabled,message,startDate,endDate}'));
+ assert(admin.includes("'qr','notice'].includes(section)"));
+ assert(admin.includes("'qr','notice'].includes(v)"));
+ assert(backend.includes("if($section==='notice')return in_array($u['role'],['owner','editor'],true);"));
+ assert(backend.includes("'sushiNight','siteNotice'"));
+ assert(writes.includes("'siteNotice'=>'notice'"));
+ assert(seed.siteNotice.enabled===false);
+ assert(banner.includes("timeZone:'Europe/Sofia'"));
+ assert(banner.includes("message.textContent=n.message.trim()"));
+ assert(banner.includes('header.after(banner)'));
+ assert(css.includes('.restaurant-notice'));
+ for(const p of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
+  assert(read(p).includes('restaurant-notice.js?v=20261027-custom-notice-v1'),p+' missing notice script');
+  assert(read(p).includes('restaurant-notice.css?v=20261027-custom-notice-v1'),p+' missing notice CSS');
+ }
+});

@@ -1,0 +1,7 @@
+/* Discreet free-text announcement: below main navigation on every public page. */
+.restaurant-notice{background:#fff9e9;border-bottom:1px solid #dfd4b7;color:#443b2c;position:relative;z-index:5}
+.restaurant-notice-inner{display:flex;align-items:center;justify-content:center;gap:13px;padding-block:12px}
+.restaurant-notice-dot{display:block;flex:0 0 9px;width:9px;height:9px;background:#b4904c;border-radius:50%}
+.restaurant-notice p{margin:0;font:600 14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center;white-space:pre-line;overflow-wrap:anywhere}
+.site-notice-preview{padding:15px 18px;background:#fff9e9;border-left:3px solid #b4904c;color:#443b2c;line-height:1.6;overflow-wrap:anywhere}
+@media(max-width:640px){.restaurant-notice-inner{align-items:flex-start;padding-block:11px;gap:9px}.restaurant-notice-dot{margin-top:7px}.restaurant-notice p{font-size:13px;text-align:left}}

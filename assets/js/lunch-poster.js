@@ -2,6 +2,7 @@
 (function () {
   'use strict';
   const W = 1240, H = 1754;
+  const ALLERGENS=window.TERASATA_ALLERGENS;
   const INK = '#302c3b', YELLOW = '#f8d35e', WHITE = '#faf9f7';
   const CATS = [
     {name:'Салати', gm:'/250гр./', x:112, priceX:530, bodyY:375, endY:750, font:29, leading:36, nameW:295, headingX:192, headingY:238, headingW:260, headingH:116},
@@ -42,11 +43,15 @@
     const arrays=groups.map((items,index)=>{
       const conf=CATS[index], font=`italic 700 ${conf.font}px Arial, sans-serif`, rowNoteFont='19px Arial, sans-serif';
       return items.map(item=>{
-        const lines=wrap(tester,item.name,conf.nameW,font);
+        const allergenNumbers=ALLERGENS?.codes(item.allergens)||[];
+        const superscript=allergenNumbers.join(',');
+        tester.font='bold 17px Arial, sans-serif';
+        const reserve=superscript?tester.measureText(superscript).width+14:0;
+        const lines=wrap(tester,item.name,Math.max(125,conf.nameW-reserve),font);
         const note=String(item.weight||'').trim();
         const sub=note ? wrap(tester,note,conf.nameW,rowNoteFont) : [];
         const height=Math.max(49,lines.length*conf.leading+sub.length*22+12+(item.soldOut?18:0));
-        return {item,lines,sub,height,font,rowNoteFont};
+        return {item,lines,sub,height,font,rowNoteFont,allergenNumbers};
       });
     });
     const pages=[];let nextIndexes=[0,0,0];
@@ -94,7 +99,11 @@
     }
     ctx.fillText(text,x,y);
   }
-  function draw(canvas,pages,pageIndex,settings,date){
+  function measureLastLineWidth(ctx,text,font){
+    ctx.save();ctx.font=font;const width=ctx.measureText(text).width;ctx.restore();
+    return width;
+  }
+  function draw(canvas,pages,pageIndex,settings,date,logoImage){
     const ctx=canvas.getContext('2d'),footer=(settings.footerItems||defaultFooter()).map((item,i)=>({label:defaultFooter()[i].label,price:String(item?.price??defaultFooter()[i].price)}));
     ctx.clearRect(0,0,W,H);ctx.fillStyle=WHITE;ctx.fillRect(0,0,W,H);
     ctx.fillStyle=YELLOW;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(1140,0);ctx.lineTo(0,1635);ctx.closePath();ctx.fill();
@@ -104,6 +113,12 @@
     ctx.fillStyle=YELLOW;ctx.fillRect(253,42,772,151);ctx.strokeStyle=INK;ctx.lineWidth=10;ctx.strokeRect(253,42,772,151);
     ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 94px Arial, sans-serif';ctx.fillText('Обедно меню',640,147);
     ctx.font='italic 21px Arial, sans-serif';ctx.fillText(fmtDate(date),640,226);
+    // Original logo image from the restaurant's napkin, loaded as SVG.
+    if(logoImage&&logoImage.complete&&logoImage.naturalWidth>0){
+      ctx.drawImage(logoImage,72,67,130,146);
+      ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='bold 17px Arial, sans-serif';
+      ctx.fillText('ТЕРАСАТА',137,228);
+    }
     ctx.strokeStyle=INK;ctx.lineWidth=2.3;ctx.beginPath();ctx.moveTo(627,270);ctx.lineTo(627,750);ctx.stroke();
     drawDots(ctx,315,670,Math.PI*.55,Math.PI*1.52);drawDots(ctx,951,610,-Math.PI*.7,Math.PI*.5);drawWatermark(ctx);
     pages[pageIndex].forEach((rows,index)=>{
@@ -115,10 +130,15 @@
       ctx.fillStyle=INK;ctx.textAlign='center';ctx.font='italic bold 38px Arial, sans-serif';ctx.fillText(conf.name,conf.headingX+conf.headingW/2,borderY+49);
       ctx.font='italic bold 31px Arial, sans-serif';ctx.fillText(conf.gm,conf.headingX+conf.headingW/2,borderY+92);
       let y=bodyStart;
-      rows.forEach(({item,lines,sub,height,font,rowNoteFont})=>{
+      rows.forEach(({item,lines,sub,height,font,rowNoteFont,allergenNumbers})=>{
         ctx.fillStyle=INK;ctx.beginPath();ctx.arc(conf.x-15,y+10,8,0,Math.PI*2);ctx.fill();
         ctx.textAlign='left';ctx.font=font;
         lines.forEach((line,i)=>ctx.fillText(line,conf.x,y+17+i*conf.leading));
+        if(allergenNumbers.length){
+          ctx.font='bold 17px Arial, sans-serif';ctx.fillStyle='#765820';
+          const last=lines[lines.length-1];
+          ctx.fillText(allergenNumbers.join(','),conf.x+measureLastLineWidth(ctx,last,font)+6,y+1+(lines.length-1)*conf.leading);
+        }
         if(sub.length){ctx.fillStyle='#45414a';ctx.font=rowNoteFont;sub.forEach((line,i)=>ctx.fillText(line,conf.x,y+17+lines.length*conf.leading+i*22));}
         ctx.fillStyle=INK;ctx.textAlign='right';ctx.font='italic 700 25px Arial, sans-serif';ctx.fillText(String(item.price||''),conf.priceX,y+17);
         if(item.soldOut){ctx.textAlign='left';ctx.fillStyle='#a14634';ctx.font='bold 16px Arial';ctx.fillText('ИЗЧЕРПАНО',conf.x,y+height-2);}
@@ -139,7 +159,16 @@
     ctx.fillStyle=INK;ctx.font='italic bold 36px Arial, sans-serif';ctx.textAlign='center';
     ctx.fillText('Десерти:',620,1616);
     ctx.font='italic bold 41px Arial, sans-serif';ctx.fillText('Попитайте Вашия сервитьор!',620,1665);
-    if(pages.length>1){ctx.textAlign='right';ctx.font='18px Arial';ctx.fillText(`${pageIndex+1} / ${pages.length}`,1167,1707);}
+    // Legend is printed only for numbered allergens actually entered on this page.
+    const used=[...new Set(pages[pageIndex].flatMap(rows=>rows.flatMap(row=>row.allergenNumbers)))].sort((a,b)=>a-b);
+    if(used.length&&ALLERGENS){
+      ctx.save();ctx.fillStyle='#504438';ctx.textAlign='center';ctx.font='bold 15px Arial, sans-serif';
+      const legend='Алергени: '+ALLERGENS.legendText(used);
+      const legendLines=wrap(ctx,legend,1110,'bold 15px Arial, sans-serif');
+      legendLines.slice(0,3).forEach((line,i)=>ctx.fillText(line,W/2,1694+i*19));
+      ctx.restore();
+    }
+    if(pages.length>1){ctx.textAlign='right';ctx.font='16px Arial';ctx.fillText('Стр. '+(pageIndex+1)+'/'+pages.length,1180,1679);}
   }
   function open({day,date,settings,download,notice}){
     if(!day||!day.groups?.some(g=>g.items?.length)){notice('Няма въведено обедно меню за тази дата.');return;}
@@ -150,10 +179,16 @@
     document.body.appendChild(dialog);
     const close=()=>{dialog.close();dialog.remove();};dialog.querySelector('.close').onclick=close;
     dialog.addEventListener('click',e=>{if(e.target===dialog)close();});dialog.showModal();
-    const canvas=dialog.querySelector('#fb-canvas');const selector=dialog.querySelector('#fb-page');
-    const redraw=()=>draw(canvas,pages,Number(selector.value||0),settings,date);
+    const canvas=dialog.querySelector('#fb-canvas'),selector=dialog.querySelector('#fb-page');
+    const exportButton=dialog.querySelector('#fb-download');
+    exportButton.disabled=true;
+    const logoImage=new Image();
+    const redraw=()=>draw(canvas,pages,Number(selector.value||0),settings,date,logoImage);
+    logoImage.onload=()=>{if(!dialog.isConnected)return;redraw();exportButton.disabled=false;};
+    logoImage.onerror=()=>{notice('Оригиналното лого не можа да се зареди. Изтеглянето е блокирано, за да не излезе файл без него.');};
+    logoImage.src=new URL('assets/images/terasata-mark-original.svg',document.baseURI).href;
     redraw();selector.addEventListener('change',redraw);
-    dialog.querySelector('#fb-download').addEventListener('click',()=>{const index=Number(selector.value||0);canvas.toBlob(blob=>{if(blob){download(`terasata-obedno-A4-${date}-${index+1}.png`,blob);notice('Готова A4 визуализация')}else notice('Неуспешно генериране на PNG');},'image/png');});
+    exportButton.addEventListener('click',()=>{const index=Number(selector.value||0);canvas.toBlob(blob=>{if(blob){download(`terasata-obedno-A4-${date}-${index+1}.png`,blob);notice('Готова A4 визуализация')}else notice('Неуспешно генериране на PNG');},'image/png');});
   }
   window.TERASATA_POSTER={open,makePages,draw,defaultFooter};
 })();

@@ -457,7 +457,7 @@ test('A4 lunch poster uses centered real original emblem, no fake motif or upper
  assert(!poster.includes('ctx.bezierCurveTo(540,1005'));
  assert(poster.includes('logoImage.onload=()=>'));
  assert(poster.includes('exportButton.disabled=true'));
- assert(admin.includes('lunch-poster.js?v=20261027-a4-central-original-mark-v1'));
+ assert(admin.includes('lunch-poster.js?v=20261027-a4-brand-readable-v2'));
 });
 
 test('Lunch A4 has strong centered logo, name and clean readable type',()=>{

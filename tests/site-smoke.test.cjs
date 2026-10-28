@@ -649,7 +649,7 @@ test('Visitors can switch BG / EN across six routes and translate complete curre
  assert(css.includes('.language-switch button[aria-pressed="true"]'));
  for(const path of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(path);
-  assert(html.includes('i18n.js?v=20261028-bg-en-v2'),path+' missing translation script');
+  assert(html.includes('i18n.js?v=20261028-bg-en-v3'),path+' missing translation script');
   assert(html.includes('i18n.css?v=20261028-bg-en-v1'),path+' missing language-switch stylesheet');
   assert(html.indexOf('site-preview.js')<html.indexOf('i18n.js')&&html.indexOf('i18n.js')<html.indexOf('site.js'),path+' needs correct script order');
   assert(html.includes('site.js?v=20261028-bg-en-v1'),path+' needs fresh frontend script');
@@ -717,4 +717,10 @@ test('English mode really translates every seeded dish, descriptions and public 
  const custom=language.localizeContent({...source,regularMenu:{test:[{name:'Ново ястие',nameEn:'New Dish',description:'Описание',descriptionEn:'Description',price:'10 €'}]}});
  assert.equal(custom.regularMenu.test[0].name,'New Dish');
  assert.equal(custom.regularMenu.test[0].description,'Description');
+});
+
+test('English homepage translates the takeaway note with its decorative icon',()=>{
+ const source=read('assets/js/i18n.js');
+ assert(source.includes('⌂ Поръчки за вкъщи до 11:30 ч.'));
+ assert(source.includes('⌂ Takeaway orders until 11:30 am.'));
 });

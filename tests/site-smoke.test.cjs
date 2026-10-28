@@ -426,7 +426,7 @@ test('Lunch logo and little allergen numbers are in public menus, A4 poster and 
  const site=read('assets/js/site.js'),admin=read('assets/js/admin.js'),poster=read('assets/js/lunch-poster.js');
  for(const page of ['index.html','obedno-menu/index.html']){
   const html=read(page);
-  assert(html.includes('assets/js/allergens.js?v=20261028-seo-a11y-responsive-v1'));
+  assert(html.includes('assets/js/allergens.js?v=20261028-allergens-bilingual-v1'));
   assert(html.includes('assets/images/terasata-mark-original.svg'));
  }
  const adminPage=read('admin/index.html');
@@ -795,7 +795,7 @@ test('Language UI self-heals outdated cached header variants on all public route
  assert(lang.includes("shell.querySelectorAll('.language-switch')"));
  assert(lang.includes("element.querySelector('[data-language-trigger]')"));
  assert(lang.includes("if(headerChanged)ensureLanguageControl()"));
- assert(lang.includes("lang_ui','flag-20261028-v2"));
+ assert(lang.includes("url.searchParams.delete('lang_ui')"),'Canonical EN pages must not rely on legacy query params');
  for(const route of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(route);
   for(const file of ['site.js','i18n.js','i18n.css'])
@@ -842,7 +842,7 @@ test('English lunch menu allergen legend and hover text use English EU labels',(
  assert(site.includes('LUNCH_ALLERGENS.legendHtml(activeLunchAllergens,allergenLanguage)'));
  assert(site.includes("const allergenHeading=en?'Allergens:':'Алергени:'"));
  for(const route of ['index.html','obedno-menu/index.html'])
-  assert(read(route).includes('allergens.js?v=20261028-seo-a11y-responsive-v1'));
+  assert(read(route).includes('allergens.js?v=20261028-allergens-bilingual-v1'));
 });
 
 test('Multilingual SEO routes have independent canonicals and reciprocal hreflang annotations',()=>{

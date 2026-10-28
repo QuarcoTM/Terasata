@@ -661,7 +661,7 @@ test('Visitors can switch BG / EN across six routes and translate complete curre
  const counts=Object.values(raw.regularMenu).reduce((n,a)=>n+a.length,0);
  assert(counts===68,'Current menu translation should cover all 68 dishes');
  assert(i18n.includes('Shopska Salad')&&i18n.includes('Pork Tenderloin with Gravy'));
- assert(i18n.includes('Free Wi-Fi')&&i18n.includes('High chairs'));
+ assert(i18n.includes('Free Wi-Fi')&&i18n.includes('Highchairs for babies and toddlers'));
 });
 
 test('Admin supports author-written English names, descriptions, news and notice',()=>{

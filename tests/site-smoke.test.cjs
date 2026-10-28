@@ -250,7 +250,7 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html),'CSS cache not updated for '+route);
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1)/.test(html),'JS cache not updated for '+route);
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-language-visible-v2)/.test(html),'JS cache not updated for '+route);
  }
 });
 
@@ -297,7 +297,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html));
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1)/.test(html));
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-language-visible-v2)/.test(html));
  }
 });
 
@@ -404,7 +404,7 @@ test('Sushi has short public and admin label without changing weekly demo schedu
  assert.deepEqual(data.sushiNight,{enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true});
  assert.deepEqual(data.regularMenu.sushi,[]);
  for(const p of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1)/.test(read(p+'index.html')),p+' old public script cache');
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-language-visible-v2)/.test(read(p+'index.html')),p+' old public script cache');
  }
  assert(read('admin/index.html').includes('admin.js?v=20261028-bg-en-editor-v2'),'Admin script cache not updated');
 });

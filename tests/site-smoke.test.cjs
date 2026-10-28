@@ -546,7 +546,7 @@ test('Free-text site notice is editable by all signed-in staff, date-gated and p
  assert(nav.includes('data-view="notice"'));
  assert(admin.includes('function renderNotice(el)'));
  assert(admin.includes('name="message" maxlength="800" rows="5"'));
- assert(admin.includes('state.content.siteNotice={enabled,message,startDate,endDate}'));
+ assert(admin.includes('state.content.siteNotice={enabled,message,messageEn,startDate,endDate}'));
  assert(admin.includes("'qr','notice'].includes(section)"));
  assert(admin.includes("'qr','notice'].includes(v)"));
  assert(backend.includes("if($section==='notice')return in_array($u['role'],['owner','editor'],true);"));

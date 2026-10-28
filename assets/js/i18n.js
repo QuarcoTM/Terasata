@@ -17,9 +17,9 @@
   if(!target && key.startsWith('Отвори снимка: '))target='Open photo: '+(dictionary.get(key.slice(15))||key.slice(15));
   if(!target && key.startsWith('Алергени '))target='Allergens '+key.slice(9);
   if(!target && key.startsWith('© '))target=key.replace('Ресторант „Терасата“','Terasata Restaurant');
-  if(!target && /^Всяка? (понеделник|вторник|сряда|четвъртък|петък|събота|неделя) · /.test(key)){
+  if(!target && /^(?:Всяка|Всеки) (понеделник|вторник|сряда|четвъртък|петък|събота|неделя) · /.test(key)){
    const days={понеделник:'Monday',вторник:'Tuesday',сряда:'Wednesday',четвъртък:'Thursday',петък:'Friday',събота:'Saturday',неделя:'Sunday'};
-   target=key.replace(/^Всяка? (понеделник|вторник|сряда|четвъртък|петък|събота|неделя)/,(_,day)=>'Every '+days[day]).replace(' (до следващия ден)',' (until the next day)');
+   target=key.replace(/^(?:Всяка|Всеки) (понеделник|вторник|сряда|четвъртък|петък|събота|неделя)/,(_,day)=>'Every '+days[day]).replace(' (до следващия ден)',' (until the next day)');
   }
   if(!target && /^\d+ ?(?:г|гр\.|мл|бр\.)$/.test(key))target=key.replace(/\s*(?:г|гр\.)$/,' g').replace(/\s*мл$/,' ml').replace(/\s*бр\.$/,' pc');
   if(!target)return raw;

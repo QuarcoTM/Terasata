@@ -250,7 +250,7 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html),'CSS cache not updated for '+route);
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1|seo-a11y-responsive-v1))/.test(html),'JS cache not updated for '+route);
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1|seo-a11y-responsive-v1|seo-a11y-responsive-v2))/.test(html),'JS cache not updated for '+route);
  }
 });
 
@@ -297,7 +297,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html));
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1|seo-a11y-responsive-v1))/.test(html));
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1|seo-a11y-responsive-v1|seo-a11y-responsive-v2))/.test(html));
  }
 });
 
@@ -404,7 +404,7 @@ test('Sushi has short public and admin label without changing weekly demo schedu
  assert.deepEqual(data.sushiNight,{enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true});
  assert.deepEqual(data.regularMenu.sushi,[]);
  for(const p of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1|seo-a11y-responsive-v1))/.test(read(p+'index.html')),p+' old public script cache');
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1|seo-a11y-responsive-v1|seo-a11y-responsive-v2))/.test(read(p+'index.html')),p+' old public script cache');
  }
  assert(read('admin/index.html').includes('admin.js?v=20261028-bg-en-editor-v2'),'Admin script cache not updated');
 });
@@ -650,7 +650,7 @@ test('Visitors can switch BG / EN across six routes and translate complete curre
  assert(css.includes('.language-menu[hidden]{display:none!important}'));
  for(const path of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(path);
-  assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v2'),path+' missing translation script');
+  assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v1'),path+' missing translation script');
   assert(html.includes('i18n.css?v=20261028-flag-stable-v2'),path+' missing language-switch stylesheet');
   assert(html.indexOf('site-preview.js')<html.indexOf('i18n.js')&&html.indexOf('i18n.js')<html.indexOf('site.js'),path+' needs correct script order');
   assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v2'),path+' needs fresh frontend script');
@@ -742,7 +742,7 @@ test('BG/EN buttons are always visible beside the mobile menu, not hidden inside
   const html=read(page);
   assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v2'),page+' must force fresh header');
   assert(html.includes('i18n.css?v=20261028-flag-stable-v2'),page+' must force fresh styles');
-  assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v2'),page+' must force fresh language runtime');
+  assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v1'),page+' must force fresh language runtime');
  }
 });
 
@@ -861,7 +861,7 @@ test('Multilingual SEO routes have independent canonicals and reciprocal hreflan
    assert(html.includes('<main id="main-content" tabindex="-1">'));
    assert(html.includes('data-static-navigation'),'Crawlable fallback navigation missing');
    assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v2'));
-   assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v2'));
+   assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v1'));
   }
   const enHtml=read(en);
   assert(enHtml.includes('<base href="'+(route?'../../':'../')+'">'));

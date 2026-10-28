@@ -250,7 +250,7 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html),'CSS cache not updated for '+route);
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1))/.test(html),'JS cache not updated for '+route);
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2))/.test(html),'JS cache not updated for '+route);
  }
 });
 
@@ -297,7 +297,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html));
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1))/.test(html));
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2))/.test(html));
  }
 });
 
@@ -404,7 +404,7 @@ test('Sushi has short public and admin label without changing weekly demo schedu
  assert.deepEqual(data.sushiNight,{enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true});
  assert.deepEqual(data.regularMenu.sushi,[]);
  for(const p of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1))/.test(read(p+'index.html')),p+' old public script cache');
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2))/.test(read(p+'index.html')),p+' old public script cache');
  }
  assert(read('admin/index.html').includes('admin.js?v=20261028-bg-en-editor-v2'),'Admin script cache not updated');
 });
@@ -650,10 +650,10 @@ test('Visitors can switch BG / EN across six routes and translate complete curre
  assert(css.includes('.language-menu[hidden]{display:none!important}'));
  for(const path of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(path);
-  assert(html.includes('i18n.js?v=20261028-flag-dropdown-v1'),path+' missing translation script');
-  assert(html.includes('i18n.css?v=20261028-flag-dropdown-v1'),path+' missing language-switch stylesheet');
+  assert(html.includes('i18n.js?v=20261028-flag-stable-v2'),path+' missing translation script');
+  assert(html.includes('i18n.css?v=20261028-flag-stable-v2'),path+' missing language-switch stylesheet');
   assert(html.indexOf('site-preview.js')<html.indexOf('i18n.js')&&html.indexOf('i18n.js')<html.indexOf('site.js'),path+' needs correct script order');
-  assert(html.includes('site.js?v=20261028-flag-dropdown-v1'),path+' needs fresh frontend script');
+  assert(html.includes('site.js?v=20261028-flag-stable-v2'),path+' needs fresh frontend script');
  }
  const content=read('assets/js/content.js'),m=content.match(/window\.TERASATA_CONTENT\s*=\s*({[\s\S]*});\s*$/);
  assert(m);
@@ -740,9 +740,9 @@ test('BG/EN buttons are always visible beside the mobile menu, not hidden inside
  assert(!i18n.includes('function ensureSwitcher()'),'No unreliable DOM injection');
  for(const page of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(page);
-  assert(html.includes('site.js?v=20261028-flag-dropdown-v1'),page+' must force fresh header');
-  assert(html.includes('i18n.css?v=20261028-flag-dropdown-v1'),page+' must force fresh styles');
-  assert(html.includes('i18n.js?v=20261028-flag-dropdown-v1'),page+' must force fresh language runtime');
+  assert(html.includes('site.js?v=20261028-flag-stable-v2'),page+' must force fresh header');
+  assert(html.includes('i18n.css?v=20261028-flag-stable-v2'),page+' must force fresh styles');
+  assert(html.includes('i18n.js?v=20261028-flag-stable-v2'),page+' must force fresh language runtime');
  }
 });
 
@@ -763,4 +763,42 @@ test('Flag-only selector requires two deliberate taps to change language',()=>{
  assert(css.includes('.language-menu[hidden]{display:none!important}'));
  assert(css.includes('.language-menu{position:absolute;z-index:140;right:0;'));
  assert(css.includes('.header-language{display:inline-flex;margin-left:auto}'));
+});
+
+test('BG language module initializes without the invalid Safari MutationObserver config',()=>{
+ const vm=require('node:vm');
+ const options=[];
+ const document={
+  documentElement:{nodeType:1,lang:'bg',closest:()=>null,querySelectorAll:()=>[],getAttribute:()=>null,matches:()=>false},
+  querySelector:()=>null,querySelectorAll:()=>[],addEventListener:()=>{},
+  createTreeWalker:()=>({nextNode:()=>null}),title:'Терасата — ресторант в Кюстендил'
+ };
+ const ctx={document,location:{search:'',href:'https://quarcotm.github.io/Terasata/kontakti/'},
+  localStorage:{getItem:()=>null,setItem:()=>{}},URL,URLSearchParams,
+  NodeFilter:{SHOW_TEXT:4},console,
+  MutationObserver:class{constructor(fn){this.fn=fn}observe(el,opt){
+   if(opt.attributes===false&&opt.attributeFilter)throw Error('Invalid options on Safari');
+   options.push(opt);
+  }}};
+ ctx.window=ctx;
+ vm.createContext(ctx);
+ vm.runInContext(read('assets/js/i18n.js'),ctx);
+ assert.equal(ctx.window.TERASATA_I18N.lang,'bg');
+ assert.equal(options.length,1);
+ assert.equal(options[0].childList,true);
+ assert.equal(options[0].attributeFilter,undefined);
+ assert.equal(ctx.window.TERASATA_I18N.translate('Детски столчета'),'Highchairs for babies and toddlers');
+});
+test('Language UI self-heals outdated cached header variants on all public routes',()=>{
+ const lang=read('assets/js/i18n.js');
+ assert(lang.includes('function ensureLanguageControl()'));
+ assert(lang.includes("shell.querySelectorAll('.language-switch')"));
+ assert(lang.includes("element.querySelector('[data-language-trigger]')"));
+ assert(lang.includes("if(headerChanged)ensureLanguageControl()"));
+ assert(lang.includes("lang_ui','flag-20261028-v2"));
+ for(const route of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
+  const html=read(route);
+  for(const file of ['site.js','i18n.js','i18n.css'])
+   assert(html.includes(file+'?v=20261028-flag-stable-v2'),route+' stale '+file);
+ }
 });

@@ -29,7 +29,7 @@ jobs:
         run: python scripts/build-responsive-images.py
       - name: Commit optimized photos
         run: |
-          git add assets/images/*-480.webp assets/images/*-960.webp
+          git add assets/images/*-480.webp assets/images/*-960.webp assets/images/*-1280.webp
           if git diff --cached --quiet; then
             echo "Responsive variants already up to date"
             exit 0

@@ -4,11 +4,11 @@ from PIL import Image, ImageOps
 
 ROOT = Path("assets/images")
 for original in sorted(ROOT.glob("*.webp")):
-    if original.stem.endswith(("-480", "-960")):
+    if original.stem.endswith(("-480", "-960", "-1280")):
         continue
     with Image.open(original) as source:
         image = ImageOps.exif_transpose(source)
-        for target_width in (480, 960):
+        for target_width in (480, 960, 1280):
             if image.width <= target_width:
                 continue
             target = ROOT / f"{original.stem}-{target_width}.webp"

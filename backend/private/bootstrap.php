@@ -118,6 +118,7 @@ function validate_content(array $next): void {
         $n=$next['siteNotice'];
         if(!is_array($n)||array_is_list($n)||!is_bool($n['enabled']??null)
           ||!is_string($n['message']??null)||mb_strlen($n['message'])>800
+          ||(isset($n['messageEn'])&&(!is_string($n['messageEn'])||mb_strlen($n['messageEn'])>800))
           ||!is_string($n['startDate']??null)||!is_string($n['endDate']??null)
           ||($n['enabled'] && trim($n['message'])===''))json_fail('Invalid notice',422);
         foreach(['startDate','endDate'] as $field){

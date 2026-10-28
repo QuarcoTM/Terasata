@@ -406,7 +406,7 @@ test('Sushi has short public and admin label without changing weekly demo schedu
  for(const p of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1)/.test(read(p+'index.html')),p+' old public script cache');
  }
- assert(read('admin/index.html').includes('admin.js?v=20261027-notice-toggle-qr-mark-v2'),'Admin script cache not updated');
+ assert(read('admin/index.html').includes('admin.js?v=20261028-bg-en-editor-v2'),'Admin script cache not updated');
 });
 
 
@@ -592,7 +592,7 @@ test('Announcement checkbox text stays adjacent on narrow screens',()=>{
  assert(css.includes('flex:0 0 22px;'),'Checkbox must never stretch to field width');
  assert(css.includes('#site-notice-form .site-notice-toggle span{display:block;min-width:0'));
  assert(html.includes('admin.css?v=20261027-notice-toggle-qr-mark-v2'));
- assert(html.includes('admin.js?v=20261027-notice-toggle-qr-mark-v2'));
+ assert(html.includes('admin.js?v=20261028-bg-en-editor-v2'));
 });
 test('Both QR plates show the unchanged original vector logo and preserve scannable/exportable matrices',()=>{
  const vm=require('node:vm'),qrSrc=read('assets/js/qr-cards.js');
@@ -661,4 +661,18 @@ test('Visitors can switch BG / EN across six routes and translate complete curre
  assert(counts===68,'Current menu translation should cover all 68 dishes');
  assert(i18n.includes('Shopska Salad')&&i18n.includes('Pork Tenderloin with Gravy'));
  assert(i18n.includes('Free Wi-Fi')&&i18n.includes('High chairs'));
+});
+
+test('Admin supports author-written English names, descriptions, news and notice',()=>{
+ const a=read('assets/js/admin.js'),html=read('admin/index.html'),backend=read('backend/private/bootstrap.php'),notice=read('assets/js/restaurant-notice.js');
+ assert(a.includes("['nameEn','Наименование на английски (EN)'"));
+ assert(a.includes("['descriptionEn','Описание на английски (EN)'"));
+ assert(a.includes("['nameEn','Ястие на английски (EN)'"));
+ assert(a.includes("['titleEn','Заглавие на английски (EN)'"));
+ assert(a.includes("['textEn','Описание на английски (EN)'"));
+ assert(a.includes('name="messageEn" maxlength="800"'));
+ assert(a.includes('siteNotice={enabled,message,messageEn,startDate,endDate}'));
+ assert(backend.includes("isset($n['messageEn'])"));
+ assert(notice.includes('TERASATA_I18N?.localizeContent(content)'));
+ assert(html.includes('admin.js?v=20261028-bg-en-editor-v2'));
 });

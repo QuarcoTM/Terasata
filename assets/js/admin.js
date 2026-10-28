@@ -299,15 +299,19 @@ function seasonalDishModal(idx){
  if(!old)return;
  openEditor(idx===null?'Добави сезонно ястие':'Редактирай сезонно ястие',[
   ['name','Ястие','text',old.name||'',true],
+  ['nameEn','Ястие на английски (EN)','text',old.nameEn||''],
   ['weight','Грамаж','text',old.weight||''],
   ['price','Цена (с валута)','text',old.price||'',true],
   ['description','Описание','textarea',old.description||''],
+  ['descriptionEn','Описание на английски (EN)','textarea',old.descriptionEn||''],
   ['allergens','Алергени (разделени със запетая)','text',(old.allergens||[]).join(', ')]
  ],form=>{
   const name=String(form.name||'').trim(),price=String(form.price||'').trim();
   if(!name||!price){notice('Добави ястие и цена.');return false;}
   const updated={name,weight:String(form.weight||'').trim(),price};
   if(String(form.description||'').trim())updated.description=String(form.description).trim();
+  if(String(form.nameEn||'').trim())updated.nameEn=String(form.nameEn).trim();
+  if(String(form.descriptionEn||'').trim())updated.descriptionEn=String(form.descriptionEn).trim();
   if(String(form.allergens||'').trim())updated.allergens=String(form.allergens).split(',').map(v=>v.trim()).filter(Boolean);
   if(idx===null)s.items.push(updated);else s.items[idx]=updated;
   return save();
@@ -322,10 +326,12 @@ function dishModal(idx){
  const currentName=state.content.categories.find(c=>c.id===sourceId)?.name||'';
  openEditor(idx===null?'Ново ястие':'Редакция на ястие',[
  ['name','Наименование','text',item.name||'',true],
+ ['nameEn','Наименование на английски (EN)','text',item.nameEn||''],
  ['category','Категория','select',currentName,true,state.content.categories.map(c=>c.name)],
  ['weight','Грамаж','text',item.weight||''],
  ['price','Цена (с валута)','text',item.price||'',true],
  ['description','Описание','textarea',item.description||''],
+ ['descriptionEn','Описание на английски (EN)','textarea',item.descriptionEn||''],
  ['allergens','Алергени (разделени със запетая)','text',(item.allergens||[]).join(', ')]
  ],data=>{
   const name=String(data.name||'').trim();
@@ -335,6 +341,8 @@ function dishModal(idx){
   if(!targetCategory){notice('Избери валидна категория');return false}
   const updated={name,weight:String(data.weight||'').trim(),price};
   if(String(data.description||'').trim())updated.description=data.description.trim();
+  if(String(data.nameEn||'').trim())updated.nameEn=data.nameEn.trim();
+  if(String(data.descriptionEn||'').trim())updated.descriptionEn=data.descriptionEn.trim();
   if(String(data.allergens||'').trim())updated.allergens=data.allergens.split(',').map(s=>s.trim()).filter(Boolean);
   if(idx===null) (state.content.regularMenu[targetCategory.id] ||= []).push(updated);
   else if(sourceId===targetCategory.id)arr[idx]=updated;
@@ -372,6 +380,7 @@ function lunchItemModal(gi,ii){
  const old=ii===null?{}:group.items[ii];if(!old)return;
  openEditor(ii===null?'Добавяне на обедно ястие':'Редакция на обедно ястие',[
   ['name','Ястие','text',old.name||'',true],
+  ['nameEn','Ястие на английски (EN)','text',old.nameEn||''],
   ['weight','Грамаж (по желание)','text',old.weight||''],
   ['price','Цена','text',old.price||'',true],
   ['allergens','Алергени — номера 1–14 (напр. 1,3,7)','text',LUNCH_ALLERGENS?.codes(old.allergens).join(',')||'']
@@ -380,6 +389,7 @@ function lunchItemModal(gi,ii){
   const parsed=LUNCH_ALLERGENS?.parseInput(data.allergens);
   if(!parsed||!parsed.valid){notice('Посочи само номера 1–14, разделени със запетая.');return false;}
   const item={name:data.name.trim(),weight:data.weight.trim(),price:data.price.trim(),soldOut:!!old.soldOut,allergens:parsed.codes};
+  if(String(data.nameEn||'').trim())item.nameEn=String(data.nameEn).trim();
   if(ii===null)group.items.push(item);else group.items[ii]=item;
   return save();
  });
@@ -526,8 +536,10 @@ function newsModal(i){
  const chosen=existingPhotoIndex>=0?photoChoices[existingPhotoIndex+1]:(unmatchedPhoto?photoChoices.at(-1):photoChoices[0]);
  openEditor(i===null?'Нова публикация':'Редакция на публикация',[
  ['title','Заглавие','text',n.title||'',true],
+ ['titleEn','Заглавие на английски (EN)','text',n.titleEn||''],
  ['type','Вид публикация','select',NEWS_TYPES.includes(n.type)?n.type:'Новина',true,NEWS_TYPES],
  ['text','Кратко описание','textarea',n.text||'',true],
+ ['textEn','Описание на английски (EN)','textarea',n.textEn||''],
  ['imageChoice','Снимка (само реални снимки от галерията)','select',chosen,false,photoChoices],
  ['startDate','Показване от','date',n.startDate||''],
  ['endDate','Показване до','date',n.endDate||''],
@@ -540,6 +552,8 @@ function newsModal(i){
   if(selection<0)return false;
   const image=selection===0?'':selection<=photos.length?photos[selection-1].src:(n.image||'');
   const item={title:data.title.trim(),type:data.type,text:data.text.trim(),startDate:data.startDate,endDate:data.endDate,published:!!data.published};
+  if(String(data.titleEn||'').trim())item.titleEn=String(data.titleEn).trim();
+  if(String(data.textEn||'').trim())item.textEn=String(data.textEn).trim();
   if(image)item.image=image;
   if(i===null)(state.content.news ||= []).push(item);else state.content.news[i]=item;
   return save();
@@ -558,7 +572,8 @@ function renderNotice(el){
  <p class="eyebrow">СЪОБЩЕНИЕ ЗА ПОСЕТИТЕЛИТЕ</p>
  <h2>Текстът е изцяло твой</h2>
  <p class="mini muted">Напиши свободно съобщение за празник, събитие или промяна в работното време. Няма готови шаблони. Показва се под менюто на всички страници, само когато е включено и датата е в зададения период.</p>
- <label class="form-field" for="notice-message">Съобщение<textarea id="notice-message" name="message" maxlength="800" rows="5" placeholder="Напиши съобщението, което посетителите ще прочетат...">${e(current.message||'')}</textarea></label>
+ <label class="form-field" for="notice-message">Съобщение (BG)<textarea id="notice-message" name="message" maxlength="800" rows="5" placeholder="Напиши съобщението, което посетителите ще прочетат...">${e(current.message||'')}</textarea></label>
+ <label class="form-field" for="notice-message-en">Съобщение на английски (EN, по желание)<textarea id="notice-message-en" name="messageEn" maxlength="800" rows="5" placeholder="Write an English version for international visitors...">${e(current.messageEn||'')}</textarea></label>
  <label class="site-notice-toggle"><input type="checkbox" name="enabled" ${current.enabled?'checked':''}><span>Показвай съобщението на сайта</span></label>
  <div class="form-settings">
  <label class="form-field">Показвай от (по желание)<input type="date" name="startDate" value="${e(current.startDate||'')}"></label>
@@ -575,13 +590,14 @@ function renderNotice(el){
    event.preventDefault();
    const fd=new FormData(event.currentTarget);
    const message=String(fd.get('message')||'').trim();
+   const messageEn=String(fd.get('messageEn')||'').trim();
    const startDate=String(fd.get('startDate')||'');
    const endDate=String(fd.get('endDate')||'');
    const enabled=fd.has('enabled');
    if(message.length>800){notice('Текстът е прекалено дълъг.');return;}
    if(enabled&&!message){notice('Напиши текст, преди да включиш съобщението.');return;}
    if(startDate&&endDate&&startDate>endDate){notice('Крайната дата е преди началната.');return;}
-   state.content.siteNotice={enabled,message,startDate,endDate};
+   state.content.siteNotice={enabled,message,messageEn,startDate,endDate};
    if(save()){render();notice(SECURE?'Изпратено за сървърен запис.':'Запазено локално. За публикуване експортирай content.js.');}
  });
 }

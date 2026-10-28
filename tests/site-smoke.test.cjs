@@ -799,7 +799,7 @@ test('Language UI self-heals outdated cached header variants on all public route
  for(const route of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(route);
   for(const file of ['site.js','i18n.js','i18n.css'])
-   assert(html.includes(file+'?v='+(file==='i18n.css'?'20261028-flag-stable-v2':'20261028-seo-a11y-responsive-v2')),route+' stale '+file);
+   assert(html.includes(file+'?v='+(file==='i18n.css'?'20261028-flag-stable-v2':file==='i18n.js'?'20261028-seo-a11y-responsive-v1':'20261028-seo-a11y-responsive-v2')),route+' stale '+file);
  }
 });
 

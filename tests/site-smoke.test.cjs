@@ -676,3 +676,45 @@ test('Admin supports author-written English names, descriptions, news and notice
  assert(notice.includes('TERASATA_I18N?.localizeContent(content)'));
  assert(html.includes('admin.js?v=20261028-bg-en-editor-v2'));
 });
+
+test('English mode really translates every seeded dish, descriptions and public amenities',()=>{
+ const vm=require('node:vm');
+ const ctx={
+  document:{
+   documentElement:{nodeType:1,lang:'bg',closest:()=>null,querySelectorAll:()=>[]},
+   querySelector:()=>null,querySelectorAll:()=>[],
+   createTreeWalker:()=>({nextNode:()=>null}),addEventListener:()=>{},title:'Терасата — ресторант в Кюстендил'
+  },
+  location:{search:'?lang=en',href:'https://quarcotm.github.io/Terasata/menu/?lang=en'},
+  localStorage:{getItem:()=>null,setItem:()=>{}},
+  URL,URLSearchParams,console,NodeFilter:{SHOW_TEXT:4},MutationObserver:undefined
+ };
+ ctx.window=ctx;
+ vm.createContext(ctx);
+ vm.runInContext(read('assets/js/i18n.js'),ctx);
+ vm.runInContext(read('assets/js/content.js'),ctx);
+ const language=ctx.window.TERASATA_I18N;
+ const source=ctx.window.TERASATA_CONTENT;
+ const translated=language.localizeContent(source);
+ assert.equal(language.lang,'en');
+ assert.equal(ctx.document.documentElement.lang,'en');
+ assert.equal(ctx.document.title,'Terasata — Restaurant in Kyustendil');
+ assert.equal(translated.categories.find(x=>x.id==='salati').name,'Salads');
+ assert.equal(language.translate('Безплатен Wi-Fi'),'Free Wi-Fi');
+ assert.equal(language.translate('3 бр.'),'3 pcs');
+ let count=0;
+ for(const [id,items] of Object.entries(source.regularMenu)){
+  for(const [i,original] of items.entries()){
+   count++;
+   const english=translated.regularMenu[id][i];
+   assert(!/[А-Яа-я]/.test(english.name),id+' untranslated dish: '+english.name);
+   if(original.description)assert(!/[А-Яа-я]/.test(english.description),id+' untranslated description: '+english.description);
+   assert.equal(english.price,original.price,'Price must not change');
+  }
+ }
+ assert.equal(count,68);
+ assert.equal(source.categories[0].name,'Салати','Original Bulgarian content must stay intact');
+ const custom=language.localizeContent({...source,regularMenu:{test:[{name:'Ново ястие',nameEn:'New Dish',description:'Описание',descriptionEn:'Description',price:'10 €'}]}});
+ assert.equal(custom.regularMenu.test[0].name,'New Dish');
+ assert.equal(custom.regularMenu.test[0].description,'Description');
+});

@@ -21,7 +21,7 @@
    const days={понеделник:'Monday',вторник:'Tuesday',сряда:'Wednesday',четвъртък:'Thursday',петък:'Friday',събота:'Saturday',неделя:'Sunday'};
    target=key.replace(/^(?:Всяка|Всеки) (понеделник|вторник|сряда|четвъртък|петък|събота|неделя)/,(_,day)=>'Every '+days[day]).replace(' (до следващия ден)',' (until the next day)');
   }
-  if(!target && /^\d+ ?(?:г|гр\.|мл|бр\.)$/.test(key))target=key.replace(/\s*(?:г|гр\.)$/,' g').replace(/\s*мл$/,' ml').replace(/\s*бр\.$/,' pc');
+  if(!target && /^\d+ ?(?:г|гр\.|мл|бр\.)$/.test(key))target=key.replace(/\s*(?:г|гр\.)$/,' g').replace(/\s*мл$/,' ml').replace(/(\d+)\s*бр\.$/,(_,n)=>n+' '+(Number(n)===1?'pc':'pcs'));
   if(!target)return raw;
   const start=raw.match(/^\s*/)?.[0]||'',end=raw.match(/\s*$/)?.[0]||'';
   return start+target+end;

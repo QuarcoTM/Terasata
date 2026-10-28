@@ -85,22 +85,6 @@
   let textNode;
   while((textNode=walker.nextNode()))translateTree(textNode);
  }
- function switchMarkup(className){
-  return '<div class="language-switch '+className+'" role="group" aria-label="Language / Език">'+
-    '<button type="button" data-lang="bg" aria-pressed="'+(!isEN)+'" lang="bg">BG</button>'+
-    '<span aria-hidden="true">|</span>'+
-    '<button type="button" data-lang="en" aria-pressed="'+isEN+'" lang="en">EN</button></div>';
- }
- function ensureSwitcher(){
-  const shell=document.querySelector('#site-header .header-shell');
-  if(shell&&!shell.querySelector('.header-language')){
-   const holder=document.createElement('div');
-   holder.innerHTML=switchMarkup('header-language');
-   shell.insertBefore(holder.firstElementChild,shell.querySelector('.header-call')||shell.querySelector('.mobile-toggle'));
-  }
-  const mobile=document.querySelector('#site-header .mobile-nav');
-  if(mobile&&!mobile.querySelector('.mobile-language'))mobile.insertAdjacentHTML('beforeend',switchMarkup('mobile-language'));
- }
  document.addEventListener('click',event=>{
   const button=event.target.closest('button[data-lang]');
   if(!button)return;
@@ -122,14 +106,12 @@
   const locale=document.querySelector('meta[property="og:locale"]');
   if(locale)locale.content='en_GB';
  }
- ensureSwitcher();
  if(typeof MutationObserver!=='undefined'){
   const observer=new MutationObserver(changes=>{
    for(const change of changes){
     if(change.type==='attributes'){translateElement(change.target);continue;}
     for(const node of change.addedNodes)translateTree(node);
    }
-   ensureSwitcher();
   });
   observer.observe(document.documentElement,{subtree:true,childList:true,attributes:isEN,attributeFilter:['alt','aria-label','title','placeholder','href']});
  }

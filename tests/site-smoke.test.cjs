@@ -643,16 +643,16 @@ test('Visitors can switch BG / EN across six routes and translate complete curre
  assert(site.includes('window.TERASATA_I18N.localizeContent(d)'),'Live and demo menus must localize without altering source');
  assert(i18n.includes("const STORAGE='terasata_language_v1'"));
  assert(i18n.includes("location.assign(url.href)"));
- assert(i18n.includes("data-lang=\"en\""));
+ assert(site.includes('data-lang="en"'),'Header must include visible English button');
  assert(i18n.includes('lang,translate,localizeContent'));
  assert(i18n.includes("if(content.regularMenu&&typeof content.regularMenu==='object')"));
  assert(css.includes('.language-switch button[aria-pressed="true"]'));
  for(const path of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(path);
-  assert(html.includes('i18n.js?v=20261028-bg-en-v3'),path+' missing translation script');
-  assert(html.includes('i18n.css?v=20261028-bg-en-v1'),path+' missing language-switch stylesheet');
+  assert(html.includes('i18n.js?v=20261028-language-visible-v2'),path+' missing translation script');
+  assert(html.includes('i18n.css?v=20261028-language-visible-v2'),path+' missing language-switch stylesheet');
   assert(html.indexOf('site-preview.js')<html.indexOf('i18n.js')&&html.indexOf('i18n.js')<html.indexOf('site.js'),path+' needs correct script order');
-  assert(html.includes('site.js?v=20261028-bg-en-v1'),path+' needs fresh frontend script');
+  assert(html.includes('site.js?v=20261028-language-visible-v2'),path+' needs fresh frontend script');
  }
  const content=read('assets/js/content.js'),m=content.match(/window\.TERASATA_CONTENT\s*=\s*({[\s\S]*});\s*$/);
  assert(m);
@@ -723,4 +723,24 @@ test('English homepage translates the takeaway note with its decorative icon',()
  const source=read('assets/js/i18n.js');
  assert(source.includes('⌂ Поръчки за вкъщи до 11:30 ч.'));
  assert(source.includes('⌂ Takeaway orders until 11:30 am.'));
+});
+
+test('BG/EN buttons are always visible beside the mobile menu, not hidden inside it',()=>{
+ const site=read('assets/js/site.js'),css=read('assets/css/i18n.css'),i18n=read('assets/js/i18n.js');
+ const header=site.slice(site.indexOf('if (header) header.innerHTML ='),site.indexOf('const footer ='));
+ assert(header.includes('${languageSwitch}'),'Render selector as part of header HTML');
+ assert(header.indexOf('${languageSwitch}')<header.indexOf('class="mobile-toggle"'),'Selector must precede hamburger');
+ assert(!site.includes('mobile-language'),'Do not bury selector in the mobile menu');
+ assert(css.includes('@media(max-width:1049px){'));
+ assert(css.includes('.header-language{display:inline-flex;margin-left:auto}'));
+ assert(!css.includes('.header-language{display:none}'));
+ assert(css.includes('@media(max-width:390px)'),'Selector must fit narrow phones');
+ assert(i18n.includes("location.assign(url.href)"));
+ assert(!i18n.includes('function ensureSwitcher()'),'No unreliable DOM injection');
+ for(const page of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
+  const html=read(page);
+  assert(html.includes('site.js?v=20261028-language-visible-v2'),page+' must force fresh header');
+  assert(html.includes('i18n.css?v=20261028-language-visible-v2'),page+' must force fresh styles');
+  assert(html.includes('i18n.js?v=20261028-language-visible-v2'),page+' must force fresh language runtime');
+ }
 });

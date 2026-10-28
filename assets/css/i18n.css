@@ -1,8 +1,29 @@
-/* Compact bilingual selector for restaurant visitors. The admin stays in Bulgarian. */
-.language-switch{display:inline-flex;align-items:center;gap:5px;flex:none;border:1px solid #cfc1a8;border-radius:8px;padding:3px;background:#faf5ea}
-.language-switch button{min-width:31px;min-height:30px;padding:4px 6px;border:0;border-radius:5px;background:transparent;color:#685b47;font:700 12px/1 var(--sans);cursor:pointer}
+/* Always-visible visitor language switch beside the navigation or hamburger icon. */
+.language-switch{display:inline-flex;align-items:center;justify-content:center;gap:4px;flex:none;white-space:nowrap;border:1px solid #cfc1a8;border-radius:9px;padding:3px;background:#faf5ea}
+.language-switch button{min-width:31px;min-height:32px;padding:4px 6px;border:0;border-radius:6px;background:transparent;color:#685b47;font:700 12px/1 var(--sans);cursor:pointer}
 .language-switch button[aria-pressed="true"]{background:#977636;color:white}
 .language-switch button:focus-visible{outline:2px solid #977636;outline-offset:2px}
 .language-switch>span{color:#b0a187;font-size:11px}
-@media(min-width:1050px){.header-language{margin-left:-12px}.mobile-language{display:none}}
-@media(max-width:1049px){.header-language{display:none}.mobile-language{align-self:flex-start;margin-top:18px;padding:5px}.mobile-language button{min-width:42px;min-height:36px;font-size:14px}}
+.header-language{display:inline-flex;margin-left:0}
+@media(min-width:1050px) and (max-width:1300px){
+ .header-shell{gap:clamp(8px,1vw,14px)}
+ .desktop-nav{gap:clamp(7px,.85vw,13px)}
+ .desktop-nav a{font-size:11px}
+ .header-call{padding-inline:9px;font-size:11px}
+ .brand-name{font-size:32px}
+}
+@media(max-width:1049px){
+ .header-language{display:inline-flex;margin-left:auto}
+ .header-shell .mobile-toggle{margin-left:0;flex:none}
+ .language-switch{gap:3px;padding:3px}
+ .language-switch button{min-width:30px;min-height:36px;font-size:13px;padding-inline:5px}
+}
+@media(max-width:390px){
+ .header-shell{gap:7px}
+ .brand-name{font-size:25px}
+ .brand-mark{width:24px;height:31px}
+ .brand-subtitle{font-size:7px;letter-spacing:.12em}
+ .brand-phone{font-size:12px}
+ .language-switch button{min-width:27px;padding-inline:3px}
+ .header-shell .mobile-toggle{width:39px;height:40px}
+}

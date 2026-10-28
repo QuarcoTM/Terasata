@@ -29,6 +29,14 @@
     ['contacts', 'Контакти', 'kontakti/']
   ];
 
+  // The language selector is always present in the header, including on phones.
+  // It must not depend on MutationObserver or opening the mobile navigation.
+  const en=window.TERASATA_I18N?.lang==='en';
+  const languageSwitch='<div class="language-switch header-language" role="group" aria-label="Избор на език / Choose language">'+
+    '<button type="button" data-lang="bg" lang="bg" aria-pressed="'+(!en)+'">BG</button>'+
+    '<span aria-hidden="true">|</span>'+
+    '<button type="button" data-lang="en" lang="en" aria-pressed="'+en+'">EN</button></div>';
+
   // Temporary restaurant name in typography only. NOT a recreation of the logo.
   const header = $('#site-header');
   if (header) header.innerHTML = `
@@ -41,6 +49,7 @@
         ${nav.map(([id,name,href])=>`<a href="${href}" ${id===page?'aria-current="page"':''}>${name}</a>`).join('')}
       </nav>
       <a class="btn btn-gold header-call" href="${d.phoneHref}" aria-label="Резервирай маса по телефона">${phoneIcon()}<span>Резервирай маса</span></a>
+      ${languageSwitch}
       <button class="mobile-toggle" type="button" aria-label="Отвори менюто" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span><span></span></button>
     </div>
     <nav class="mobile-nav" id="mobile-menu" aria-label="Мобилна навигация" hidden>

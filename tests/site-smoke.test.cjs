@@ -250,7 +250,7 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html),'CSS cache not updated for '+route);
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1))/.test(html),'JS cache not updated for '+route);
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1|seo-a11y-responsive-v1))/.test(html),'JS cache not updated for '+route);
  }
 });
 
@@ -297,7 +297,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html));
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1))/.test(html));
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1|seo-a11y-responsive-v1))/.test(html));
  }
 });
 
@@ -404,7 +404,7 @@ test('Sushi has short public and admin label without changing weekly demo schedu
  assert.deepEqual(data.sushiNight,{enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true});
  assert.deepEqual(data.regularMenu.sushi,[]);
  for(const p of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1))/.test(read(p+'index.html')),p+' old public script cache');
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1|flag-stable-v2|allergens-bilingual-v1|seo-a11y-responsive-v1))/.test(read(p+'index.html')),p+' old public script cache');
  }
  assert(read('admin/index.html').includes('admin.js?v=20261028-bg-en-editor-v2'),'Admin script cache not updated');
 });
@@ -426,7 +426,7 @@ test('Lunch logo and little allergen numbers are in public menus, A4 poster and 
  const site=read('assets/js/site.js'),admin=read('assets/js/admin.js'),poster=read('assets/js/lunch-poster.js');
  for(const page of ['index.html','obedno-menu/index.html']){
   const html=read(page);
-  assert(html.includes('assets/js/allergens.js?v=20261028-allergens-bilingual-v1'));
+  assert(html.includes('assets/js/allergens.js?v=20261028-seo-a11y-responsive-v1'));
   assert(html.includes('assets/images/terasata-mark-original.svg'));
  }
  const adminPage=read('admin/index.html');
@@ -650,10 +650,10 @@ test('Visitors can switch BG / EN across six routes and translate complete curre
  assert(css.includes('.language-menu[hidden]{display:none!important}'));
  for(const path of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(path);
-  assert(html.includes('i18n.js?v=20261028-allergens-bilingual-v1'),path+' missing translation script');
+  assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v1'),path+' missing translation script');
   assert(html.includes('i18n.css?v=20261028-flag-stable-v2'),path+' missing language-switch stylesheet');
   assert(html.indexOf('site-preview.js')<html.indexOf('i18n.js')&&html.indexOf('i18n.js')<html.indexOf('site.js'),path+' needs correct script order');
-  assert(html.includes('site.js?v=20261028-allergens-bilingual-v1'),path+' needs fresh frontend script');
+  assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v1'),path+' needs fresh frontend script');
  }
  const content=read('assets/js/content.js'),m=content.match(/window\.TERASATA_CONTENT\s*=\s*({[\s\S]*});\s*$/);
  assert(m);
@@ -740,9 +740,9 @@ test('BG/EN buttons are always visible beside the mobile menu, not hidden inside
  assert(!i18n.includes('function ensureSwitcher()'),'No unreliable DOM injection');
  for(const page of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(page);
-  assert(html.includes('site.js?v=20261028-allergens-bilingual-v1'),page+' must force fresh header');
+  assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v1'),page+' must force fresh header');
   assert(html.includes('i18n.css?v=20261028-flag-stable-v2'),page+' must force fresh styles');
-  assert(html.includes('i18n.js?v=20261028-allergens-bilingual-v1'),page+' must force fresh language runtime');
+  assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v1'),page+' must force fresh language runtime');
  }
 });
 
@@ -799,7 +799,7 @@ test('Language UI self-heals outdated cached header variants on all public route
  for(const route of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(route);
   for(const file of ['site.js','i18n.js','i18n.css'])
-   assert(html.includes(file+'?v='+(file==='i18n.css'?'20261028-flag-stable-v2':'20261028-allergens-bilingual-v1')),route+' stale '+file);
+   assert(html.includes(file+'?v='+(file==='i18n.css'?'20261028-flag-stable-v2':'20261028-seo-a11y-responsive-v1')),route+' stale '+file);
  }
 });
 
@@ -842,5 +842,63 @@ test('English lunch menu allergen legend and hover text use English EU labels',(
  assert(site.includes('LUNCH_ALLERGENS.legendHtml(activeLunchAllergens,allergenLanguage)'));
  assert(site.includes("const allergenHeading=en?'Allergens:':'Алергени:'"));
  for(const route of ['index.html','obedno-menu/index.html'])
-  assert(read(route).includes('allergens.js?v=20261028-allergens-bilingual-v1'));
+  assert(read(route).includes('allergens.js?v=20261028-seo-a11y-responsive-v1'));
+});
+
+test('Multilingual SEO routes have independent canonicals and reciprocal hreflang annotations',()=>{
+ const domain='https://quarcotm.github.io/Terasata/';
+ const routes=['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/'];
+ for(const route of routes){
+  const bg=route?route+'index.html':'index.html',en='en/'+(route?route+'index.html':'index.html');
+  for(const [path,isEN] of [[bg,false],[en,true]]){
+   const html=read(path),target=domain+(isEN?'en/':'')+route;
+   assert(html.includes('<html lang="'+(isEN?'en':'bg')+'">'));
+   assert(html.includes('<link rel="canonical" href="'+target+'">'));
+   assert(html.includes('hreflang="bg" href="'+domain+route+'"'));
+   assert(html.includes('hreflang="en" href="'+domain+'en/'+route+'"'));
+   assert(html.includes('hreflang="x-default"'));
+   assert(html.includes('href="assets/css/accessibility.css?v=20261028-seo-a11y-responsive-v1"'));
+   assert(html.includes('<main id="main-content" tabindex="-1">'));
+   assert(html.includes('data-static-navigation'),'Crawlable fallback navigation missing');
+   assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v1'));
+   assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v1'));
+  }
+  const enHtml=read(en);
+  assert(enHtml.includes('<base href="'+(route?'../../':'../')+'">'));
+  assert(enHtml.includes('property="og:locale" content="en_GB"'));
+ }
+ const sitemap=read('sitemap.xml');
+ assert.equal((sitemap.match(/<url>/g)||[]).length,12);
+ assert(sitemap.includes('xmlns:xhtml='));
+ assert(read('robots.txt').includes('Sitemap: https://quarcotm.github.io/Terasata/sitemap.xml'));
+ const enMenu=read('en/menu/index.html'),bgMenu=read('menu/index.html');
+ assert(enMenu.includes('Shopska Salad'),'English menu should be visible in HTML without JavaScript');
+ assert(bgMenu.includes('Шопска салата'),'Bulgarian menu should be visible in HTML without JavaScript');
+ assert(!enMenu.includes('фъстъци'),'English snapshot still contains Bulgarian allergen');
+});
+test('Real English-language routes preserve the current page and avoid query-only variants',()=>{
+ const i18n=read('assets/js/i18n.js'),site=read('assets/js/site.js');
+ assert(i18n.includes("const englishRoute=relativePath.startsWith('en/')"));
+ assert(i18n.includes("url.pathname=pathBase+(selected==='en'?'en/':'')+raw"));
+ assert(i18n.includes("if(!rel.startsWith('en/')"));
+ assert(i18n.includes("location.assign(url.href)"));
+ assert(site.includes("en?'en/menu/':'menu/'"));
+ assert(site.includes('const thumbnailSrc=src=>'));
+});
+test('Responsive original photos and keyboard accessibility work across both languages',()=>{
+ const css=read('assets/css/accessibility.css');
+ assert(css.includes('prefers-reduced-motion:reduce'));
+ assert(css.includes('prefers-contrast:more'));
+ assert(css.includes('forced-colors:active'));
+ assert(css.includes('.language-trigger{min-width:44px;min-height:44px}'));
+ assert(read('index.html').includes('terrace-480.webp 480w'));
+ assert(read('index.html').includes('terrace-1280.webp 1280w'));
+ assert(read('praznenstva/index.html').includes('main-hall-960.webp 960w'));
+ for(const file of ['terrace-480.webp','terrace-960.webp','terrace-1280.webp','main-hall-480.webp','bar-480.webp']){
+  assert(exists('assets/images/'+file),file+' is missing');
+ }
+ const site=read('assets/js/site.js');
+ assert(site.includes("menuCategories.addEventListener('keydown'"));
+ assert(site.includes("aria-describedby','gallery-lightbox-help'"));
+ assert(site.includes('aria-live="polite"'));
 });

@@ -1,0 +1,19 @@
+/* Keyboard, reduced motion, contrast and touch accessibility for both public languages. */
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+#main-content:focus{outline:none}
+.menu-anchor-nav button,.gallery-filters button,.lightbox-close{min-height:44px}
+.language-trigger{min-width:44px;min-height:44px}
+.language-menu button{min-height:44px}
+.gallery-item:focus-visible,.preview-photo:focus-visible,.category-tile:focus-visible,.menu-anchor-nav button:focus-visible,.gallery-filters button:focus-visible,.mobile-toggle:focus-visible,.language-trigger:focus-visible{outline:3px solid #74561e;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+@media(prefers-contrast:more){
+ .lead,.lunch-weight,.dish-weight{color:#34342d}
+ .menu-anchor-nav button,.category-tile,.language-trigger{border-color:#554834}
+ a:focus-visible,button:focus-visible{outline:3px solid CanvasText;outline-offset:3px}
+}
+@media(forced-colors:active){
+ .language-trigger,.menu-anchor-nav button,.gallery-filters button{forced-color-adjust:auto;border:1px solid ButtonText}
+ [aria-pressed="true"]{outline:2px solid Highlight}
+}

@@ -1,10 +1,15 @@
-/* Always-visible visitor language switch beside the navigation or hamburger icon. */
-.language-switch{display:inline-flex;align-items:center;justify-content:center;gap:4px;flex:none;white-space:nowrap;border:1px solid #cfc1a8;border-radius:9px;padding:3px;background:#faf5ea}
-.language-switch button{min-width:31px;min-height:32px;padding:4px 6px;border:0;border-radius:6px;background:transparent;color:#685b47;font:700 12px/1 var(--sans);cursor:pointer}
-.language-switch button[aria-pressed="true"]{background:#977636;color:white}
-.language-switch button:focus-visible{outline:2px solid #977636;outline-offset:2px}
-.language-switch>span{color:#b0a187;font-size:11px}
-.header-language{display:inline-flex;margin-left:0}
+/* A flag-only language selector with a separate, deliberate dropdown choice. */
+.language-switch{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;margin-left:0}
+.language-trigger{display:grid;place-items:center;flex:none;width:42px;height:42px;border:1px solid #cfc1a8;border-radius:9px;background:#faf5ea;cursor:pointer;padding:0;transition:border-color .15s,background .15s}
+.language-trigger:hover,.language-trigger[aria-expanded="true"]{border-color:#ac8744;background:#f3e8d4}
+.language-trigger:focus-visible,.language-menu button:focus-visible{outline:2px solid #977636;outline-offset:2px}
+.language-flag{display:inline-block;font-size:24px;line-height:1;white-space:nowrap;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.language-menu{position:absolute;z-index:140;right:0;top:calc(100% + 7px);min-width:92px;padding:5px;border:1px solid #d4c4a7;border-radius:10px;background:#fffaf0;box-shadow:0 9px 23px rgba(58,41,16,.16)}
+.language-menu[hidden]{display:none!important}
+.language-menu button{display:flex;align-items:center;justify-content:flex-start;gap:10px;min-height:42px;width:100%;padding:6px 9px;border:0;border-radius:6px;background:transparent;color:#403a30;font:700 13px/1 var(--sans);cursor:pointer}
+.language-menu button:hover{background:#f0e3cd}
+.language-menu .language-flag{font-size:22px}
+.header-language{display:inline-flex}
 @media(min-width:1050px) and (max-width:1300px){
  .header-shell{gap:clamp(8px,1vw,14px)}
  .desktop-nav{gap:clamp(7px,.85vw,13px)}
@@ -15,8 +20,7 @@
 @media(max-width:1049px){
  .header-language{display:inline-flex;margin-left:auto}
  .header-shell .mobile-toggle{margin-left:0;flex:none}
- .language-switch{gap:3px;padding:3px}
- .language-switch button{min-width:30px;min-height:36px;font-size:13px;padding-inline:5px}
+ .language-trigger{width:42px;height:42px}
 }
 @media(max-width:390px){
  .header-shell{gap:7px}
@@ -24,6 +28,6 @@
  .brand-mark{width:24px;height:31px}
  .brand-subtitle{font-size:7px;letter-spacing:.12em}
  .brand-phone{font-size:12px}
- .language-switch button{min-width:27px;padding-inline:3px}
+ .language-trigger{width:40px;height:40px}
  .header-shell .mobile-toggle{width:39px;height:40px}
 }

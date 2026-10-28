@@ -85,16 +85,40 @@
   let textNode;
   while((textNode=walker.nextNode()))translateTree(textNode);
  }
+ // Tapping the flag opens a menu. Only selecting the other language changes the page.
+ function closeLanguageMenu(restoreFocus=false){
+  const dropdown=document.querySelector('#site-language-menu');
+  const trigger=document.querySelector('[data-language-trigger]');
+  if(!dropdown||!trigger||dropdown.hidden)return;
+  dropdown.hidden=true;
+  trigger.setAttribute('aria-expanded','false');
+  if(restoreFocus)trigger.focus();
+ }
  document.addEventListener('click',event=>{
-  const button=event.target.closest('button[data-lang]');
-  if(!button)return;
-  const selected=button.dataset.lang;
-  if(selected!=='bg'&&selected!=='en')return;
-  try{localStorage.setItem(STORAGE,selected);}catch(_){}
-  const url=new URL(location.href);
-  if(selected==='en')url.searchParams.set('lang','en');
-  else url.searchParams.delete('lang');
-  location.assign(url.href);
+  const trigger=event.target.closest('[data-language-trigger]');
+  if(trigger){
+   const dropdown=document.querySelector('#site-language-menu');
+   if(!dropdown)return;
+   const opening=dropdown.hidden;
+   dropdown.hidden=!opening;
+   trigger.setAttribute('aria-expanded',String(opening));
+   return;
+  }
+  const option=event.target.closest('.language-menu button[data-lang]');
+  if(option){
+   const selected=option.dataset.lang;
+   if((selected!=='bg'&&selected!=='en')||selected===lang){closeLanguageMenu();return;}
+   try{localStorage.setItem(STORAGE,selected);}catch(_){}
+   const url=new URL(location.href);
+   if(selected==='en')url.searchParams.set('lang','en');
+   else url.searchParams.delete('lang');
+   location.assign(url.href);
+   return;
+  }
+  if(!event.target.closest('.language-switch'))closeLanguageMenu();
+ });
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Escape')closeLanguageMenu(true);
  });
  if(isEN){
   translateTree(document.documentElement);

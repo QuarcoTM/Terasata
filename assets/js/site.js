@@ -32,10 +32,20 @@
   // The language selector is always present in the header, including on phones.
   // It must not depend on MutationObserver or opening the mobile navigation.
   const en=window.TERASATA_I18N?.lang==='en';
-  const languageSwitch='<div class="language-switch header-language" role="group" aria-label="Избор на език / Choose language">'+
-    '<button type="button" data-lang="bg" lang="bg" aria-pressed="'+(!en)+'">BG</button>'+
-    '<span aria-hidden="true">|</span>'+
-    '<button type="button" data-lang="en" lang="en" aria-pressed="'+en+'">EN</button></div>';
+  const languageFlag=en?'🇬🇧':'🇧🇬';
+  const alternateFlag=en?'🇧🇬':'🇬🇧';
+  const alternateCode=en?'bg':'en';
+  const languageSwitch=`<div class="language-switch header-language">
+    <button type="button" class="language-trigger" data-language-trigger aria-label="${en?'Current language: English. Choose a language':'Текущ език: български. Избор на език'}" aria-expanded="false" aria-controls="site-language-menu">
+      <span class="language-flag" aria-hidden="true">${languageFlag}</span>
+    </button>
+    <div class="language-menu" id="site-language-menu" hidden>
+      <button type="button" data-lang="${alternateCode}" lang="${alternateCode}" aria-label="${en?'Смени на български':'Switch to English'}">
+        <span class="language-flag" aria-hidden="true">${alternateFlag}</span>
+        <span class="language-code">${alternateCode.toUpperCase()}</span>
+      </button>
+    </div>
+  </div>`;
 
   // Temporary restaurant name in typography only. NOT a recreation of the logo.
   const header = $('#site-header');

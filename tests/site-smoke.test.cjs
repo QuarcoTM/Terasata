@@ -250,7 +250,7 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html),'CSS cache not updated for '+route);
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-language-visible-v2)/.test(html),'JS cache not updated for '+route);
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1))/.test(html),'JS cache not updated for '+route);
  }
 });
 
@@ -297,7 +297,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html));
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-language-visible-v2)/.test(html));
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1))/.test(html));
  }
 });
 
@@ -404,7 +404,7 @@ test('Sushi has short public and admin label without changing weekly demo schedu
  assert.deepEqual(data.sushiNight,{enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true});
  assert.deepEqual(data.regularMenu.sushi,[]);
  for(const p of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-language-visible-v2)/.test(read(p+'index.html')),p+' old public script cache');
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1|28-(?:language-visible-v2|flag-dropdown-v1))/.test(read(p+'index.html')),p+' old public script cache');
  }
  assert(read('admin/index.html').includes('admin.js?v=20261028-bg-en-editor-v2'),'Admin script cache not updated');
 });
@@ -643,16 +643,17 @@ test('Visitors can switch BG / EN across six routes and translate complete curre
  assert(site.includes('window.TERASATA_I18N.localizeContent(d)'),'Live and demo menus must localize without altering source');
  assert(i18n.includes("const STORAGE='terasata_language_v1'"));
  assert(i18n.includes("location.assign(url.href)"));
- assert(site.includes('data-lang="en"'),'Header must include visible English button');
+ assert(site.includes('data-lang="${alternateCode}"'),'The alternate language must only appear in the dropdown');
  assert(i18n.includes('lang,translate,localizeContent'));
  assert(i18n.includes("if(content.regularMenu&&typeof content.regularMenu==='object')"));
- assert(css.includes('.language-switch button[aria-pressed="true"]'));
+ assert(css.includes('.language-trigger[aria-expanded="true"]'));
+ assert(css.includes('.language-menu[hidden]{display:none!important}'));
  for(const path of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(path);
-  assert(html.includes('i18n.js?v=20261028-language-visible-v2'),path+' missing translation script');
-  assert(html.includes('i18n.css?v=20261028-language-visible-v2'),path+' missing language-switch stylesheet');
+  assert(html.includes('i18n.js?v=20261028-flag-dropdown-v1'),path+' missing translation script');
+  assert(html.includes('i18n.css?v=20261028-flag-dropdown-v1'),path+' missing language-switch stylesheet');
   assert(html.indexOf('site-preview.js')<html.indexOf('i18n.js')&&html.indexOf('i18n.js')<html.indexOf('site.js'),path+' needs correct script order');
-  assert(html.includes('site.js?v=20261028-language-visible-v2'),path+' needs fresh frontend script');
+  assert(html.includes('site.js?v=20261028-flag-dropdown-v1'),path+' needs fresh frontend script');
  }
  const content=read('assets/js/content.js'),m=content.match(/window\.TERASATA_CONTENT\s*=\s*({[\s\S]*});\s*$/);
  assert(m);
@@ -739,8 +740,27 @@ test('BG/EN buttons are always visible beside the mobile menu, not hidden inside
  assert(!i18n.includes('function ensureSwitcher()'),'No unreliable DOM injection');
  for(const page of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(page);
-  assert(html.includes('site.js?v=20261028-language-visible-v2'),page+' must force fresh header');
-  assert(html.includes('i18n.css?v=20261028-language-visible-v2'),page+' must force fresh styles');
-  assert(html.includes('i18n.js?v=20261028-language-visible-v2'),page+' must force fresh language runtime');
+  assert(html.includes('site.js?v=20261028-flag-dropdown-v1'),page+' must force fresh header');
+  assert(html.includes('i18n.css?v=20261028-flag-dropdown-v1'),page+' must force fresh styles');
+  assert(html.includes('i18n.js?v=20261028-flag-dropdown-v1'),page+' must force fresh language runtime');
  }
+});
+
+test('Flag-only selector requires two deliberate taps to change language',()=>{
+ const site=read('assets/js/site.js'),i18n=read('assets/js/i18n.js'),css=read('assets/css/i18n.css');
+ assert(site.includes("const languageFlag=en?'🇬🇧':'🇧🇬'"));
+ assert(site.includes("const alternateFlag=en?'🇧🇬':'🇬🇧'"));
+ assert(site.includes('class="language-trigger" data-language-trigger'));
+ assert(site.includes('aria-expanded="false" aria-controls="site-language-menu"'));
+ assert(site.includes('class="language-menu" id="site-language-menu" hidden'));
+ assert(site.includes('data-lang="${alternateCode}"'));
+ assert(!site.includes('data-lang="bg" lang="bg" aria-pressed'),'No instant BG button in header');
+ assert(i18n.includes("event.target.closest('[data-language-trigger]')"));
+ assert(i18n.includes("event.target.closest('.language-menu button[data-lang]')"));
+ assert(i18n.indexOf("event.target.closest('[data-language-trigger]')")<i18n.indexOf("event.target.closest('.language-menu button[data-lang]')"));
+ assert(i18n.includes("if(event.key==='Escape')closeLanguageMenu(true)"));
+ assert(i18n.includes("if(!event.target.closest('.language-switch'))closeLanguageMenu()"));
+ assert(css.includes('.language-menu[hidden]{display:none!important}'));
+ assert(css.includes('.language-menu{position:absolute;z-index:140;right:0;'));
+ assert(css.includes('.header-language{display:inline-flex;margin-left:auto}'));
 });

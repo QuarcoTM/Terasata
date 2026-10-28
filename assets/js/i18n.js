@@ -33,11 +33,19 @@
  function localizeContent(source){
   if(!isEN||!source||typeof source!=='object')return source;
   const content={...source};
+  // Allergen values are stored in Bulgarian lowercase (e.g. "мляко", "горчица").
+  // Translate them before menu rendering; never change the original saved content.
+  const allergenNames=new Map([["глутен","Cereals containing gluten"],["ракообразни","Crustaceans"],["яйца","Eggs"],["риба","Fish"],["фъстъци","Peanuts"],["соя","Soybeans"],["мляко","Milk"],["ядки","Tree nuts"],["целина","Celery"],["синап","Mustard"],["горчица","Mustard"],["сусам","Sesame"],["сулфити","Sulphites"],["лупина","Lupin"],["мекотели","Molluscs"]]);
+  const translateAllergen=value=>{
+   const raw=String(value??''),key=raw.trim().toLocaleLowerCase('bg-BG');
+   return allergenNames.get(key)||raw;
+  };
   const dish=item=>({
    ...item,
    name:item.nameEn?.trim()||translate(item.name),
    description:item.descriptionEn?.trim()||translate(item.description||''),
-   weight:translate(item.weight||'')
+   weight:translate(item.weight||''),
+   allergens:Array.isArray(item.allergens)?item.allergens.map(translateAllergen):item.allergens
   });
   if(Array.isArray(content.categories))content.categories=content.categories.map(c=>({...c,name:c.nameEn?.trim()||translate(c.name)}));
   if(content.regularMenu&&typeof content.regularMenu==='object'){

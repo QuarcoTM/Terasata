@@ -131,13 +131,16 @@
   if(!previewSelected){const refreshDate=()=>{if(currentMenuDate().key!==todayKey) location.reload();};document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDate();});window.addEventListener('pageshow',refreshDate);}
 
   const LUNCH_ALLERGENS=window.TERASATA_ALLERGENS;
+  const allergenLanguage=en?'en':'bg';
+  const allergenHeading=en?'Allergens:':'Алергени:';
+  const allergenAria=en?'Allergens ':'Алергени ';
   const lunchCodes=item=>LUNCH_ALLERGENS?LUNCH_ALLERGENS.codes(item?.allergens):[];
   const lunchAnnotation=item=>{
     const nums=lunchCodes(item);
-    return nums.length?'<sup class="lunch-allergen-sup" aria-label="Алергени '+nums.join(', ')+'" title="'+esc(LUNCH_ALLERGENS.legendText(nums))+'">'+nums.join(',')+'</sup>':'';
+    return nums.length?'<sup class="lunch-allergen-sup" aria-label="'+allergenAria+nums.join(', ')+'" title="'+esc(LUNCH_ALLERGENS.legendText(nums,allergenLanguage))+'">'+nums.join(',')+'</sup>':'';
   };
   const activeLunchAllergens=activeLunch?[...new Set(dayData.groups.flatMap(g=>(g.items||[]).flatMap(lunchCodes)))].sort((a,b)=>a-b):[];
-  const lunchLegend=activeLunchAllergens.length?'<div class="lunch-allergen-legend"><strong>Алергени:</strong> '+LUNCH_ALLERGENS.legendHtml(activeLunchAllergens)+'</div>':'';
+  const lunchLegend=activeLunchAllergens.length?'<div class="lunch-allergen-legend"><strong>'+allergenHeading+'</strong> '+LUNCH_ALLERGENS.legendHtml(activeLunchAllergens,allergenLanguage)+'</div>':'';
 
   const renderLunch = () => {
     if(!activeLunch) return '';
@@ -173,7 +176,7 @@
     if(!validIds.includes(activeCat))activeCat=validIds[0];
     menuCategories.innerHTML=available.map(c=>'<button type="button" data-cat="'+esc(c.id)+'" aria-pressed="'+(c.id===activeCat)+'" '+(c.id==='seasonal'?'class="seasonal-menu-tab"':'')+'>'+(c.id==='seasonal'?'✦ ':'')+esc(c.name)+'</button>').join('');
     const contents=$('#menu-category-sections');
-    const renderDish=item=>'<article class="dish-item"><div><h3>'+esc(item.name)+'</h3>'+(item.description?'<p>'+esc(item.description)+'</p>':'')+(item.allergens?.length?'<p class="dish-allergens">Алергени: '+esc(item.allergens.join(', '))+'</p>':'')+'<span class="dish-weight">'+esc(item.weight||'')+'</span></div><strong>'+esc(item.price||'')+'</strong></article>';
+    const renderDish=item=>'<article class="dish-item"><div><h3>'+esc(item.name)+'</h3>'+(item.description?'<p>'+esc(item.description)+'</p>':'')+(item.allergens?.length?'<p class="dish-allergens">'+allergenHeading+' '+esc(item.allergens.join(', '))+'</p>':'')+'<span class="dish-weight">'+esc(item.weight||'')+'</span></div><strong>'+esc(item.price||'')+'</strong></article>';
     contents.innerHTML=available.map(c=>{
       const special=c.id==='seasonal',items=special?itemsSeasonal:(d.regularMenu[c.id]||[]);
       const categoryNote=!special&&c.id==='deserti'?'<p class="menu-category-note">Десерти от „Фърст груп“. За наличност попитайте вашия сервитьор.</p>':c.id==='sushi'?'<div class="sushi-evening-notice"><strong>Суши</strong><span>'+esc(sushiWhen)+'</span>'+(sushiDemo?'<small class="sushi-demo-label">ДЕМО · Примерен график за представяне, не е потвърден от ресторанта.</small>':'<small>Суши се предлага само през посочените часове, не всеки ден.</small>')+(preview&&!sushiReady?'<small>Локален преглед — графикът не е публикуван.</small>':'')+'</div>':'';

@@ -649,7 +649,7 @@ test('Visitors can switch BG / EN across six routes and translate complete curre
  assert(css.includes('.language-switch button[aria-pressed="true"]'));
  for(const path of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(path);
-  assert(html.includes('i18n.js?v=20261028-bg-en-v1'),path+' missing translation script');
+  assert(html.includes('i18n.js?v=20261028-bg-en-v2'),path+' missing translation script');
   assert(html.includes('i18n.css?v=20261028-bg-en-v1'),path+' missing language-switch stylesheet');
   assert(html.indexOf('site-preview.js')<html.indexOf('i18n.js')&&html.indexOf('i18n.js')<html.indexOf('site.js'),path+' needs correct script order');
   assert(html.includes('site.js?v=20261028-bg-en-v1'),path+' needs fresh frontend script');
@@ -681,7 +681,7 @@ test('English mode really translates every seeded dish, descriptions and public 
  const vm=require('node:vm');
  const ctx={
   document:{
-   documentElement:{nodeType:1,lang:'bg',closest:()=>null,querySelectorAll:()=>[]},
+   documentElement:{nodeType:1,lang:'bg',closest:()=>null,querySelectorAll:()=>[],getAttribute:()=>null,matches:()=>false},
    querySelector:()=>null,querySelectorAll:()=>[],
    createTreeWalker:()=>({nextNode:()=>null}),addEventListener:()=>{},title:'Терасата — ресторант в Кюстендил'
   },

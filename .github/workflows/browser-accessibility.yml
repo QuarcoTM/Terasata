@@ -1,0 +1,32 @@
+name: Browser accessibility and bilingual UX
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'en/**'
+      - 'index.html'
+      - 'menu/**'
+      - 'obedno-menu/**'
+      - 'praznenstva/**'
+      - 'galeria/**'
+      - 'kontakti/**'
+      - 'assets/js/site.js'
+      - 'assets/js/i18n.js'
+      - 'assets/css/accessibility.css'
+      - 'tests/browser-audit.cjs'
+      - '.github/workflows/browser-accessibility.yml'
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install ephemeral browser audit tools
+        run: npm install --no-save --no-package-lock puppeteer-core axe-core
+      - name: Run Chromium accessibility, SEO language and mobile UX audit
+        run: node tests/browser-audit.cjs

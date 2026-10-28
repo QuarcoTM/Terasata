@@ -1,0 +1,8 @@
+/* Compact bilingual selector for restaurant visitors. The admin stays in Bulgarian. */
+.language-switch{display:inline-flex;align-items:center;gap:5px;flex:none;border:1px solid #cfc1a8;border-radius:8px;padding:3px;background:#faf5ea}
+.language-switch button{min-width:31px;min-height:30px;padding:4px 6px;border:0;border-radius:5px;background:transparent;color:#685b47;font:700 12px/1 var(--sans);cursor:pointer}
+.language-switch button[aria-pressed="true"]{background:#977636;color:white}
+.language-switch button:focus-visible{outline:2px solid #977636;outline-offset:2px}
+.language-switch>span{color:#b0a187;font-size:11px}
+@media(min-width:1050px){.header-language{margin-left:-12px}.mobile-language{display:none}}
+@media(max-width:1049px){.header-language{display:none}.mobile-language{align-self:flex-start;margin-top:18px;padding:5px}.mobile-language button{min-width:42px;min-height:36px;font-size:14px}}

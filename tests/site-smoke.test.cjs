@@ -250,7 +250,7 @@ test('Desktop-only five visual fixes retain mobile fallback icons and old pages'
  for(const route of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(route+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html),'CSS cache not updated for '+route);
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1)/.test(html),'JS cache not updated for '+route);
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1)/.test(html),'JS cache not updated for '+route);
  }
 });
 
@@ -297,7 +297,7 @@ test('Napkin emblem, two-row swipe categories and mobile social icons',()=>{
  for(const slug of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
   const html=read(slug+'index.html');
   assert(/styles\.css\?v=202610(?:25-saturday-demo-v2|27-(?:lunch-alg-v1|guest-amenities-v4))/.test(html));
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1)/.test(html));
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1)/.test(html));
  }
 });
 
@@ -404,7 +404,7 @@ test('Sushi has short public and admin label without changing weekly demo schedu
  assert.deepEqual(data.sushiNight,{enabled:true,weekday:6,startTime:'18:00',endTime:'23:00',demo:true});
  assert.deepEqual(data.regularMenu.sushi,[]);
  for(const p of ['','menu/','obedno-menu/','praznenstva/','galeria/','kontakti/']){
-  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1)/.test(read(p+'index.html')),p+' old public script cache');
+  assert(/site\.js\?v=202610(?:25-sushi-name-v1|27-lunch-alg-v1|28-bg-en-v1)/.test(read(p+'index.html')),p+' old public script cache');
  }
  assert(read('admin/index.html').includes('admin.js?v=20261027-notice-toggle-qr-mark-v2'),'Admin script cache not updated');
 });
@@ -636,4 +636,29 @@ test('Contacts present eight confirmed restaurant amenities without duplicating 
  assert(css.includes('.contact-amenities{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))'));
  assert(css.includes('@media(max-width:760px){.contact-amenities{grid-template-columns:minmax(0,1fr)'));
  for(const unsupported of ['Повивалник','Достъп с инвалидна количка','Домашни любимци'])assert(!html.includes(unsupported));
+});
+
+test('Visitors can switch BG / EN across six routes and translate complete current menus',()=>{
+ const site=read('assets/js/site.js'),i18n=read('assets/js/i18n.js'),css=read('assets/css/i18n.css');
+ assert(site.includes('window.TERASATA_I18N.localizeContent(d)'),'Live and demo menus must localize without altering source');
+ assert(i18n.includes("const STORAGE='terasata_language_v1'"));
+ assert(i18n.includes("location.assign(url.href)"));
+ assert(i18n.includes("data-lang=\"en\""));
+ assert(i18n.includes('lang,translate,localizeContent'));
+ assert(i18n.includes("if(content.regularMenu&&typeof content.regularMenu==='object')"));
+ assert(css.includes('.language-switch button[aria-pressed="true"]'));
+ for(const path of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
+  const html=read(path);
+  assert(html.includes('i18n.js?v=20261028-bg-en-v1'),path+' missing translation script');
+  assert(html.includes('i18n.css?v=20261028-bg-en-v1'),path+' missing language-switch stylesheet');
+  assert(html.indexOf('site-preview.js')<html.indexOf('i18n.js')&&html.indexOf('i18n.js')<html.indexOf('site.js'),path+' needs correct script order');
+  assert(html.includes('site.js?v=20261028-bg-en-v1'),path+' needs fresh frontend script');
+ }
+ const content=read('assets/js/content.js'),m=content.match(/window\.TERASATA_CONTENT\s*=\s*({[\s\S]*});\s*$/);
+ assert(m);
+ const raw=Function('return ('+m[1]+')')();
+ const counts=Object.values(raw.regularMenu).reduce((n,a)=>n+a.length,0);
+ assert(counts===68,'Current menu translation should cover all 68 dishes');
+ assert(i18n.includes('Shopska Salad')&&i18n.includes('Pork Tenderloin with Gravy'));
+ assert(i18n.includes('Free Wi-Fi')&&i18n.includes('High chairs'));
 });

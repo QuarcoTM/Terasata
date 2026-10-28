@@ -16,6 +16,7 @@
   }
   const mediaSrc=src=>{const v=String(src||'');return /^(?:terrace|main-hall|celebration-table|second-floor|bar)\.webp(?:\?.*)?$/i.test(v)?'assets/images/'+v:v;};
   if (!d) return;
+  if(window.TERASATA_I18N)d=window.TERASATA_I18N.localizeContent(d);
   const $ = (s, parent=document) => parent.querySelector(s);
   const esc = (s='') => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const page = document.body.dataset.page || 'home';
@@ -106,7 +107,7 @@
   const dayData = isWeekday ? (d.lunchByDate || {})[selectedKey] : null;
   const hasDishes = !!(dayData && Array.isArray(dayData.groups) && dayData.groups.some(g=>Array.isArray(g.items) && g.items.some(item=>String(item.name||'').trim() && String(item.price||'').trim())));
   const activeLunch = hasDishes && (dayData.published === true || previewSelected);
-  const lunchDateLabel = new Intl.DateTimeFormat('bg-BG',{timeZone:'Europe/Sofia',day:'numeric',month:'long',year:'numeric'}).format(new Date(selectedKey+'T12:00:00Z'));
+  const lunchDateLabel = new Intl.DateTimeFormat(window.TERASATA_I18N?.lang==='en'?'en-GB':'bg-BG',{timeZone:'Europe/Sofia',day:'numeric',month:'long',year:'numeric'}).format(new Date(selectedKey+'T12:00:00Z'));
   // Refresh a public page when the Sofia calendar date has changed during an open session.
   if(!previewSelected){const refreshDate=()=>{if(currentMenuDate().key!==todayKey) location.reload();};document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDate();});window.addEventListener('pageshow',refreshDate);}
 

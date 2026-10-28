@@ -650,10 +650,10 @@ test('Visitors can switch BG / EN across six routes and translate complete curre
  assert(css.includes('.language-menu[hidden]{display:none!important}'));
  for(const path of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(path);
-  assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v1'),path+' missing translation script');
+  assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v2'),path+' missing translation script');
   assert(html.includes('i18n.css?v=20261028-flag-stable-v2'),path+' missing language-switch stylesheet');
   assert(html.indexOf('site-preview.js')<html.indexOf('i18n.js')&&html.indexOf('i18n.js')<html.indexOf('site.js'),path+' needs correct script order');
-  assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v1'),path+' needs fresh frontend script');
+  assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v2'),path+' needs fresh frontend script');
  }
  const content=read('assets/js/content.js'),m=content.match(/window\.TERASATA_CONTENT\s*=\s*({[\s\S]*});\s*$/);
  assert(m);
@@ -740,9 +740,9 @@ test('BG/EN buttons are always visible beside the mobile menu, not hidden inside
  assert(!i18n.includes('function ensureSwitcher()'),'No unreliable DOM injection');
  for(const page of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(page);
-  assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v1'),page+' must force fresh header');
+  assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v2'),page+' must force fresh header');
   assert(html.includes('i18n.css?v=20261028-flag-stable-v2'),page+' must force fresh styles');
-  assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v1'),page+' must force fresh language runtime');
+  assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v2'),page+' must force fresh language runtime');
  }
 });
 
@@ -799,7 +799,7 @@ test('Language UI self-heals outdated cached header variants on all public route
  for(const route of ['index.html','menu/index.html','obedno-menu/index.html','praznenstva/index.html','galeria/index.html','kontakti/index.html']){
   const html=read(route);
   for(const file of ['site.js','i18n.js','i18n.css'])
-   assert(html.includes(file+'?v='+(file==='i18n.css'?'20261028-flag-stable-v2':'20261028-seo-a11y-responsive-v1')),route+' stale '+file);
+   assert(html.includes(file+'?v='+(file==='i18n.css'?'20261028-flag-stable-v2':'20261028-seo-a11y-responsive-v2')),route+' stale '+file);
  }
 });
 
@@ -857,11 +857,11 @@ test('Multilingual SEO routes have independent canonicals and reciprocal hreflan
    assert(html.includes('hreflang="bg" href="'+domain+route+'"'));
    assert(html.includes('hreflang="en" href="'+domain+'en/'+route+'"'));
    assert(html.includes('hreflang="x-default"'));
-   assert(html.includes('href="assets/css/accessibility.css?v=20261028-seo-a11y-responsive-v1"'));
+   assert(html.includes('href="assets/css/accessibility.css?v=20261028-seo-a11y-responsive-v2"'));
    assert(html.includes('<main id="main-content" tabindex="-1">'));
    assert(html.includes('data-static-navigation'),'Crawlable fallback navigation missing');
-   assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v1'));
-   assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v1'));
+   assert(html.includes('site.js?v=20261028-seo-a11y-responsive-v2'));
+   assert(html.includes('i18n.js?v=20261028-seo-a11y-responsive-v2'));
   }
   const enHtml=read(en);
   assert(enHtml.includes('<base href="'+(route?'../../':'../')+'">'));
@@ -901,4 +901,12 @@ test('Responsive original photos and keyboard accessibility work across both lan
  assert(site.includes("menuCategories.addEventListener('keydown'"));
  assert(site.includes("aria-describedby','gallery-lightbox-help'"));
  assert(site.includes('aria-live="polite"'));
+});
+
+test('Measured color-contrast fixes and matching visible logo label stay active',()=>{
+ const site=read('assets/js/site.js'),css=read('assets/css/accessibility.css');
+ assert(css.includes('.site-header .brand-subtitle,.footer-brand .brand-subtitle{color:#60471d!important}'));
+ assert(css.includes('.menu-anchor-nav button[aria-pressed="true"],.gallery-filters .filter-btn[aria-pressed="true"]'));
+ assert(css.includes('.dish-allergens{color:#4c4438!important}'));
+ assert(!site.includes('aria-label="Терасата — начало"'));
 });

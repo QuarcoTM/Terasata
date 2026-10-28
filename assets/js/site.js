@@ -58,7 +58,7 @@
   if (header) header.innerHTML = `
     <div class="header-shell container">
       <div class="brand">
-        <a class="brand-home" href="${en?'en/':'./'}" aria-label="Терасата — начало"><img class="brand-mark" src="assets/images/terasata-mark-original.svg" alt="" aria-hidden="true" width="40" height="47"><span class="brand-wording"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></span></a>
+        <a class="brand-home" href="${en?'en/':'./'}"><img class="brand-mark" src="assets/images/terasata-mark-original.svg" alt="" aria-hidden="true" width="40" height="47"><span class="brand-wording"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></span></a>
         <a class="brand-phone" href="${d.phoneHref}" aria-label="Обади се на ${esc(d.phoneDisplay)}">${phoneIcon()}<span>${esc(d.phoneDisplay)}</span></a>
       </div>
       <nav class="desktop-nav" aria-label="Основна навигация">

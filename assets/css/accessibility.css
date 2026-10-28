@@ -17,3 +17,8 @@
  .language-trigger,.menu-anchor-nav button,.gallery-filters button{forced-color-adjust:auto;border:1px solid ButtonText}
  [aria-pressed="true"]{outline:2px solid Highlight}
 }
+
+/* Measured WCAG contrast fixes: darker brass against light parchment, white on deep gold. */
+.site-header .brand-subtitle,.footer-brand .brand-subtitle{color:#60471d!important}
+.menu-anchor-nav button[aria-pressed="true"],.gallery-filters .filter-btn[aria-pressed="true"]{background:#65481a!important;color:#fff!important;border-color:#65481a!important}
+.dish-allergens{color:#4c4438!important}

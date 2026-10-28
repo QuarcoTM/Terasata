@@ -15,23 +15,29 @@
    }
   }
   const mediaSrc=src=>{const v=String(src||'');return /^(?:terrace|main-hall|celebration-table|second-floor|bar)\.webp(?:\?.*)?$/i.test(v)?'assets/images/'+v:v;};
+  // Thumbnail images reuse resized variants of genuine restaurant photography.
+  const thumbnailSrc=src=>{
+    const original=mediaSrc(src);
+    return /^assets\/images\/(?:terrace|main-hall|celebration-table|second-floor|bar)\.webp$/.test(original)
+      ?original.replace(/\.webp$/,'-480.webp'):original;
+  };
   if (!d) return;
   if(window.TERASATA_I18N)d=window.TERASATA_I18N.localizeContent(d);
   const $ = (s, parent=document) => parent.querySelector(s);
   const esc = (s='') => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const page = document.body.dataset.page || 'home';
+  const en=window.TERASATA_I18N?.lang==='en';
   const nav = [
-    ['home', 'Начало', './'],
-    ['menu', 'Меню', 'menu/'],
-    ['lunch', 'Обедно меню', 'obedno-menu/'],
-    ['events', 'Празненства и събития', 'praznenstva/'],
-    ['gallery', 'Галерия', 'galeria/'],
-    ['contacts', 'Контакти', 'kontakti/']
+    ['home', 'Начало', en?'en/':'./'],
+    ['menu', 'Меню', en?'en/menu/':'menu/'],
+    ['lunch', 'Обедно меню', en?'en/obedno-menu/':'obedno-menu/'],
+    ['events', 'Празненства и събития', en?'en/praznenstva/':'praznenstva/'],
+    ['gallery', 'Галерия', en?'en/galeria/':'galeria/'],
+    ['contacts', 'Контакти', en?'en/kontakti/':'kontakti/']
   ];
 
   // The language selector is always present in the header, including on phones.
   // It must not depend on MutationObserver or opening the mobile navigation.
-  const en=window.TERASATA_I18N?.lang==='en';
   const languageFlag=en?'🇬🇧':'🇧🇬';
   const alternateFlag=en?'🇧🇬':'🇬🇧';
   const alternateCode=en?'bg':'en';
@@ -52,7 +58,7 @@
   if (header) header.innerHTML = `
     <div class="header-shell container">
       <div class="brand">
-        <a class="brand-home" href="./" aria-label="Терасата — начало"><img class="brand-mark" src="assets/images/terasata-mark-original.svg" alt="" aria-hidden="true" width="40" height="47"><span class="brand-wording"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></span></a>
+        <a class="brand-home" href="${en?'en/':'./'}" aria-label="Терасата — начало"><img class="brand-mark" src="assets/images/terasata-mark-original.svg" alt="" aria-hidden="true" width="40" height="47"><span class="brand-wording"><span class="brand-name">Терасата</span><span class="brand-subtitle">РЕСТОРАНТ · КЮСТЕНДИЛ</span></span></a>
         <a class="brand-phone" href="${d.phoneHref}" aria-label="Обади се на ${esc(d.phoneDisplay)}">${phoneIcon()}<span>${esc(d.phoneDisplay)}</span></a>
       </div>
       <nav class="desktop-nav" aria-label="Основна навигация">
@@ -195,6 +201,14 @@
       const btn=ev.target.closest('button[data-cat]');
       if(btn)activateCategory(btn.dataset.cat);
     });
+    menuCategories.addEventListener('keydown',ev=>{
+      if(!['ArrowRight','ArrowLeft','Home','End'].includes(ev.key))return;
+      const buttons=[...menuCategories.querySelectorAll('button[data-cat]')];
+      const here=buttons.indexOf(ev.target.closest('button[data-cat]'));
+      if(here<0||!buttons.length)return;
+      const next=ev.key==='Home'?0:ev.key==='End'?buttons.length-1:(here+(ev.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;
+      ev.preventDefault();buttons[next].focus();activateCategory(buttons[next].dataset.cat);
+    });
   }
 
   const galleryContainer=$('#gallery-grid');
@@ -204,7 +218,7 @@
     const categories=['Всички',...new Set(all.map(img=>img.category).filter(Boolean))];
     const show=(filter='Всички')=>{
       const visible=filter==='Всички'?all:all.filter(v=>v.category===filter);
-      galleryContainer.innerHTML=visible.length?visible.map((g)=>`<button type="button" class="gallery-item" data-src="${esc(mediaSrc(g.src))}" data-alt="${esc(g.alt)}" aria-label="Отвори снимка: ${esc(g.title)}"><img src="${esc(mediaSrc(g.src))}" alt="${esc(g.alt)}" loading="lazy"><span>${esc(g.title)}</span></button>`).join(''):'<p class="empty-state gallery-empty">Няма снимки в тази категория.</p>';
+      galleryContainer.innerHTML=visible.length?visible.map((g)=>`<button type="button" class="gallery-item" data-src="${esc(mediaSrc(g.src))}" data-alt="${esc(g.alt)}" aria-label="Отвори снимка: ${esc(g.title)}"><img src="${esc(thumbnailSrc(g.src))}" alt="${esc(g.alt)}" loading="lazy" decoding="async"><span>${esc(g.title)}</span></button>`).join(''):'<p class="empty-state gallery-empty">Няма снимки в тази категория.</p>';
       if(galleryFilters)[...galleryFilters.querySelectorAll('button')].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===filter)));
     };
     if(galleryFilters){
@@ -220,7 +234,8 @@
     overlay.setAttribute('role','dialog');
     overlay.setAttribute('aria-modal','true');
     overlay.setAttribute('aria-labelledby','gallery-lightbox-title');
-    overlay.innerHTML='<button type="button" class="lightbox-close" aria-label="Затвори снимката">×</button><img alt=""/><p id="gallery-lightbox-title"></p>';
+    overlay.setAttribute('aria-describedby','gallery-lightbox-help');
+    overlay.innerHTML='<button type="button" class="lightbox-close" aria-label="Затвори снимката">×</button><img alt="" decoding="async"/><p id="gallery-lightbox-title" aria-live="polite"></p><p class="visually-hidden" id="gallery-lightbox-help">Използвайте стрелките наляво и надясно, за да разглеждате снимките, и Escape за затваряне.</p>';
     document.body.appendChild(overlay);
     const closeButton=overlay.querySelector('.lightbox-close');
     const photos=()=>[...galleryContainer.querySelectorAll('.gallery-item')];
@@ -262,7 +277,7 @@
   }
 
   const preview=$('#gallery-preview');
-  if(preview){const shots=Array.isArray(d.gallery)?d.gallery:[];preview.innerHTML=shots.slice(0,5).map(g=>`<a href="galeria/" class="preview-photo"><img src="${esc(mediaSrc(g.src))}" alt="${esc(g.alt)}" loading="lazy"></a>`).join('');if(!shots.length){const gallerySection=preview.closest('section');if(gallerySection)gallerySection.hidden=true;}}
+  if(preview){const shots=Array.isArray(d.gallery)?d.gallery:[];preview.innerHTML=shots.slice(0,5).map(g=>`<a href="galeria/" class="preview-photo"><img src="${esc(thumbnailSrc(g.src))}" alt="${esc(g.alt)}" loading="lazy" decoding="async"></a>`).join('');if(!shots.length){const gallerySection=preview.closest('section');if(gallerySection)gallerySection.hidden=true;}}
 
   const news=$('#news-section');
   if(news){
@@ -270,7 +285,7 @@
     const localPreview=window.TERASATA_PREVIEW_ACTIVE===true;
     const valid=(Array.isArray(d.news)?d.news:[]).filter(item=>localPreview||item.published && (!item.startDate||item.startDate<=now) && (!item.endDate||item.endDate>=now));
     if(valid.length){
-      $('#news-grid').innerHTML=valid.slice(0,3).map(item=>`<article class="news-card">${item.image?`<img src="${esc(mediaSrc(item.image))}" alt="" loading="lazy">`:''}<div><p class="eyebrow">${localPreview&&!item.published?'ЧЕРНОВА · ':''}${esc(item.type||'Новина')}</p><h3>${esc(item.title)}</h3><p>${esc(item.text||'')}</p></div></article>`).join('');
+      $('#news-grid').innerHTML=valid.slice(0,3).map(item=>`<article class="news-card">${item.image?`<img src="${esc(thumbnailSrc(item.image))}" alt="" loading="lazy" decoding="async">`:''}<div><p class="eyebrow">${localPreview&&!item.published?'ЧЕРНОВА · ':''}${esc(item.type||'Новина')}</p><h3>${esc(item.title)}</h3><p>${esc(item.text||'')}</p></div></article>`).join('');
       news.hidden=false;
     }
   }

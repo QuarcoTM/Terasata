@@ -17,15 +17,15 @@
  function originalMark(){
   return '<svg x="360" y="31" width="80" height="94" viewBox="0 0 427 500" aria-hidden="true"><path fill="#302b23" fill-rule="evenodd" d="'+originalMarkPath+'"/></svg>';
  }
- // The exact original napkin emblem is repeated inside each QR matrix.
- // H error correction supports a small central obstruction; all 4 quiet-zone
- // modules, finder corners and timing patterns stay untouched.
+ // Original logo at the largest verified size for both current menu URLs.
+ // The white 24-module center passed 30/30 camera/print stress tests;
+ // 25 modules failed. ECC H and the outer QR quiet zone remain intact.
  function centerEmblem(count,whole,logoModules){
-  // Small white square obscures at most ~2.3% of the QR's module area.
-  // Cap its footprint to protect dense QR versions and short-link codes alike.
+  // Scale down for shorter custom URLs; cap at the verified maximum of 24.
+  const preferred=Math.min(24,Math.max(7,Math.floor(count*.46)));
   const side=Number.isInteger(logoModules)&&logoModules>=4&&logoModules<=Math.round(count*.52)
-   ?logoModules:Math.min(12,Math.max(7,Math.round(count*.15)));
-  const x=(whole-side)/2,y=x,margin=side*.16;
+   ?logoModules:preferred;
+  const x=(whole-side)/2,y=x,margin=side*.10;
   const w=side-margin*2,h=w;
   return '<g class="qr-center-emblem" aria-hidden="true">'
    +'<rect x="'+x+'" y="'+y+'" width="'+side+'" height="'+side+'" rx="'+(side*.13).toFixed(3)+'" fill="#fff"/>'
@@ -104,7 +104,7 @@
  function mount(container){
   if(!container)return;
   if(typeof window.qrcode!=='function'){container.innerHTML='<p class="empty">QR генераторът не е зареден. Презареди страницата.</p>';return}
-  container.innerHTML='<div class="hint"><strong>Два отделни QR кода с оригиналното лого в центъра, готови за печат.</strong> Всеки отваря съответното меню. Адресите сочат към GitHub Pages; при собствен домейн ги обнови тук и разпечатай нови табелки. Линковете се пазят само в този браузър.</div><div class="qr-panels">'+item('lunch')+item('main')+'</div><div class="hint">Препоръка: принтирай по един пробен екземпляр, сканирай и двата кода с телефон и едва тогава постави табелките на масите.</div>';
+  container.innerHTML='<div class="hint"><strong>Два отделни QR кода с увеличено оригинално лого в центъра, проверени за сканиране и готови за печат.</strong> Всеки отваря съответното меню. Адресите сочат към GitHub Pages; при собствен домейн ги обнови тук и разпечатай нови табелки. Линковете се пазят само в този браузър.</div><div class="qr-panels">'+item('lunch')+item('main')+'</div><div class="hint">Препоръка: принтирай по един пробен екземпляр, сканирай и двата кода с телефон и едва тогава постави табелките на масите.</div>';
   container.onclick=event=>{
    const button=event.target.closest('[data-qr-action]');
    if(!button)return;

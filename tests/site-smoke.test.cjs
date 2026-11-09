@@ -165,7 +165,7 @@ test('Print-ready QR cards are available with two distinct real codes',()=>{
  const css=read('assets/css/admin.css');
  assert(admin.includes('data-view="qr"'),'QR section missing');
  assert(admin.includes('assets/js/vendor/qrcode-generator.js?v=1'),'Bundled QR generator missing');
- assert(admin.includes('assets/js/qr-cards.js?v=20261109-center-logo-h-v1'),'QR card module missing');
+ assert(admin.includes('assets/js/qr-cards.js?v=20261109-center-logo-max-v2'),'QR card module missing');
  assert(admin.includes('id="qr-print-surface"'),'Print surface missing');
  assert(script.includes('function renderQrCards(el)'),'Admin routing missing');
  for(const text of ['Обедно меню','Основно меню','utm_campaign=lunch','utm_campaign=main-menu','window.print()','savePng(type)','saveSvg(type)','getModuleCount()','isDark(row,col)'])
@@ -602,7 +602,7 @@ test('Both QR plates show the unchanged original vector logo and preserve scanna
  assert(qrSrc.includes("function originalMark()"));
  assert(qrSrc.includes("'<svg x=\"360\" y=\"31\" width=\"80\" height=\"94\""));
  assert(qrSrc.includes('<rect x="103" y="294" width="594" height="594"'),'QR frame must stay put');
- assert(admin.includes('qr-cards.js?v=20261109-center-logo-h-v1'));
+ assert(admin.includes('qr-cards.js?v=20261109-center-logo-max-v2'));
  const ctx={document:{baseURI:'https://quarcotm.github.io/Terasata/'},localStorage:{getItem:()=>null},URL,console};
  ctx.window=ctx;
  vm.createContext(ctx);
@@ -926,13 +926,15 @@ test('Original Terasata emblem appears inside both H-correction QR matrices with
   assert(outer&&center,'Logo must be inside QR SVG for '+type);
   const whole=Number(outer[1]),side=Number(center[3]),pos=Number(center[1]);
   assert(whole>45,'QR with ECC H expected');
-  assert(side/whole<0.17,'Logo must remain compact');
-  assert(pos>whole*.4&&pos+side<whole*.6,'Logo must be centered away from finder patterns');
+  assert.equal(side,24,'Both standard URLs must use the tested maximum logo size');
+  assert(side/whole<0.42,'Logo must remain within tested central footprint');
+  assert(pos>whole*.29&&pos+side<whole*.71,'Logo must stay away from finder patterns');
   assert(code.includes(originalPath),'Original logo SVG path must be used in '+type);
   assert(code.includes('<rect width="'+whole+'" height="'+whole+'" fill="white"/>'),'White quiet zone required');
   assert(code.includes('shape-rendering="crispEdges"'));
   assert(code.includes('fill="#101010"'));
  }
+ assert(source.includes("Math.min(24,Math.max(7,Math.floor(count*.46)))"),'Verified maximum must be the default');
  assert(source.includes("window.qrcode(0,'H')"),'Strong ECC H is mandatory with embedded logo');
  assert(!source.includes("window.qrcode(0,'M')"),'Old ECC M not safe for logo overlay');
 });

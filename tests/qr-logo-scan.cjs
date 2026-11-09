@@ -21,7 +21,7 @@ const puppeteer=require('puppeteer-core');
    for(const type of ['lunch','main']){
     const expected=window.TERASATA_QR_CARDS.defaultUrls[type];
     const svg=window.TERASATA_QR_CARDS.svg(type,expected);
-    const center=svg.match(/class="qr-center-emblem"[^>]*><rect[^>]* width="([\\d.]+)"/);
+    const center=svg.match(/class="qr-center-emblem"[^>]*><rect[^>]* width="([0-9.]+)"/);
     if(!center||Number(center[1])!==24)throw Error('Maximum 24-module logo missing in '+type);
     const dataUrl=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}));
     try{

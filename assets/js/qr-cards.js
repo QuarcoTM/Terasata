@@ -17,13 +17,29 @@
  function originalMark(){
   return '<svg x="360" y="31" width="80" height="94" viewBox="0 0 427 500" aria-hidden="true"><path fill="#302b23" fill-rule="evenodd" d="'+originalMarkPath+'"/></svg>';
  }
+ // The exact original napkin emblem is repeated inside each QR matrix.
+ // H error correction supports a small central obstruction; all 4 quiet-zone
+ // modules, finder corners and timing patterns stay untouched.
+ function centerEmblem(count,whole){
+  // Small white square obscures at most ~2.3% of the QR's module area.
+  // Cap its footprint to protect dense QR versions and short-link codes alike.
+  const side=Math.min(12,Math.max(7,Math.round(count*.15)));
+  const x=(whole-side)/2,y=x,margin=side*.16;
+  const w=side-margin*2,h=w;
+  return '<g class="qr-center-emblem" aria-hidden="true">'
+   +'<rect x="'+x+'" y="'+y+'" width="'+side+'" height="'+side+'" rx="'+(side*.13).toFixed(3)+'" fill="#fff"/>'
+   +'<svg x="'+(x+margin)+'" y="'+(y+margin)+'" width="'+w+'" height="'+h+'" viewBox="0 0 427 500">'
+   +'<path fill="#302b23" fill-rule="evenodd" d="'+originalMarkPath+'"/></svg></g>';
+ }
  function qr(url){
   if(typeof window.qrcode!=='function')throw Error('QR библиотеката не е заредена.');
-  const code=window.qrcode(0,'M');code.addData(url,'Byte');code.make();
+  const code=window.qrcode(0,'H');code.addData(url,'Byte');code.make();
   const count=code.getModuleCount(),whole=count+8;
   let path='';
   for(let row=0;row<count;row++)for(let col=0;col<count;col++)if(code.isDark(row,col))path+='M'+(col+4)+' '+(row+4)+'h1v1h-1z';
-  return '<svg x="112" y="302" width="576" height="576" viewBox="0 0 '+whole+' '+whole+'" shape-rendering="crispEdges"><rect width="'+whole+'" height="'+whole+'" fill="white"/><path fill="#101010" d="'+path+'"/></svg>';
+  return '<svg x="112" y="302" width="576" height="576" viewBox="0 0 '+whole+' '+whole+'" shape-rendering="crispEdges">'
+   +'<rect width="'+whole+'" height="'+whole+'" fill="white"/><path fill="#101010" d="'+path+'"/>'
+   +centerEmblem(count,whole)+'</svg>';
  }
  function decoration(type){
   if(type==='lunch')return '<path d="M0 0H255L0 255zM800 1040v-205L595 1040z" fill="#f2c85c"/>'+dotRing();
@@ -87,7 +103,7 @@
  function mount(container){
   if(!container)return;
   if(typeof window.qrcode!=='function'){container.innerHTML='<p class="empty">QR генераторът не е зареден. Презареди страницата.</p>';return}
-  container.innerHTML='<div class="hint"><strong>Два отделни QR кода, готови за печат.</strong> Всеки отваря съответното меню. Адресите сочат към GitHub Pages; при собствен домейн ги обнови тук и разпечатай нови табелки. Линковете се пазят само в този браузър.</div><div class="qr-panels">'+item('lunch')+item('main')+'</div><div class="hint">Препоръка: принтирай по един пробен екземпляр, сканирай и двата кода с телефон и едва тогава постави табелките на масите.</div>';
+  container.innerHTML='<div class="hint"><strong>Два отделни QR кода с оригиналното лого в центъра, готови за печат.</strong> Всеки отваря съответното меню. Адресите сочат към GitHub Pages; при собствен домейн ги обнови тук и разпечатай нови табелки. Линковете се пазят само в този браузър.</div><div class="qr-panels">'+item('lunch')+item('main')+'</div><div class="hint">Препоръка: принтирай по един пробен екземпляр, сканирай и двата кода с телефон и едва тогава постави табелките на масите.</div>';
   container.onclick=event=>{
    const button=event.target.closest('[data-qr-action]');
    if(!button)return;

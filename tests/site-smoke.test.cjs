@@ -165,7 +165,7 @@ test('Print-ready QR cards are available with two distinct real codes',()=>{
  const css=read('assets/css/admin.css');
  assert(admin.includes('data-view="qr"'),'QR section missing');
  assert(admin.includes('assets/js/vendor/qrcode-generator.js?v=1'),'Bundled QR generator missing');
- assert(admin.includes('assets/js/qr-cards.js?v=20261027-notice-toggle-qr-mark-v2'),'QR card module missing');
+ assert(admin.includes('assets/js/qr-cards.js?v=20261109-center-logo-h-v1'),'QR card module missing');
  assert(admin.includes('id="qr-print-surface"'),'Print surface missing');
  assert(script.includes('function renderQrCards(el)'),'Admin routing missing');
  for(const text of ['Обедно меню','Основно меню','utm_campaign=lunch','utm_campaign=main-menu','window.print()','savePng(type)','saveSvg(type)','getModuleCount()','isDark(row,col)'])
@@ -602,7 +602,7 @@ test('Both QR plates show the unchanged original vector logo and preserve scanna
  assert(qrSrc.includes("function originalMark()"));
  assert(qrSrc.includes("'<svg x=\"360\" y=\"31\" width=\"80\" height=\"94\""));
  assert(qrSrc.includes('<rect x="103" y="294" width="594" height="594"'),'QR frame must stay put');
- assert(admin.includes('qr-cards.js?v=20261027-notice-toggle-qr-mark-v2'));
+ assert(admin.includes('qr-cards.js?v=20261109-center-logo-h-v1'));
  const ctx={document:{baseURI:'https://quarcotm.github.io/Terasata/'},localStorage:{getItem:()=>null},URL,console};
  ctx.window=ctx;
  vm.createContext(ctx);
@@ -909,4 +909,30 @@ test('Measured color-contrast fixes and matching visible logo label stay active'
  assert(css.includes('.menu-anchor-nav button[aria-pressed="true"],.gallery-filters .filter-btn[aria-pressed="true"]'));
  assert(css.includes('.dish-allergens{color:#4c4438!important}'));
  assert(!site.includes('aria-label="Терасата — начало"'));
+});
+
+test('Original Terasata emblem appears inside both H-correction QR matrices without compromising quiet zone',()=>{
+ const vm=require('node:vm'),source=read('assets/js/qr-cards.js');
+ const logo=read('assets/images/terasata-mark-original.svg');
+ const originalPath=logo.match(/<path fill="#302b23" fill-rule="evenodd" d="([^"]+)"/)[1];
+ const ctx={document:{baseURI:'https://quarcotm.github.io/Terasata/'},localStorage:{getItem:()=>null},URL,console};ctx.window=ctx;
+ vm.createContext(ctx);
+ vm.runInContext(read('assets/js/vendor/qrcode-generator.js'),ctx);
+ vm.runInContext(source,ctx);
+ for(const type of ['lunch','main']){
+  const code=ctx.TERASATA_QR_CARDS.svg(type,ctx.TERASATA_QR_CARDS.defaultUrls[type]);
+  const outer=code.match(/<svg x="112" y="302" width="576" height="576" viewBox="0 0 (\d+) (\d+)"/);
+  const center=code.match(/<g class="qr-center-emblem" aria-hidden="true"><rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/);
+  assert(outer&&center,'Logo must be inside QR SVG for '+type);
+  const whole=Number(outer[1]),side=Number(center[3]),pos=Number(center[1]);
+  assert(whole>45,'QR with ECC H expected');
+  assert(side/whole<0.17,'Logo must remain compact');
+  assert(pos>whole*.4&&pos+side<whole*.6,'Logo must be centered away from finder patterns');
+  assert(code.includes(originalPath),'Original logo SVG path must be used in '+type);
+  assert(code.includes('<rect width="'+whole+'" height="'+whole+'" fill="white"/>'),'White quiet zone required');
+  assert(code.includes('shape-rendering="crispEdges"'));
+  assert(code.includes('fill="#101010"'));
+ }
+ assert(source.includes("window.qrcode(0,'H')"),'Strong ECC H is mandatory with embedded logo');
+ assert(!source.includes("window.qrcode(0,'M')"),'Old ECC M not safe for logo overlay');
 });

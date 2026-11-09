@@ -51,5 +51,43 @@ const puppeteer=require('puppeteer-core');
    console.log('MAX_ALL_5 '+type+': '+Math.max(0,...rows.filter(x=>x.scores.length===5&&x.scores.every(Boolean)).map(x=>x.side)));
    console.log('MAX_303 '+type+': '+Math.max(0,...rows.filter(x=>x.scores[2]===1).map(x=>x.side)));
   }
+  const stress=await page.evaluate(async()=>{
+   const results={};
+   for(const type of ['lunch','main']){
+    const url=window.TERASATA_QR_CARDS.defaultUrls[type],list=[];
+    for(const side of [21,22,23,24,25]){
+     const svg=window.TERASATA_QR_CARDS.svg(type,url,side);
+     const object=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}));
+     const checks=[];
+     try{
+      const img=new Image();img.src=object;await img.decode();
+      for(const pixels of [303,240,200]){
+       for(const variant of ['plain','blur04','rotate3','rotateMinus3','lowContrast']){
+        const canvas=document.createElement('canvas');canvas.width=pixels;canvas.height=Math.round(pixels*1.3);
+        const ctx=canvas.getContext('2d',{willReadFrequently:true});
+        ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+        if(variant==='blur04')ctx.filter='blur(0.4px)';
+        if(variant==='lowContrast')ctx.filter='contrast(82%) brightness(105%)';
+        if(variant.startsWith('rotate')){
+         ctx.translate(canvas.width/2,canvas.height/2);
+         ctx.rotate((variant==='rotate3'?3:-3)*Math.PI/180);
+         ctx.drawImage(img,-canvas.width*.91/2,-canvas.height*.91/2,canvas.width*.91,canvas.height*.91);
+        }else ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        const pix=ctx.getImageData(0,0,canvas.width,canvas.height);
+        const result=window.jsQR(pix.data,canvas.width,canvas.height,{inversionAttempts:'dontInvert'});
+        checks.push({pixels,variant,ok:result?.data===url});
+       }
+      }
+     }finally{URL.revokeObjectURL(object);}
+     list.push({side,passes:checks.filter(c=>c.ok).length,total:checks.length,failed:checks.filter(c=>!c.ok).map(c=>c.pixels+'-'+c.variant)});
+    }
+    results[type]=list;
+   }
+   return results;
+  });
+  for(const [type,rows] of Object.entries(stress)){
+   console.log('STRESS '+type.toUpperCase());
+   for(const row of rows)console.log('STRESS_SIDE '+row.side+' PASS '+row.passes+'/'+row.total+' FAILS '+row.failed.join(','));
+  }
  }finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1;});

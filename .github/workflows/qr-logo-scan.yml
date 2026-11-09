@@ -1,0 +1,24 @@
+name: Scan branded QR cards
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/qr-cards.js'
+      - 'assets/js/vendor/qrcode-generator.js'
+      - 'tests/qr-logo-scan.cjs'
+      - '.github/workflows/qr-logo-scan.yml'
+permissions:
+  contents: read
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install temporary decoder and browser driver
+        run: npm install --no-save --no-package-lock puppeteer-core jsqr
+      - name: Decode both logo QR cards at print and screen sizes
+        run: node tests/qr-logo-scan.cjs

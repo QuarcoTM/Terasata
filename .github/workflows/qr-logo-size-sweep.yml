@@ -1,0 +1,23 @@
+name: Sweep centered-logo QR sizes
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/qr-logo-size-sweep.cjs'
+      - '.github/workflows/qr-logo-size-sweep.yml'
+      - 'assets/js/qr-cards.js'
+permissions:
+  contents: read
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install temporary browser and QR decoder
+        run: npm install --no-save --no-package-lock puppeteer-core jsqr
+      - name: Test QR with logo sizes from 8 through 28 modules
+        run: node tests/qr-logo-size-sweep.cjs

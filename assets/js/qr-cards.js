@@ -20,10 +20,11 @@
  // The exact original napkin emblem is repeated inside each QR matrix.
  // H error correction supports a small central obstruction; all 4 quiet-zone
  // modules, finder corners and timing patterns stay untouched.
- function centerEmblem(count,whole){
+ function centerEmblem(count,whole,logoModules){
   // Small white square obscures at most ~2.3% of the QR's module area.
   // Cap its footprint to protect dense QR versions and short-link codes alike.
-  const side=Math.min(12,Math.max(7,Math.round(count*.15)));
+  const side=Number.isInteger(logoModules)&&logoModules>=4&&logoModules<=Math.round(count*.34)
+   ?logoModules:Math.min(12,Math.max(7,Math.round(count*.15)));
   const x=(whole-side)/2,y=x,margin=side*.16;
   const w=side-margin*2,h=w;
   return '<g class="qr-center-emblem" aria-hidden="true">'
@@ -31,7 +32,7 @@
    +'<svg x="'+(x+margin)+'" y="'+(y+margin)+'" width="'+w+'" height="'+h+'" viewBox="0 0 427 500">'
    +'<path fill="#302b23" fill-rule="evenodd" d="'+originalMarkPath+'"/></svg></g>';
  }
- function qr(url){
+ function qr(url,logoModules){
   if(typeof window.qrcode!=='function')throw Error('QR библиотеката не е заредена.');
   const code=window.qrcode(0,'H');code.addData(url,'Byte');code.make();
   const count=code.getModuleCount(),whole=count+8;
@@ -39,7 +40,7 @@
   for(let row=0;row<count;row++)for(let col=0;col<count;col++)if(code.isDark(row,col))path+='M'+(col+4)+' '+(row+4)+'h1v1h-1z';
   return '<svg x="112" y="302" width="576" height="576" viewBox="0 0 '+whole+' '+whole+'" shape-rendering="crispEdges">'
    +'<rect width="'+whole+'" height="'+whole+'" fill="white"/><path fill="#101010" d="'+path+'"/>'
-   +centerEmblem(count,whole)+'</svg>';
+   +centerEmblem(count,whole,logoModules)+'</svg>';
  }
  function decoration(type){
   if(type==='lunch')return '<path d="M0 0H255L0 255zM800 1040v-205L595 1040z" fill="#f2c85c"/>'+dotRing();
@@ -47,7 +48,7 @@
   for(let i=0;i<9;i++){let x=16+i*27,y=1002-i*25;leaves+='<path d="M'+x+' '+y+'q-28 -9 -22 -40q29 3 31 31M'+x+' '+y+'q10 -27 46 -19q-9 34 -37 34" fill="#d8c79c" stroke="#c2ae7f" stroke-width="2" opacity=".5"/>'}
   return '<path d="M0 0H245L0 245z" fill="#efcb78"/>'+leaves+'<path d="M675 1020V868l58 -58 57 58V1020m-109 -97h99m-99 40h99" fill="none" stroke="#c9b99c" stroke-width="3" opacity=".38"/>';
  }
- function svg(type,url){
+ function svg(type,url,logoModules){
   if(!types[type]||!valid(url))throw Error('Необходим е валиден https:// адрес.');
   const lunch=type==='lunch',title=esc(types[type]);
   return '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1040" viewBox="0 0 800 1040" role="img" aria-label="Терасата, QR код за '+title+'">'
@@ -58,7 +59,7 @@
    +'<text x="400" y="248" fill="#2b2927" font-family="Arial,sans-serif" font-size="19" letter-spacing="4" text-anchor="middle">РЕСТОРАНТ · КЮСТЕНДИЛ</text>'
    +'<path d="M290 269h220" fill="none" stroke="#e4b539" stroke-width="5" stroke-linecap="round"/>'
    +'<rect x="103" y="294" width="594" height="594" rx="10" fill="white" stroke="#d7b04b" stroke-width="'+(lunch?8:2)+'"/>'
-   +qr(url)
+   +qr(url,logoModules)
    +'<rect x="161" y="911" width="478" height="86" fill="#f4c957" stroke="#252525" stroke-width="5"/>'
    +'<text x="400" y="970" font-family="Arial,sans-serif" font-size="44" font-weight="800" text-anchor="middle" fill="#222">'+title+'</text></svg>';
  }

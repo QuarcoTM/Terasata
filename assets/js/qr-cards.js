@@ -23,7 +23,7 @@
  function centerEmblem(count,whole,logoModules){
   // Small white square obscures at most ~2.3% of the QR's module area.
   // Cap its footprint to protect dense QR versions and short-link codes alike.
-  const side=Number.isInteger(logoModules)&&logoModules>=4&&logoModules<=Math.round(count*.34)
+  const side=Number.isInteger(logoModules)&&logoModules>=4&&logoModules<=Math.round(count*.52)
    ?logoModules:Math.min(12,Math.max(7,Math.round(count*.15)));
   const x=(whole-side)/2,y=x,margin=side*.16;
   const w=side-margin*2,h=w;
